@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "codex": {
+      "args": [
+        "mcp-server"
+      ],
+      "command": "codex"
+    },
+    "warvis-mcp": {
+      "type": "http",
+      "url": "http://localhost:45112/mcp"
+    }
+  }
+}

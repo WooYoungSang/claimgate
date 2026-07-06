@@ -72,3 +72,47 @@ Thumbs.db
 # Generated archives
 *.tgz
 *.zip
+
+# Track WARVIS project harness installed for ClaimGate; keep runtime state ignored.
+!.agents/
+!.agents/**
+!.codex/
+!.codex/agents/
+!.codex/agents/**
+!.codex/codex-roles/
+!.codex/codex-roles/**
+!.codex/hooks/
+!.codex/hooks/**
+!.codex/config.toml
+!.codex/AGENT_CATALOG.md
+!.codex/MCP_TOOL_CATALOG.md
+!.codex/TOOL_CATALOG.md
+!.codex/TOOL_CAVEATS.md
+!.claude/
+!.claude/agents/
+!.claude/agents/**
+!.claude/codex-roles/
+!.claude/codex-roles/**
+!.claude/hooks/
+!.claude/hooks/**
+!.claude/skills/
+!.claude/skills/**
+!.claude/settings.json
+!.mcp.json
+# Keep local runtime/cache/private state ignored.
+.codex/sessions/
+.codex/logs/
+.claude/sessions/
+.claude/logs/
+.omc/state/
+.omc/backups/
+
+# Track durable ClaimGate roadmap, not .omc runtime/cache.
+!.omc/
+!.omc/plan/
+!.omc/plan/**
+.omc/state/
+.omc/backups/
+# Track ClaimGate harness metadata manifest.
+!.agent/
+!.agent/warvis-claimgate.json

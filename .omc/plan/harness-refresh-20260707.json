@@ -1,0 +1,31 @@
+{
+  "source": "/tmp/warvis_harness_propagate_export.json",
+  "files_in_payload": 200,
+  "written": 200,
+  "backed_up": 0,
+  "backup_root": null,
+  "skipped": [],
+  "sample_written": [
+    ".agents/CHANGELOG.local.md",
+    ".agents/skills/bet-kickoff/SKILL.md",
+    ".agents/skills/build-report/SKILL.md",
+    ".agents/skills/dev-session/SKILL.md",
+    ".agents/skills/forge-lite/SKILL.md",
+    ".agents/skills/forge/SKILL.md",
+    ".agents/skills/init-project/SKILL.md",
+    ".agents/skills/pattern-extract/SKILL.md",
+    ".agents/skills/ratify/SKILL.md",
+    ".agents/skills/session-catchup/SKILL.md",
+    ".agents/skills/ship-or-cut/SKILL.md",
+    ".agents/skills/spec-gap-check/SKILL.md",
+    ".agents/skills/transcript-audit/SKILL.md",
+    ".claude/agents/CHANGELOG.local.md",
+    ".claude/agents/adr-author.md",
+    ".claude/agents/analyst.md",
+    ".claude/agents/api-engineer-write.md",
+    ".claude/agents/api-engineer.md",
+    ".claude/agents/architect.md",
+    ".claude/agents/bet-advancer.md"
+  ],
+  "sample_backed_up": []
+}

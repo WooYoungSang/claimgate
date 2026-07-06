@@ -1,0 +1,168 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "env": {
+    "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet"
+  },
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Edit",
+      "MultiEdit",
+      "Write",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(pytest:*)",
+      "Bash(npm test:*)",
+      "Bash(ruff check:*)",
+      "mcp__warvis-mcp__*",
+      "mcp__obsidian-mcp__*",
+      "Bash(python:*)",
+      "Bash(python3:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(git worktree list:*)",
+      "Bash(omx team status:*)",
+      "Bash(pnpm install:*)",
+      "Bash(pnpm test:*)",
+      "Bash(pnpm build:*)",
+      "Bash(pnpm lint:*)",
+      "Bash(pnpm typecheck:*)",
+      "Bash(pnpm demo:*)",
+      "Bash(pnpm exec:*)",
+      "Bash(git fetch:*)",
+      "Bash(git pull:*)",
+      "Bash(git switch:*)",
+      "Bash(git worktree add:*)",
+      "Bash(git worktree remove:*)"
+    ],
+    "ask": [],
+    "deny": [
+      "Read(**/.npmrc)",
+      "Read(**/.pypirc)",
+      "Read(**/*.pem)",
+      "Read(**/*.key)",
+      "Read(**/id_rsa)",
+      "Read(**/id_ed25519)",
+      "Read(**/id_ecdsa)",
+      "Read(**/.aws/credentials)",
+      "Read(**/.ssh/**)",
+      "Read(**/.gnupg/**)",
+      "Read(./secrets/**)",
+      "Read(**/secrets/**)",
+      "Bash(rm -rf:*)",
+      "Bash(rm -r -f:*)",
+      "Bash(rm -fr:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git clean -fd:*)",
+      "Bash(git clean -xfd:*)",
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(git push --force-with-lease:*)",
+      "Bash(kubectl delete:*)",
+      "Bash(terraform destroy:*)",
+      "Bash(mkfs:*)",
+      "Bash(shred:*)",
+      "Read(**/node_modules/**)",
+      "Read(**/.venv/**)",
+      "Read(**/venv/**)",
+      "Read(**/__pycache__/**)",
+      "Read(**/dist/**)",
+      "Read(**/build/**)",
+      "Read(**/target/**)",
+      "Read(**/out/**)",
+      "Read(**/coverage/**)",
+      "Read(**/logs/**)",
+      "Read(**/.git/**)",
+      "Read(**/*.log)",
+      "Read(**/*.parquet)",
+      "Read(**/*.sqlite)",
+      "Read(**/*.db)",
+      "Read(**/package-lock.json)",
+      "Read(**/yarn.lock)",
+      "Read(**/pnpm-lock.yaml)",
+      "Read(**/poetry.lock)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -z \"${CLAUDE_PROJECT_DIR:-}\" ]; then printf '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"CLAUDE_PROJECT_DIR unset — refusing to run hook from arbitrary cwd\"}}\\n'; exit 0; fi; bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/pretooluse-guard.sh\"",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "mcp__codex__codex",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -z \"${CLAUDE_PROJECT_DIR:-}\" ]; then printf '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"CLAUDE_PROJECT_DIR unset — refusing to run hook from arbitrary cwd\"}}\\n'; exit 0; fi; bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/ctrl-tower-mcp-guard.sh\""
+          }
+        ]
+      },
+      {
+        "matcher": "mcp__codex__codex",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/work-packet-forbidden-guard.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/self-edit-forbidden-guard.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -z \"${CLAUDE_PROJECT_DIR:-}\" ]; then printf '{\"hookSpecificOutput\":{\"hookEventName\":\"Stop\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"CLAUDE_PROJECT_DIR unset — refusing to run stop hook from arbitrary cwd\"}}\\n'; exit 0; fi; bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/stop-lesson.sh\"",
+            "timeout": 30
+          },
+          {
+            "type": "command",
+            "command": "printf '<system-reminder>Vault OS SSOT re-check (session close): confirm every ShapeOps mutation made in this session complies with `99_constitution/vault-os.md` Agent Contract §0.1. Open: obsidian://open?vault=WARVIS&file=99_constitution%%2Fvault-os. Key rules: (1) mandatory read order vault-os \\u2192 ops-control \\u2192 system-home \\u2192 task note; (2) Obsidian is SSOT, repo files are evidence only; (3) canonical identity = type + artifact_type; (4) propose before mutate, no self-approval; (5) every shipped/abandoned Bet produces a Lesson; (6) cite source notes. If any rule was violated, queue a review item before final close.</system-reminder>\\n'; exit 0",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -z \"${CLAUDE_PROJECT_DIR:-}\" ]; then printf '{\"hookSpecificOutput\":{\"hookEventName\":\"PreCompact\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"CLAUDE_PROJECT_DIR unset — refusing to run precompact hook from arbitrary cwd\"}}\\n'; exit 0; fi; bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/precompact-snapshot.sh\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "timeout": 30,
+            "command": "if [ -z \"${CLAUDE_PROJECT_DIR:-}\" ]; then printf '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"CLAUDE_PROJECT_DIR unset — refusing to run post-edit hook from arbitrary cwd\"}}\\n'; exit 0; fi; bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/post-edit-validate.sh\""
+          }
+        ]
+      }
+    ]
+  }
+}
