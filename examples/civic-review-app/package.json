@@ -1,0 +1,33 @@
+{
+  "name": "@claimgate/example-civic-review-app",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Offline ClaimGate scaffold demo app that composes core, UI, and domain packs.",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "build": "vite build",
+    "demo": "tsx src/demo.ts",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@claimgate/core": "workspace:*",
+    "@claimgate/pack-civic-data": "workspace:*",
+    "@claimgate/pack-health-data": "workspace:*",
+    "@claimgate/ui": "workspace:*",
+    "@vitejs/plugin-react": "4.3.4",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "vite": "5.4.11",
+    "zustand": "4.5.5"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.18",
+    "@types/react-dom": "18.3.5",
+    "tsx": "4.19.2",
+    "typescript": "5.7.2",
+    "vitest": "2.1.8"
+  }
+}

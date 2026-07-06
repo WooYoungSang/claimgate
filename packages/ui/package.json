@@ -1,0 +1,39 @@
+{
+  "name": "@claimgate/ui",
+  "version": "0.0.0",
+  "description": "Controlled React UI components for ClaimGate scaffold.",
+  "type": "module",
+  "license": "MIT",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "types": "./src/index.ts",
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --external react --clean",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "peerDependencies": {
+    "react": "^18.3.0"
+  },
+  "dependencies": {
+    "@claimgate/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.18",
+    "tsup": "8.3.5",
+    "typescript": "5.7.2",
+    "vitest": "2.1.8"
+  }
+}

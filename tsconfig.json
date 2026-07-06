@@ -10,7 +10,17 @@
     "sourceMap": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["node", "vitest/globals"],
+    "baseUrl": ".",
+    "paths": {
+      "@claimgate/core": ["packages/core/src/index.ts"],
+      "@claimgate/ui": ["packages/ui/src/index.ts"],
+      "@claimgate/pack-civic-data": ["packs/civic-data/src/index.ts"],
+      "@claimgate/pack-health-data": ["packs/health-data/src/index.ts"]
+    }
   },
-  "include": ["packages", "packs", "examples", "docs"]
+  "include": ["packages", "packs", "examples", "scripts", "docs"]
 }

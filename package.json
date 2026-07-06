@@ -6,13 +6,32 @@
   "type": "module",
   "packageManager": "pnpm@9.0.0",
   "scripts": {
-    "build": "echo 'build: scaffold pending'",
-    "demo": "echo 'demo: scaffold pending'",
-    "lint": "echo 'lint: scaffold pending'",
-    "test": "echo 'test: scaffold pending'",
-    "typecheck": "echo 'typecheck: scaffold pending'"
+    "build": "pnpm -r --sort --if-present build",
+    "demo": "pnpm --filter @claimgate/example-civic-review-app demo",
+    "lint": "node scripts/lint-boundaries.mjs && pnpm -r --sort --if-present lint",
+    "test": "pnpm -r --sort --if-present test",
+    "typecheck": "pnpm -r --sort --if-present typecheck"
   },
+  "keywords": [
+    "claimgate",
+    "source-grounded",
+    "claim-review",
+    "public-data",
+    "evidence-pack"
+  ],
+  "license": "MIT",
   "engines": {
     "node": ">=20"
+  },
+  "devDependencies": {
+    "@types/node": "22.10.2",
+    "@types/react": "18.3.18",
+    "@types/react-dom": "18.3.5",
+    "@vitejs/plugin-react": "4.3.4",
+    "tsup": "8.3.5",
+    "tsx": "4.19.2",
+    "typescript": "5.7.2",
+    "vite": "5.4.11",
+    "vitest": "2.1.8"
   }
 }

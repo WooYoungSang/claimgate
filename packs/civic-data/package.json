@@ -1,0 +1,35 @@
+{
+  "name": "@claimgate/pack-civic-data",
+  "version": "0.0.0",
+  "description": "Civic public-data domain pack scaffold for ClaimGate.",
+  "type": "module",
+  "license": "MIT",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "types": "./src/index.ts",
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@claimgate/core": "workspace:*"
+  },
+  "devDependencies": {
+    "tsup": "8.3.5",
+    "typescript": "5.7.2",
+    "vitest": "2.1.8"
+  }
+}
