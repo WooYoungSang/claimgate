@@ -1,0 +1,74 @@
+# Claude Code / Codex / agent runtime and local orchestration
+.omx/
+.omc/
+.claude/
+.codex/
+.agent/
+.agents/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.local
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# Dependencies
+node_modules/
+.pnpm-store/
+.npm/
+.yarn/
+
+# Build outputs
+dist/
+build/
+out/
+lib/
+coverage/
+.nyc_output/
+.vite/
+.next/
+.nuxt/
+.svelte-kit/
+.turbo/
+.tsbuildinfo
+*.tsbuildinfo
+
+# Test and browser artifacts
+test-results/
+playwright-report/
+blob-report/
+.vitest/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Cache
+tmp/
+temp/
+.cache/
+.eslintcache
+.stylelintcache
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.swp
+*.swo
+
+# Generated archives
+*.tgz
+*.zip
