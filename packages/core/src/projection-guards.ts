@@ -61,6 +61,10 @@ function hasReviewerTerminalAuditEvent(claim: Claim): boolean {
       return false;
     }
 
+    if (event.claimId !== claim.id) {
+      return false;
+    }
+
     if (event.before === null || !terminalAuditPredecessors.has(event.before)) {
       return false;
     }

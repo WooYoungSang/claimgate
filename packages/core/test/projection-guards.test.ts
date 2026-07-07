@@ -198,6 +198,30 @@ describe('projection eligibility guards', () => {
     expect(() => projectClaim(forgedVerified)).toThrow(notProjectableError);
   });
 
+  it('rejects reviewer terminal audits copied from another claim', () => {
+    const sourceClaim = transitionClaim(
+      transitionClaim(claim('source-claim'), {
+        to: 'needs-evidence',
+        actor: { kind: 'system', id: 'risk-fixture' },
+        now
+      }),
+      { to: 'verified', reviewer, now }
+    );
+    const targetClaim = transitionClaim(claim('target-claim'), {
+      to: 'needs-evidence',
+      actor: { kind: 'system', id: 'risk-fixture' },
+      now
+    });
+    const forgedVerified = {
+      ...targetClaim,
+      state: 'verified' as const,
+      audit: Object.freeze([...targetClaim.audit, sourceClaim.audit[sourceClaim.audit.length - 1]!])
+    } satisfies Claim;
+
+    expect(isProjectableClaim(forgedVerified)).toBe(false);
+    expect(() => projectClaim(forgedVerified)).toThrow(notProjectableError);
+  });
+
   it('rejects corrected claims whose correction reviewer differs from the terminal audit reviewer', () => {
     const corrected = transitionClaim(
       transitionClaim(claim('corrected-reviewer-mismatch'), {
