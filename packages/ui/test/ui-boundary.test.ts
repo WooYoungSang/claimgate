@@ -91,6 +91,18 @@ describe('@claimgate/ui controlled component contracts', () => {
     expect(actions).toEqual(['verify:claim-1', 'correct:claim-1', 'reject:claim-1']);
   });
 
+  it('renders aggregate-only claim diffs with a neutral status tone', () => {
+    const diff: ClaimDiffViewModel = {
+      claimId: 'claim-aggregate',
+      claimText: 'The dataset reports a citywide average response time.',
+      aiValueLabel: 'Average response time: 12 minutes',
+      sourceValueLabel: 'Aggregate-only source value',
+      status: 'aggregate-only'
+    };
+
+    expect(serialiseElement(ClaimDiffPanel({ diff }))).toContain('tone=neutral');
+  });
+
   it('renders source, diff, correction, evidence, and fake-work panels without owning projection state', () => {
     const source: SourceAnchorViewModel = {
       id: 'source-1:csv:12:amount',
