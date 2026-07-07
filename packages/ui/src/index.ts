@@ -13,7 +13,7 @@ export function ReviewShell(props: ReviewShellProps): ReactElement {
     'section',
     { 'aria-label': title },
     createElement('h1', null, title),
-    createElement('p', null, 'Controlled ClaimGate scaffold UI. Review authority stays outside the component.'),
+    createElement('p', null, 'Controlled ClaimGate UI. Review authority stays outside the component.'),
     createElement(
       'ul',
       null,
@@ -31,3 +31,12 @@ export function ReviewShell(props: ReviewShellProps): ReactElement {
     )
   );
 }
+
+export * from './contracts.js';
+export * from './RiskQueue.js';
+export * from './DualReviewConsole.js';
+export * from './SourceAnchorViewer.js';
+export * from './ClaimDiffPanel.js';
+export * from './CorrectionSuggestionPanel.js';
+export * from './EvidencePackPreview.js';
+export * from './FakeWorkReductionStats.js';
