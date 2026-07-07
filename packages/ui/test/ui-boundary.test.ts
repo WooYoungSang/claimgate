@@ -106,7 +106,7 @@ describe('@claimgate/ui controlled component contracts', () => {
   it('renders source, diff, correction, evidence, and fake-work panels without owning projection state', () => {
     const source: SourceAnchorViewModel = {
       id: 'source-1:csv:12:amount',
-      kind: 'csv-row',
+      kind: 'dataset-row',
       sourceLabel: 'Budget CSV',
       locationLabel: 'row 12 · amount',
       quote: 'Parks, 4000000',
