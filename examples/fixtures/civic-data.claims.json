@@ -1,0 +1,50 @@
+{
+  "id": "civic-data-fixture",
+  "source": {
+    "id": "civic-budget-2026",
+    "kind": "csv",
+    "title": "Civic budget 2026 fixture",
+    "locator": "fixture://examples/fixtures/civic-data.claims.json",
+    "metadata": {
+      "offline": true,
+      "deterministic": true
+    }
+  },
+  "candidates": [
+    {
+      "id": "claim-population-ok",
+      "text": "City population is 12,345.",
+      "subject": "population",
+      "aiValue": "12,345",
+      "state": "extracted",
+      "proposedAnchor": {
+        "kind": "dataset-row",
+        "sourceId": "civic-budget-2026",
+        "dataset": "civic-budget-2026.csv",
+        "row": 2,
+        "column": "population",
+        "quote": "12345"
+      }
+    },
+    {
+      "id": "claim-budget-wrong",
+      "text": "Parks budget is 9,000,000.",
+      "subject": "parks budget",
+      "aiValue": 9000000,
+      "state": "extracted",
+      "proposedAnchor": {
+        "kind": "dataset-row",
+        "sourceId": "civic-budget-2026",
+        "dataset": "civic-budget-2026.csv",
+        "row": 4,
+        "column": "parks_budget",
+        "quote": "7000000"
+      },
+      "fixtureNotes": ["intentional-error:value-mismatch"]
+    }
+  ],
+  "metadata": {
+    "privacy": "offline-fixture-only",
+    "containsIntentionalError": true
+  }
+}
