@@ -1,5 +1,5 @@
 import { appendAuditEvent, createAuditEvent, type AuditActor, type AuditTrail } from './audit.js';
-import { sourceAnchorId, type SourceAnchor } from './evidence.js';
+import { sourceAnchorId, type SourceAnchor } from './source-anchor.js';
 
 export type ClaimLifecycleState =
   | 'extracted'

@@ -38,6 +38,9 @@ export function listCoreInvariants(): readonly ClaimGateInvariant[] {
 
 export * from './audit.js';
 export * from './claim.js';
+export * from './source-anchor.js';
 export * from './evidence.js';
 export * from './projection-guards.js';
 export * from './verification.js';
+export * from './projectors/graph.js';
+export * from './projectors/report.js';

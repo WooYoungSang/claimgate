@@ -11,8 +11,9 @@ import {
 const reviewer: Reviewer = { id: 'reviewer-1', displayName: 'Civic Reviewer' };
 const fixedNow = () => '2026-07-07T00:00:00.000Z';
 const csvAnchor = {
-  kind: 'csv-row',
+  kind: 'dataset-row',
   sourceId: 'source-csv-1',
+  dataset: 'city-population.csv',
   row: 12,
   column: 'population',
   quote: '12345'
