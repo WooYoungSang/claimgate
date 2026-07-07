@@ -78,11 +78,16 @@ export function createMockTrustAdapter(credentials: readonly MockTrustCredential
         return createSignal(credential.id, 'mock-credential-revoked', [`Mock credential was revoked at ${credential.revokedAt}.`], credential);
       }
 
-      if (credential.expiresAt && Date.parse(credential.expiresAt) <= Date.parse(input.now ?? new Date().toISOString())) {
+      if (credential.expiresAt && input.now && Date.parse(credential.expiresAt) <= Date.parse(input.now)) {
         return createSignal(credential.id, 'mock-credential-expired', [`Mock credential expired at ${credential.expiresAt}.`], credential);
       }
 
-      return createSignal(credential.id, 'mock-credential-valid', [], credential);
+      return createSignal(
+        credential.id,
+        'mock-credential-valid',
+        credential.expiresAt && !input.now ? ['Expiration was not evaluated because no deterministic evaluation time was provided.'] : [],
+        credential
+      );
     },
     listCredentials(): readonly MockTrustCredential[] {
       return frozenCredentials;

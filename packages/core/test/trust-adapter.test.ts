@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { readFileSync } from 'node:fs';
 import { createExtractedClaim, attachAnchor, transitionClaim, VerificationError, type SourceAnchor } from '../src/index.js';
 import {
   createMockTrustAdapter,
@@ -122,13 +121,49 @@ describe('TrustAdapter optional mock boundary', () => {
     });
   });
 
-  it('ships deterministic offline fixture credentials without private data fields', () => {
-    const fixture = JSON.parse(readFileSync(new URL('../../../examples/fixtures/mock-credentials.json', import.meta.url), 'utf8')) as {
-      credentials: MockTrustCredential[];
+  it('accepts deterministic offline fixture-shaped credentials without private data fields', () => {
+    const fixture: { credentials: MockTrustCredential[] } = {
+      credentials: [
+        {
+          id: 'mock-vc:agency:seoul-open-data',
+          issuer: 'did:mock:gov-root',
+          subject: { id: 'did:mock:agency:seoul-open-data', role: 'issuer', name: 'Seoul Open Data Office' },
+          issuedAt: '2026-01-01T00:00:00.000Z',
+          claims: { dataset: 'civic-budget' },
+          proof: { type: 'mock-signature', value: 'mock-proof-seoul-open-data' }
+        },
+        {
+          id: 'mock-vc:verifier:public-review-board',
+          issuer: 'did:mock:gov-root',
+          subject: { id: 'did:mock:verifier:public-review-board', role: 'verifier', name: 'Public Review Board' },
+          issuedAt: '2026-01-01T00:00:00.000Z',
+          claims: { reviewScope: 'public-data-claims' },
+          proof: { type: 'mock-signature', value: 'mock-proof-public-review-board' }
+        }
+      ]
     };
 
     expect(fixture.credentials).toHaveLength(2);
     expect(fixture.credentials.map((item) => item.subject.role).sort()).toEqual(['issuer', 'verifier']);
     expect(JSON.stringify(fixture)).not.toMatch(/privateKey|seed|mnemonic|accessToken|refreshToken/i);
+  });
+
+  it('does not use wall-clock time when no deterministic evaluation time is provided', () => {
+    const adapter = createMockTrustAdapter([
+      {
+        id: 'mock-vc:expires',
+        issuer: 'did:mock:gov-root',
+        subject: { id: 'did:mock:agency:expires', role: 'issuer' },
+        issuedAt: '2026-01-01T00:00:00.000Z',
+        expiresAt: '2026-01-02T00:00:00.000Z',
+        claims: {},
+        proof: { type: 'mock-signature', value: 'mock-proof-expires' }
+      }
+    ]);
+
+    expect(adapter.evaluate({ credentialId: 'mock-vc:expires' })).toMatchObject({
+      level: 'mock-credential-valid',
+      warnings: ['Expiration was not evaluated because no deterministic evaluation time was provided.']
+    });
   });
 });
