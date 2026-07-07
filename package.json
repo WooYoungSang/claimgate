@@ -7,10 +7,11 @@
   "packageManager": "pnpm@9.0.0",
   "scripts": {
     "build": "pnpm -r --sort --if-present build",
-    "demo": "pnpm --filter @claimgate/example-civic-review-app demo",
+    "demo": "node scripts/swap-pack-demo",
     "lint": "node scripts/lint-boundaries.mjs && pnpm -r --sort --if-present lint",
     "test": "pnpm build && pnpm -r --sort --if-present test",
-    "typecheck": "pnpm -r --sort --if-present typecheck"
+    "typecheck": "pnpm -r --sort --if-present typecheck",
+    "test/conformance": "pnpm --filter @claimgate/conformance test && pnpm --filter @claimgate/pack-civic-data test && pnpm --filter @claimgate/pack-health-data test"
   },
   "keywords": [
     "claimgate",

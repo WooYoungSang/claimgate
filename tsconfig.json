@@ -12,15 +12,42 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "types": ["node", "vitest/globals"],
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "types": [
+      "node",
+      "vitest/globals"
+    ],
     "baseUrl": ".",
     "paths": {
-      "@claimgate/core": ["packages/core/src/index.ts"],
-      "@claimgate/ui": ["packages/ui/src/index.ts"],
-      "@claimgate/pack-civic-data": ["packs/civic-data/src/index.ts"],
-      "@claimgate/pack-health-data": ["packs/health-data/src/index.ts"]
+      "@claimgate/core": [
+        "packages/core/src/index.ts"
+      ],
+      "@claimgate/ui": [
+        "packages/ui/src/index.ts"
+      ],
+      "@claimgate/pack-civic-data": [
+        "packs/civic-data/src/index.ts"
+      ],
+      "@claimgate/pack-health-data": [
+        "packs/health-data/src/index.ts"
+      ],
+      "@claimgate/core/domain-pack": [
+        "packages/core/src/domain-pack.ts"
+      ],
+      "@claimgate/conformance": [
+        "packages/conformance/src/index.ts"
+      ]
     }
   },
-  "include": ["packages", "packs", "examples", "scripts", "docs"]
+  "include": [
+    "packages",
+    "packs",
+    "examples",
+    "scripts",
+    "docs"
+  ]
 }
