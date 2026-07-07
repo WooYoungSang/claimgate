@@ -16,6 +16,8 @@ Controlled React primitives for ClaimGate review surfaces.
 - `ClaimDiffPanel` — candidate/source/reviewer value comparison.
 - `CorrectionSuggestionPanel` — reviewer correction proposal actions.
 - `EvidencePackPreview` — verified/corrected-only projection preview.
+- `ImpactGraphView` — read-only graph projection adapter for Evidence Pack graph JSON.
+- `ImpactReport` — read-only Markdown/HTML report handoff preview.
 - `FakeWorkReductionStats` — operational estimate after green sampling cost.
 - `ReviewShell` — minimal invariant shell retained from scaffold.
 

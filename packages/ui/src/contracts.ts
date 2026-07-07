@@ -133,3 +133,44 @@ export function formatClaimValue(value: ClaimValue | undefined): string {
   if (value === null) return 'null';
   return String(value);
 }
+
+export interface ImpactGraphNodeViewModel {
+  readonly id: string;
+  readonly label: 'EvidencePack' | 'Claim' | 'Source' | string;
+  readonly title: string;
+  readonly decision?: 'verified' | 'corrected' | string;
+  readonly metadata?: Readonly<Record<string, string | number | boolean>>;
+}
+
+export interface ImpactGraphEdgeViewModel {
+  readonly id: string;
+  readonly from: string;
+  readonly to: string;
+  readonly type: 'CONTAINS_CLAIM' | 'ANCHORED_TO' | string;
+}
+
+export interface ImpactGraphViewModel {
+  readonly title: string;
+  readonly nodes: readonly ImpactGraphNodeViewModel[];
+  readonly edges: readonly ImpactGraphEdgeViewModel[];
+  readonly excludedCount?: number;
+}
+
+export interface ImpactGraphViewProps {
+  readonly graph: ImpactGraphViewModel;
+  readonly onSelectNode?: (nodeId: string) => void;
+  readonly onSelectEdge?: (edgeId: string) => void;
+}
+
+export interface ImpactReportViewModel {
+  readonly title: string;
+  readonly markdown: string;
+  readonly html?: string;
+  readonly evidenceItemCount: number;
+  readonly excludedCount?: number;
+}
+
+export interface ImpactReportProps {
+  readonly report: ImpactReportViewModel;
+  readonly onCopyMarkdown?: (markdown: string) => void;
+}

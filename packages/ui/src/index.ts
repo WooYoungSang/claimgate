@@ -40,3 +40,5 @@ export * from './ClaimDiffPanel.js';
 export * from './CorrectionSuggestionPanel.js';
 export * from './EvidencePackPreview.js';
 export * from './FakeWorkReductionStats.js';
+export * from './ImpactGraphView.js';
+export * from './ImpactReport.js';
