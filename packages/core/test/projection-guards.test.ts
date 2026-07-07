@@ -7,6 +7,7 @@ import {
   projectClaim,
   ProjectionError,
   transitionClaim,
+  type Claim,
   type Reviewer
 } from '../src/index.js';
 
@@ -19,6 +20,11 @@ const anchor = {
   endOffset: 18,
   quote: 'actual source value'
 } as const;
+
+const notProjectableError = new ProjectionError(
+  'E_NOT_PROJECTABLE',
+  'Only reviewer-audited verified or corrected claims with Source Anchor may be projected.'
+);
 
 function claim(id: string) {
   return attachAnchor(
@@ -72,9 +78,7 @@ describe('projection eligibility guards', () => {
   });
 
   it('throws when a non-verified/corrected state is projected', () => {
-    expect(() => projectClaim(claim('anchored'))).toThrow(
-      new ProjectionError('E_NOT_PROJECTABLE', 'Only verified or corrected claims may be projected.')
-    );
+    expect(() => projectClaim(claim('anchored'))).toThrow(notProjectableError);
   });
 
   it('projects corrected claims with corrected value while retaining audit trace', () => {
@@ -99,5 +103,32 @@ describe('projection eligibility guards', () => {
       sourceAnchor: anchor,
       auditEventCount: corrected.audit.length
     });
+  });
+
+  it('rejects malformed verified claims without a reviewer terminal audit event', () => {
+    const anchored = claim('malformed-verified');
+    const malformedVerified = { ...anchored, state: 'verified' as const } satisfies Claim;
+
+    expect(isProjectableClaim(malformedVerified)).toBe(false);
+    expect(() => projectClaim(malformedVerified)).toThrow(notProjectableError);
+  });
+
+  it('rejects malformed corrected claims without correction records', () => {
+    const conflict = transitionClaim(claim('malformed-corrected'), {
+      to: 'conflict',
+      actor: { kind: 'system', id: 'value-match-rule' },
+      now
+    });
+    const malformedCorrected = {
+      ...transitionClaim(conflict, {
+        to: 'verified',
+        reviewer,
+        now
+      }),
+      state: 'corrected' as const
+    } satisfies Claim;
+
+    expect(isProjectableClaim(malformedCorrected)).toBe(false);
+    expect(() => projectClaim(malformedCorrected)).toThrow(notProjectableError);
   });
 });

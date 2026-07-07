@@ -34,6 +34,18 @@ export interface Claim {
   readonly audit: AuditTrail;
 }
 
+export type ClaimAnchorErrorCode = 'E_INVALID_ANCHOR_ATTACH';
+
+export class ClaimAnchorError extends Error {
+  readonly code: ClaimAnchorErrorCode;
+
+  constructor(code: ClaimAnchorErrorCode, message: string) {
+    super(message);
+    this.name = 'ClaimAnchorError';
+    this.code = code;
+  }
+}
+
 export interface CreateExtractedClaimInput {
   readonly id: ClaimId;
   readonly text: string;
@@ -81,6 +93,13 @@ export function createExtractedClaim(input: CreateExtractedClaimInput): Claim {
 }
 
 export function attachAnchor(claim: Claim, input: AttachAnchorInput): Claim {
+  if (claim.state !== 'extracted') {
+    throw new ClaimAnchorError(
+      'E_INVALID_ANCHOR_ATTACH',
+      `Cannot attach Source Anchor to ${claim.state} claim; only extracted claims may be anchored.`
+    );
+  }
+
   const timestamp = (input.now ?? defaultNow)();
   const anchor = Object.freeze({ ...input.anchor }) as SourceAnchor;
   return Object.freeze({

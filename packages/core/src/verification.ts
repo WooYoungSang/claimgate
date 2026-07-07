@@ -31,7 +31,7 @@ export interface TransitionClaimInput {
 const defaultNow = () => new Date().toISOString();
 
 const allowedTransitions: Readonly<Record<ClaimLifecycleState, readonly ClaimLifecycleState[]>> = Object.freeze({
-  extracted: ['anchored', 'needs-evidence'],
+  extracted: ['anchored'],
   anchored: ['needs-evidence', 'conflict', 'aggregate-only'],
   'needs-evidence': ['verified', 'corrected', 'rejected'],
   conflict: ['verified', 'corrected', 'rejected'],

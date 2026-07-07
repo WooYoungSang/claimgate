@@ -27,7 +27,12 @@ export function isProjectableState(state: ClaimLifecycleState): state is Extract
 }
 
 export function isProjectableClaim(claim: Claim): boolean {
-  return isProjectableState(claim.state) && claim.anchor !== undefined;
+  return (
+    isProjectableState(claim.state) &&
+    claim.anchor !== undefined &&
+    hasReviewerTerminalAuditEvent(claim) &&
+    (claim.state !== 'corrected' || claim.correction !== undefined)
+  );
 }
 
 export function assertProjectableClaim(claim: Claim): asserts claim is Claim & {
@@ -35,8 +40,17 @@ export function assertProjectableClaim(claim: Claim): asserts claim is Claim & {
   readonly anchor: SourceAnchor;
 } {
   if (!isProjectableClaim(claim)) {
-    throw new ProjectionError('E_NOT_PROJECTABLE', 'Only verified or corrected claims may be projected.');
+    throw new ProjectionError(
+      'E_NOT_PROJECTABLE',
+      'Only reviewer-audited verified or corrected claims with Source Anchor may be projected.'
+    );
   }
+}
+
+function hasReviewerTerminalAuditEvent(claim: Claim): boolean {
+  return claim.audit.some(
+    (event) => event.action === 'transition' && event.after === claim.state && event.actor.kind === 'reviewer'
+  );
 }
 
 export function filterProjectableClaims<T extends Claim>(claims: readonly T[]): T[] {

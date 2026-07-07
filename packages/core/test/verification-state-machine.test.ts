@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   attachAnchor,
+  ClaimAnchorError,
   createExtractedClaim,
   transitionClaim,
   VerificationError,
@@ -16,6 +17,13 @@ const csvAnchor = {
   column: 'population',
   quote: '12345'
 } as const;
+
+function invalidAnchorAttachError(state: string) {
+  return new ClaimAnchorError(
+    'E_INVALID_ANCHOR_ATTACH',
+    `Cannot attach Source Anchor to ${state} claim; only extracted claims may be anchored.`
+  );
+}
 
 function anchoredClaim() {
   const extracted = createExtractedClaim({
@@ -50,18 +58,29 @@ describe('ClaimGate verification state machine', () => {
     ).toThrow(new VerificationError('E_INVALID_TRANSITION', 'Cannot transition from extracted to verified.'));
   });
 
-  it('enforces No Anchor, No Claim for verified and corrected terminal states', () => {
+  it('rejects direct extracted to needs-evidence transitions', () => {
     const extracted = createExtractedClaim({
       id: 'claim-1',
       text: 'City population is 12,345.',
       aiValue: '12,000'
     });
 
-    const needsEvidence = transitionClaim(extracted, {
-      to: 'needs-evidence',
-      actor: { kind: 'system', id: 'risk-fixture' },
-      now: fixedNow
+    expect(() =>
+      transitionClaim(extracted, {
+        to: 'needs-evidence',
+        actor: { kind: 'system', id: 'risk-fixture' },
+        now: fixedNow
+      })
+    ).toThrow(new VerificationError('E_INVALID_TRANSITION', 'Cannot transition from extracted to needs-evidence.'));
+  });
+
+  it('enforces No Anchor, No Claim for malformed verified and corrected terminal transitions', () => {
+    const extracted = createExtractedClaim({
+      id: 'claim-1',
+      text: 'City population is 12,345.',
+      aiValue: '12,000'
     });
+    const needsEvidence = { ...extracted, state: 'needs-evidence' as const };
 
     expect(() =>
       transitionClaim(needsEvidence, {
@@ -94,6 +113,50 @@ describe('ClaimGate verification state machine', () => {
         now: fixedNow
       })
     ).toThrow(new VerificationError('E_NO_REVIEWER', 'Terminal verification decisions require a reviewer.'));
+  });
+
+  it('only attaches a Source Anchor to extracted claims', () => {
+    const anchored = anchoredClaim();
+    const needsEvidence = transitionClaim(anchored, {
+      to: 'needs-evidence',
+      actor: { kind: 'system', id: 'risk-fixture' },
+      now: fixedNow
+    });
+
+    expect(() =>
+      attachAnchor(anchored, {
+        anchor: csvAnchor,
+        actor: { kind: 'system', id: 'anchor-fixture' },
+        now: fixedNow
+      })
+    ).toThrow(invalidAnchorAttachError('anchored'));
+
+    expect(() =>
+      attachAnchor(needsEvidence, {
+        anchor: csvAnchor,
+        actor: { kind: 'system', id: 'anchor-fixture' },
+        now: fixedNow
+      })
+    ).toThrow(invalidAnchorAttachError('needs-evidence'));
+  });
+
+  it('does not reopen terminal claims by attaching a Source Anchor', () => {
+    const verified = transitionClaim(
+      transitionClaim(anchoredClaim(), {
+        to: 'needs-evidence',
+        actor: { kind: 'system', id: 'risk-fixture' },
+        now: fixedNow
+      }),
+      { to: 'verified', reviewer, now: fixedNow }
+    );
+
+    expect(() =>
+      attachAnchor(verified, {
+        anchor: csvAnchor,
+        actor: { kind: 'system', id: 'anchor-fixture' },
+        now: fixedNow
+      })
+    ).toThrow(invalidAnchorAttachError('verified'));
   });
 
   it('records append-only audit events without mutating prior claim snapshots', () => {
