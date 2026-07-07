@@ -46,3 +46,5 @@ export * from './projectors/graph.js';
 export * from './projectors/report.js';
 export * from './extraction.js';
 export * from './fixture-loader.js';
+
+export * from './risk/index.js';
