@@ -6,8 +6,10 @@ import {
   isProjectableClaim,
   projectClaim,
   ProjectionError,
+  sourceAnchorId,
   transitionClaim,
   type Claim,
+  type ClaimLifecycleState,
   type Reviewer
 } from '../src/index.js';
 
@@ -31,6 +33,28 @@ function claim(id: string) {
     createExtractedClaim({ id, text: `Claim ${id}`, aiValue: 'wrong' }),
     { anchor, sourceValue: 'actual source value', actor: { kind: 'system', id: 'fixture' }, now }
   );
+}
+
+function forgedReviewerTransition(
+  claimToForge: Claim,
+  input: {
+    readonly before: ClaimLifecycleState | null;
+    readonly after: ClaimLifecycleState;
+    readonly anchorId?: string;
+    readonly reviewerId?: string;
+  }
+): Claim['audit'][number] {
+  return {
+    id: `${claimToForge.id}:forged:${input.before ?? 'none'}:${input.after}`,
+    claimId: claimToForge.id,
+    action: 'transition',
+    before: input.before,
+    after: input.after,
+    actor: { kind: 'reviewer', id: input.reviewerId ?? reviewer.id },
+    timestamp: now(),
+    reason: 'Forged terminal audit edge.',
+    ...(input.anchorId ? { anchorId: input.anchorId } : {})
+  };
 }
 
 describe('projection eligibility guards', () => {
@@ -130,5 +154,70 @@ describe('projection eligibility guards', () => {
 
     expect(isProjectableClaim(malformedCorrected)).toBe(false);
     expect(() => projectClaim(malformedCorrected)).toThrow(notProjectableError);
+  });
+
+  it('rejects forged reviewer terminal audits whose predecessor is not reviewable', () => {
+    const anchored = claim('forged-before-extracted');
+    const forgedVerified = {
+      ...anchored,
+      state: 'verified' as const,
+      audit: Object.freeze([
+        ...anchored.audit,
+        forgedReviewerTransition(anchored, {
+          before: 'extracted',
+          after: 'verified',
+          anchorId: sourceAnchorId(anchor)
+        })
+      ])
+    } satisfies Claim;
+
+    expect(isProjectableClaim(forgedVerified)).toBe(false);
+    expect(() => projectClaim(forgedVerified)).toThrow(notProjectableError);
+  });
+
+  it('rejects reviewer terminal audits whose anchor does not match the current Source Anchor', () => {
+    const needsEvidence = transitionClaim(claim('forged-anchor-mismatch'), {
+      to: 'needs-evidence',
+      actor: { kind: 'system', id: 'risk-fixture' },
+      now
+    });
+    const forgedVerified = {
+      ...needsEvidence,
+      state: 'verified' as const,
+      audit: Object.freeze([
+        ...needsEvidence.audit,
+        forgedReviewerTransition(needsEvidence, {
+          before: 'needs-evidence',
+          after: 'verified',
+          anchorId: 'source-text-1:text:0-3'
+        })
+      ])
+    } satisfies Claim;
+
+    expect(isProjectableClaim(forgedVerified)).toBe(false);
+    expect(() => projectClaim(forgedVerified)).toThrow(notProjectableError);
+  });
+
+  it('rejects corrected claims whose correction reviewer differs from the terminal audit reviewer', () => {
+    const corrected = transitionClaim(
+      transitionClaim(claim('corrected-reviewer-mismatch'), {
+        to: 'conflict',
+        actor: { kind: 'system', id: 'value-match-rule' },
+        now
+      }),
+      {
+        to: 'corrected',
+        reviewer,
+        correction: { correctedValue: 'actual source value', reason: 'Source wins.' },
+        now
+      }
+    );
+    const forgedCorrected = {
+      ...corrected,
+      correction: { ...corrected.correction!, reviewerId: 'reviewer-2' }
+    } satisfies Claim;
+
+    expect(isProjectableClaim(forgedCorrected)).toBe(false);
+    expect(() => projectClaim(forgedCorrected)).toThrow(notProjectableError);
   });
 });

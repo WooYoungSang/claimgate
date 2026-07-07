@@ -1,5 +1,5 @@
 import type { Claim, ClaimLifecycleState, ClaimValue } from './claim.js';
-import type { SourceAnchor } from './evidence.js';
+import { sourceAnchorId, type SourceAnchor } from './evidence.js';
 
 export type ProjectionErrorCode = 'E_NOT_PROJECTABLE';
 
@@ -47,10 +47,30 @@ export function assertProjectableClaim(claim: Claim): asserts claim is Claim & {
   }
 }
 
+const terminalAuditPredecessors = new Set<ClaimLifecycleState>(['needs-evidence', 'conflict', 'aggregate-only']);
+
 function hasReviewerTerminalAuditEvent(claim: Claim): boolean {
-  return claim.audit.some(
-    (event) => event.action === 'transition' && event.after === claim.state && event.actor.kind === 'reviewer'
-  );
+  if (claim.anchor === undefined) {
+    return false;
+  }
+
+  const currentAnchorId = sourceAnchorId(claim.anchor);
+
+  return claim.audit.some((event) => {
+    if (event.action !== 'transition' || event.after !== claim.state || event.actor.kind !== 'reviewer') {
+      return false;
+    }
+
+    if (event.before === null || !terminalAuditPredecessors.has(event.before)) {
+      return false;
+    }
+
+    if (event.anchorId !== currentAnchorId) {
+      return false;
+    }
+
+    return claim.state !== 'corrected' || claim.correction?.reviewerId === event.actor.id;
+  });
 }
 
 export function filterProjectableClaims<T extends Claim>(claims: readonly T[]): T[] {
