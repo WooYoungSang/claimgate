@@ -1,4 +1,4 @@
-import type { DomainPack, DomainPackFixture, DomainRiskDecision } from '@claimgate/core/domain-pack';
+import type { DomainPack, DomainPackFixture, DomainRecommendedState, DomainRiskDecision } from '@claimgate/core/domain-pack';
 
 export interface DomainPackFixtureResult {
   readonly fixtureId: string;
@@ -70,6 +70,9 @@ export function runDomainPackConformance(pack: DomainPack): DomainPackConformanc
     if (first.level !== fixture.expected.level) {
       failures.push(`fixture ${fixture.id} expected level ${fixture.expected.level}, got ${first.level}`);
     }
+    if (!isAllowedRecommendedState(first.recommendedState)) {
+      failures.push(`fixture ${fixture.id} produced invalid recommendedState ${String(first.recommendedState)}`);
+    }
     if (first.recommendedState !== fixture.expected.recommendedState) {
       failures.push(`fixture ${fixture.id} expected state ${fixture.expected.recommendedState}, got ${first.recommendedState}`);
     }
@@ -108,7 +111,17 @@ function validateFixtureShape(
   requireNonEmpty(fixture.claim.id, `fixture ${fixture.id}.claim.id`, failures);
   requireNonEmpty(fixture.claim.text, `fixture ${fixture.id}.claim.text`, failures);
   if (!anchorKinds.has(fixture.claim.anchor.kind)) failures.push(`fixture ${fixture.id} anchor kind ${fixture.claim.anchor.kind} is not declared`);
+  if (fixture.claim.anchor.sourceId !== fixture.source.id) {
+    failures.push(`fixture ${fixture.id} anchor sourceId ${fixture.claim.anchor.sourceId} does not match source id ${fixture.source.id}`);
+  }
+  if (!isAllowedRecommendedState(fixture.expected.recommendedState)) {
+    failures.push(`fixture ${fixture.id} expected invalid recommendedState ${String(fixture.expected.recommendedState)}`);
+  }
   if (fixture.claim.entityType && !entityIds.has(fixture.claim.entityType)) failures.push(`fixture ${fixture.id} entityType ${fixture.claim.entityType} is not declared`);
+}
+
+function isAllowedRecommendedState(value: unknown): value is DomainRecommendedState {
+  return value === 'needs-evidence' || value === 'conflict' || value === 'aggregate-only';
 }
 
 function requireNonEmpty(value: string, label: string, failures: string[]): void {

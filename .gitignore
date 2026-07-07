@@ -109,6 +109,7 @@ Thumbs.db
 
 # Track durable ClaimGate roadmap, not .omc runtime/cache.
 !.omc/
+.omc/plans/
 !.omc/plan/
 !.omc/plan/**
 .omc/state/

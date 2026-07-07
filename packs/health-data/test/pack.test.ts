@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { assertDomainPackConformance, runDomainPackConformance } from '../../../packages/conformance/src/index.js';
+import { assertDomainPackConformance, runDomainPackConformance } from '@claimgate/conformance';
 import { healthDataPack } from '../src/index.js';
 
 describe('@claimgate/pack-health-data', () => {

@@ -60,4 +60,55 @@ describe('@claimgate/conformance', () => {
     expect(report.passed).toBe(false);
     expect(report.failures).toContain('fixtures must not be empty');
   });
+
+
+  it('reports fixtures whose anchor sourceId does not match the fixture source id', () => {
+    const report = runDomainPackConformance({
+      ...inlinePack,
+      fixtures: [
+        {
+          ...inlinePack.fixtures[0]!,
+          claim: {
+            ...inlinePack.fixtures[0]!.claim,
+            anchor: { ...inlinePack.fixtures[0]!.claim.anchor, sourceId: 'different-source' }
+          }
+        }
+      ]
+    });
+
+    expect(report.passed).toBe(false);
+    expect(report.failures).toContain(
+      'fixture inline-green anchor sourceId different-source does not match source id inline-source'
+    );
+  });
+
+  it('reports runtime recommendedState values outside the domain review states', () => {
+    const invalidStatePack = {
+      ...inlinePack,
+      riskRules: [
+        {
+          ...inlinePack.riskRules[0]!,
+          evaluate() {
+            return {
+              level: 'green',
+              recommendedState: 'verified',
+              trace: [{ ruleId: 'inline.match', level: 'green', message: 'terminal states are invalid here' }]
+            };
+          }
+        }
+      ],
+      fixtures: [
+        {
+          ...inlinePack.fixtures[0]!,
+          expected: { ...inlinePack.fixtures[0]!.expected, recommendedState: 'verified' }
+        }
+      ]
+    } as unknown as DomainPack;
+
+    const report = runDomainPackConformance(invalidStatePack);
+
+    expect(report.passed).toBe(false);
+    expect(report.failures).toContain('fixture inline-green expected invalid recommendedState verified');
+    expect(report.failures).toContain('fixture inline-green produced invalid recommendedState verified');
+  });
 });
