@@ -44,3 +44,5 @@ export * from './projection-guards.js';
 export * from './verification.js';
 export * from './projectors/graph.js';
 export * from './projectors/report.js';
+export * from './extraction.js';
+export * from './fixture-loader.js';
