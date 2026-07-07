@@ -7,16 +7,6 @@ export type ClaimGateInvariant =
   | 'evidence-pack-first'
   | 'verified-corrected-only-projection';
 
-export type ClaimLifecycleState =
-  | 'extracted'
-  | 'anchored'
-  | 'needs-evidence'
-  | 'conflict'
-  | 'aggregate-only'
-  | 'verified'
-  | 'corrected'
-  | 'rejected';
-
 export interface ClaimGatePackageInfo {
   readonly packageName: string;
   readonly boundary: string;
@@ -46,6 +36,8 @@ export function listCoreInvariants(): readonly ClaimGateInvariant[] {
   return claimGateCoreInfo.invariants;
 }
 
-export function isProjectableState(state: ClaimLifecycleState): boolean {
-  return state === 'verified' || state === 'corrected';
-}
+export * from './audit.js';
+export * from './claim.js';
+export * from './evidence.js';
+export * from './projection-guards.js';
+export * from './verification.js';
