@@ -30,7 +30,7 @@ const inlinePack: DomainPack = {
     {
       id: 'inline-green',
       title: 'Inline green fixture',
-      source: { id: 'inline-source', title: 'Inline source' },
+      source: { id: 'inline-source', kind: 'text', title: 'Inline source', locator: 'fixture://inline/source.txt' },
       claim: {
         id: 'inline-claim',
         text: 'The inline value is 4.',

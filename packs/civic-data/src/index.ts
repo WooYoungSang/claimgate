@@ -36,7 +36,7 @@ export const civicDataPack: DomainPack = {
     { id: 'municipality', label: 'Municipality' },
     { id: 'budget-line', label: 'Budget line' }
   ],
-  anchorKinds: ['csv-row', 'web-link'],
+  anchorKinds: ['dataset-row', 'web-link'],
   riskRules: [budgetVarianceRule],
   reportTemplates: [
     { id: 'civic-review-summary', title: 'Civic Budget Review Summary', sections: ['Budget claim', 'Source row', 'Reviewer action'] }
@@ -45,7 +45,7 @@ export const civicDataPack: DomainPack = {
     {
       id: 'civic-budget-mismatch',
       title: 'Budget amount mismatch',
-      source: { id: 'civic-budget-fy2026', title: 'FY2026 city budget CSV', uri: 'fixture://civic/budget.csv' },
+      source: { id: 'civic-budget-fy2026', kind: 'csv', title: 'FY2026 city budget CSV', locator: 'fixture://civic/budget.csv' },
       claim: {
         id: 'civic-claim-001',
         text: 'The parks budget is 12 million USD.',
@@ -55,7 +55,7 @@ export const civicDataPack: DomainPack = {
         sourceValue: 10,
         unit: 'USD millions',
         period: 'FY2026',
-        anchor: { kind: 'csv-row', sourceId: 'civic-budget-fy2026', row: 4, column: 'amount_usd_m' }
+        anchor: { kind: 'dataset-row', sourceId: 'civic-budget-fy2026', dataset: 'civic-budget-fy2026', row: 4, column: 'amount_usd_m' }
       },
       expected: { ruleId: 'civic.budget-variance', level: 'red', recommendedState: 'conflict' }
     }

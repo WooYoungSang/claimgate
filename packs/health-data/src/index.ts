@@ -45,7 +45,7 @@ export const healthDataPack: DomainPack = {
     {
       id: 'health-rate-stale-period',
       title: 'Stale rate period',
-      source: { id: 'health-bulletin-2025', title: 'Public health bulletin PDF', uri: 'fixture://health/bulletin.pdf' },
+      source: { id: 'health-bulletin-2025', kind: 'pdf', title: 'Public health bulletin PDF', locator: 'fixture://health/bulletin.pdf' },
       claim: {
         id: 'health-claim-001',
         text: 'The vaccination rate is 94 percent in 2026.',

@@ -21,21 +21,21 @@ const pack: DomainPack = {
   description: 'test pack',
   labels: { claimSingular: 'finding', claimPlural: 'findings', reviewerNoun: 'reviewer' },
   entityTypes: [{ id: 'agency', label: 'Agency' }],
-  anchorKinds: ['csv-row'],
+  anchorKinds: ['dataset-row'],
   riskRules: [mismatchRule],
   reportTemplates: [{ id: 'summary', title: 'Summary', sections: ['review'] }],
   fixtures: [
     {
       id: 'demo-fixture',
       title: 'Demo fixture',
-      source: { id: 'demo-source', title: 'Demo CSV' },
+      source: { id: 'demo-source', kind: 'csv', title: 'Demo CSV', locator: 'fixture://demo/source.csv' },
       claim: {
         id: 'demo-claim',
         text: 'The agency budget is 10.',
         subject: 'agency',
         aiValue: 11,
         sourceValue: 10,
-        anchor: { kind: 'csv-row', sourceId: 'demo-source', row: 2, column: 'budget' }
+        anchor: { kind: 'dataset-row', sourceId: 'demo-source', dataset: 'demo-source', row: 2, column: 'budget' }
       },
       expected: { ruleId: 'demo.value-mismatch', level: 'red', recommendedState: 'conflict' }
     }
@@ -52,7 +52,7 @@ describe('DomainPack contract', () => {
 
   it('requires a reusable pack shape: metadata, anchors, entities, rules, templates, fixtures', () => {
     expect(pack.packageName).toBe('@claimgate/pack-demo-domain');
-    expect(pack.anchorKinds).toEqual(['csv-row']);
+    expect(pack.anchorKinds).toEqual(['dataset-row']);
     expect(pack.entityTypes.map((entity) => entity.id)).toEqual(['agency']);
     expect(pack.reportTemplates.map((template) => template.id)).toEqual(['summary']);
     expect(pack.fixtures).toHaveLength(1);

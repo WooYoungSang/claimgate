@@ -1,5 +1,5 @@
 import type { ClaimLifecycleState, ClaimValue } from './claim.js';
-import type { SourceAnchor, SourceAnchorKind, SourceReference } from './evidence.js';
+import type { Source, SourceAnchor, SourceAnchorKind } from './evidence.js';
 
 export type DomainPackId = string;
 export type DomainRiskLevel = 'red' | 'yellow' | 'green';
@@ -64,7 +64,7 @@ export interface DomainFixtureClaim {
 export interface DomainPackFixture {
   readonly id: string;
   readonly title: string;
-  readonly source: SourceReference;
+  readonly source: Source;
   readonly claim: DomainFixtureClaim;
   readonly expected: {
     readonly ruleId: string;
