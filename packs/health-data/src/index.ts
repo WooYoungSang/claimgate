@@ -7,7 +7,7 @@ const staleRateRule: DomainRiskRule = {
     const isStale = input.claim.period !== '2026';
     return {
       level: isStale ? 'yellow' : 'green',
-      recommendedState: isStale ? 'needs-evidence' : 'needs-evidence',
+      recommendedState: 'needs-evidence',
       trace: [
         {
           ruleId: 'health.stale-rate-period',
