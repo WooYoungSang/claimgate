@@ -90,3 +90,14 @@ Executed from `main` on Node `v22.22.1`, pnpm `9.0.0`:
 - No `smoke` npm script exists; `pnpm demo` is the current offline smoke surface.
 - `devos_get_bet_progress` reports phase from derived Neo4j read-model; authoritative vault-frontmatter read/ratify records should remain the lifecycle source for audits.
 - Remote push was not performed in this Wave4 verification pass.
+
+## Remote publish evidence
+
+- `git push origin main` completed: `07999f1..0c1171f main -> main`.
+- Post-push `git status -sb`: `## main...origin/main`.
+- Post-push `HEAD` and `origin/main`: both `0c1171f` at the time of publish.
+- Fresh clone validation from `https://github.com/WooYoungSang/warvis-claimgate.git` passed at cloned HEAD `0c1171f`:
+  - `pnpm install` PASS
+  - `pnpm test` PASS
+  - `pnpm demo` PASS
+- This section is report-only evidence added after the fresh-clone validation; it does not change runtime code.
