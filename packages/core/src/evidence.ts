@@ -1,61 +1,106 @@
-export type SourceAnchorKind = 'excel-cell' | 'pdf-page' | 'csv-row' | 'text-span' | 'web-link';
+import type { Claim, ClaimValue, CorrectionRecord } from './claim.js';
+import { assertProjectableClaim, isProjectableClaim } from './projection-guards.js';
+import { freezeSourceAnchor, sourceAnchorId, type Source, type SourceAnchor } from './source-anchor.js';
 
-interface SourceAnchorBase {
-  readonly kind: SourceAnchorKind;
-  readonly sourceId: string;
-  readonly quote?: string;
+export { SOURCE_ANCHOR_KINDS, sourceAnchorExcerpt, sourceAnchorId, type Source, type SourceAnchor, type SourceAnchorKind, type SourceKind } from './source-anchor.js';
+export type { DatasetRowAnchor, ExcelCellAnchor, PdfPageAnchor, TextSpanAnchor, WebLinkAnchor } from './source-anchor.js';
+
+export type EvidenceDecision = 'verified' | 'corrected';
+export type EvidenceMetadata = Readonly<Record<string, string | number | boolean>>;
+
+export interface EvidenceItem {
+  readonly claimId: string;
+  readonly claimText: string;
+  readonly reviewerDecision: EvidenceDecision;
+  readonly normalizedValue: ClaimValue | undefined;
+  readonly sourceAnchorId: string;
+  readonly sourceAnchor: SourceAnchor;
+  readonly reviewerId: string;
+  readonly correctionHistory: readonly CorrectionRecord[];
+  readonly auditEventCount: number;
 }
 
-export interface ExcelCellAnchor extends SourceAnchorBase {
-  readonly kind: 'excel-cell';
-  readonly sheet: string;
-  readonly cell: string;
-}
-
-export interface PdfPageAnchor extends SourceAnchorBase {
-  readonly kind: 'pdf-page';
-  readonly page: number;
-  readonly boundingBox?: readonly [number, number, number, number];
-}
-
-export interface CsvRowAnchor extends SourceAnchorBase {
-  readonly kind: 'csv-row';
-  readonly row: number;
-  readonly column?: string;
-}
-
-export interface TextSpanAnchor extends SourceAnchorBase {
-  readonly kind: 'text-span';
-  readonly startOffset: number;
-  readonly endOffset: number;
-}
-
-export interface WebLinkAnchor extends SourceAnchorBase {
-  readonly kind: 'web-link';
-  readonly url: string;
-  readonly retrievedAt?: string;
-}
-
-export type SourceAnchor = ExcelCellAnchor | PdfPageAnchor | CsvRowAnchor | TextSpanAnchor | WebLinkAnchor;
-
-export interface SourceReference {
+export interface EvidencePack {
   readonly id: string;
   readonly title: string;
-  readonly uri?: string;
-  readonly retrievedAt?: string;
+  readonly generatedAt: string;
+  readonly sources: readonly Source[];
+  readonly items: readonly EvidenceItem[];
+  readonly metadata: EvidenceMetadata;
 }
 
-export function sourceAnchorId(anchor: SourceAnchor): string {
-  switch (anchor.kind) {
-    case 'excel-cell':
-      return `${anchor.sourceId}:excel:${anchor.sheet}!${anchor.cell}`;
-    case 'pdf-page':
-      return `${anchor.sourceId}:pdf:${anchor.page}`;
-    case 'csv-row':
-      return `${anchor.sourceId}:csv:${anchor.row}${anchor.column ? `:${anchor.column}` : ''}`;
-    case 'text-span':
-      return `${anchor.sourceId}:text:${anchor.startOffset}-${anchor.endOffset}`;
-    case 'web-link':
-      return `${anchor.sourceId}:web:${anchor.url}`;
+export interface CreateEvidencePackInput {
+  readonly id: string;
+  readonly title: string;
+  readonly claims: readonly Claim[];
+  readonly sources?: readonly Source[];
+  readonly generatedAt?: string;
+  readonly metadata?: EvidenceMetadata;
+}
+
+const defaultNow = () => new Date().toISOString();
+
+export function createEvidencePack(input: CreateEvidencePackInput): EvidencePack {
+  const items = input.claims.filter(isProjectableClaim).map(evidenceItemFromClaim).sort(compareByClaimId);
+  const referencedSourceIds = new Set(items.map((item) => item.sourceAnchor.sourceId));
+  const inputSources = input.sources ?? [];
+  const inputSourceIds = new Set(inputSources.map((source) => source.id));
+  const missingSourceIds = [...referencedSourceIds].filter((sourceId) => !inputSourceIds.has(sourceId)).sort();
+
+  if (missingSourceIds.length > 0) {
+    throw new Error(`Evidence Pack is missing sources referenced by projectable claims: ${missingSourceIds.join(', ')}`);
   }
+
+  const sources = inputSources
+    .filter((source) => referencedSourceIds.has(source.id))
+    .map((source) => freezeSource(source))
+    .sort((left, right) => left.id.localeCompare(right.id));
+
+  return deepFreezeEvidencePack({
+    id: input.id,
+    title: input.title,
+    generatedAt: input.generatedAt ?? defaultNow(),
+    sources,
+    items,
+    metadata: Object.freeze({ ...(input.metadata ?? {}) })
+  });
+}
+
+export function evidenceItemFromClaim(claim: Claim): EvidenceItem {
+  assertProjectableClaim(claim);
+  const terminalAudit = [...claim.audit].reverse().find((event) => event.action === 'transition' && event.after === claim.state && event.actor.kind === 'reviewer');
+  const correctionHistory = claim.state === 'corrected' && claim.correction ? [claim.correction] : [];
+
+  return Object.freeze({
+    claimId: claim.id,
+    claimText: claim.text,
+    reviewerDecision: claim.state,
+    normalizedValue: claim.state === 'corrected' ? claim.correction?.correctedValue : claim.sourceValue ?? claim.aiValue,
+    sourceAnchorId: sourceAnchorId(claim.anchor),
+    sourceAnchor: freezeSourceAnchor(claim.anchor),
+    reviewerId: terminalAudit?.actor.kind === 'reviewer' ? terminalAudit.actor.id : claim.correction?.reviewerId ?? 'unknown-reviewer',
+    correctionHistory: Object.freeze(correctionHistory.map((correction) => Object.freeze({ ...correction }))),
+    auditEventCount: claim.audit.length
+  });
+}
+
+export function evidencePackToJson(pack: EvidencePack): string {
+  return JSON.stringify(pack, null, 2);
+}
+
+function compareByClaimId(left: EvidenceItem, right: EvidenceItem): number {
+  return left.claimId.localeCompare(right.claimId);
+}
+
+function freezeSource(source: Source): Source {
+  return Object.freeze({ ...source, ...(source.metadata ? { metadata: Object.freeze({ ...source.metadata }) } : {}) });
+}
+
+function deepFreezeEvidencePack(pack: EvidencePack): EvidencePack {
+  return Object.freeze({
+    ...pack,
+    sources: Object.freeze([...pack.sources]),
+    items: Object.freeze([...pack.items]),
+    metadata: Object.freeze({ ...pack.metadata })
+  });
 }

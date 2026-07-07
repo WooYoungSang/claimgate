@@ -1,5 +1,5 @@
 import type { Claim, ClaimLifecycleState, ClaimValue } from './claim.js';
-import { sourceAnchorId, type SourceAnchor } from './evidence.js';
+import { sourceAnchorId, type SourceAnchor } from './source-anchor.js';
 
 export type ProjectionErrorCode = 'E_NOT_PROJECTABLE';
 
@@ -26,7 +26,10 @@ export function isProjectableState(state: ClaimLifecycleState): state is Extract
   return state === 'verified' || state === 'corrected';
 }
 
-export function isProjectableClaim(claim: Claim): boolean {
+export function isProjectableClaim(claim: Claim): claim is Claim & {
+  readonly state: Extract<ClaimLifecycleState, 'verified' | 'corrected'>;
+  readonly anchor: SourceAnchor;
+} {
   return (
     isProjectableState(claim.state) &&
     claim.anchor !== undefined &&
@@ -77,8 +80,13 @@ function hasReviewerTerminalAuditEvent(claim: Claim): boolean {
   });
 }
 
-export function filterProjectableClaims<T extends Claim>(claims: readonly T[]): T[] {
-  return claims.filter(isProjectableClaim);
+export function filterProjectableClaims<T extends Claim>(
+  claims: readonly T[]
+): Array<T & { readonly state: Extract<ClaimLifecycleState, 'verified' | 'corrected'>; readonly anchor: SourceAnchor }> {
+  return claims.filter(
+    (claim): claim is T & { readonly state: Extract<ClaimLifecycleState, 'verified' | 'corrected'>; readonly anchor: SourceAnchor } =>
+      isProjectableClaim(claim)
+  );
 }
 
 export function projectClaim(claim: Claim): ProjectedClaim {

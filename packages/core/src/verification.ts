@@ -1,6 +1,6 @@
 import { appendAuditEvent, createAuditEvent, reviewerActor, type AuditActor, type Reviewer } from './audit.js';
 import { hasSourceAnchor, type Claim, type ClaimLifecycleState, type ClaimValue, type CorrectionRecord } from './claim.js';
-import { sourceAnchorId } from './evidence.js';
+import { sourceAnchorId } from './source-anchor.js';
 
 export type VerificationErrorCode = 'E_NO_ANCHOR' | 'E_NO_REVIEWER' | 'E_INVALID_TRANSITION' | 'E_CORRECTION_REQUIRED';
 

@@ -1,5 +1,5 @@
 import { appendAuditEvent, createAuditEvent, type AuditActor, type AuditTrail } from './audit.js';
-import { sourceAnchorId, type SourceAnchor } from './evidence.js';
+import { freezeSourceAnchor, sourceAnchorId, type SourceAnchor } from './source-anchor.js';
 
 export type ClaimLifecycleState =
   | 'extracted'
@@ -101,7 +101,7 @@ export function attachAnchor(claim: Claim, input: AttachAnchorInput): Claim {
   }
 
   const timestamp = (input.now ?? defaultNow)();
-  const anchor = Object.freeze({ ...input.anchor }) as SourceAnchor;
+  const anchor = freezeSourceAnchor(input.anchor);
   return Object.freeze({
     ...claim,
     state: 'anchored' as const,

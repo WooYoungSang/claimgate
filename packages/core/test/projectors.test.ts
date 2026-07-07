@@ -1,0 +1,244 @@
+import { describe, expect, it } from 'vitest';
+import {
+  attachAnchor,
+  createEvidencePack,
+  createExtractedClaim,
+  projectEvidencePackToGraph,
+  renderEvidenceReportHtml,
+  renderEvidenceReportMarkdown,
+  transitionClaim,
+  type Claim,
+  type Reviewer,
+  type Source
+} from '../src/index.js';
+
+const reviewer: Reviewer = { id: 'reviewer-1' };
+const now = () => '2026-07-07T00:00:00.000Z';
+const sources: readonly Source[] = [
+  { id: 'src-a', kind: 'web', title: 'Agency release', locator: 'https://agency.test/release' },
+  { id: 'src-b', kind: 'text', title: 'Local transcript', locator: 'fixtures/transcript.txt' }
+];
+
+function reviewedClaim(id: string, state: 'verified' | 'corrected'): Claim {
+  const anchored = attachAnchor(createExtractedClaim({ id, text: `Claim ${id}`, aiValue: state === 'verified' ? 'ok' : 'bad', now }), {
+    anchor:
+      state === 'verified'
+        ? { kind: 'web-link', sourceId: 'src-a', url: 'https://agency.test/release', excerpt: 'ok' }
+        : { kind: 'text-span', sourceId: 'src-b', startOffset: 0, endOffset: 4, excerpt: 'good' },
+    sourceValue: state === 'verified' ? 'ok' : 'good',
+    actor: { kind: 'system', id: 'anchor-fixture' },
+    now
+  });
+  const reviewable = transitionClaim(anchored, {
+    to: state === 'verified' ? 'needs-evidence' : 'conflict',
+    actor: { kind: 'system', id: 'risk-fixture' },
+    now
+  });
+
+  return transitionClaim(reviewable, {
+    to: state,
+    reviewer,
+    ...(state === 'corrected' ? { correction: { correctedValue: 'good', reason: 'Corrected from transcript.' } } : {}),
+    now
+  });
+}
+
+describe('Evidence Pack projectors', () => {
+  it('projects deterministic graph nodes and edges without a graph database', () => {
+    const pack = createEvidencePack({
+      id: 'pack-projector',
+      title: 'Projection Pack',
+      claims: [reviewedClaim('verified', 'verified'), reviewedClaim('corrected', 'corrected')],
+      sources,
+      generatedAt: now()
+    });
+
+    expect(projectEvidencePackToGraph(pack)).toMatchInlineSnapshot(`
+      {
+        "edges": [
+          {
+            "from": "evidence-pack:pack-projector",
+            "id": "evidence-pack:pack-projector->claim:corrected",
+            "to": "claim:corrected",
+            "type": "CONTAINS_CLAIM",
+          },
+          {
+            "from": "evidence-pack:pack-projector",
+            "id": "evidence-pack:pack-projector->claim:verified",
+            "to": "claim:verified",
+            "type": "CONTAINS_CLAIM",
+          },
+          {
+            "from": "claim:corrected",
+            "id": "claim:corrected->source:src-b",
+            "to": "source:src-b",
+            "type": "ANCHORED_TO",
+          },
+          {
+            "from": "claim:verified",
+            "id": "claim:verified->source:src-a",
+            "to": "source:src-a",
+            "type": "ANCHORED_TO",
+          },
+        ],
+        "nodes": [
+          {
+            "id": "claim:corrected",
+            "label": "Claim",
+            "properties": {
+              "decision": "corrected",
+              "sourceAnchorId": "src-b:text:start=0:end=4",
+              "text": "Claim corrected",
+              "value": "good",
+            },
+          },
+          {
+            "id": "claim:verified",
+            "label": "Claim",
+            "properties": {
+              "decision": "verified",
+              "sourceAnchorId": "src-a:web:url=https%3A%2F%2Fagency.test%2Frelease",
+              "text": "Claim verified",
+              "value": "ok",
+            },
+          },
+          {
+            "id": "evidence-pack:pack-projector",
+            "label": "EvidencePack",
+            "properties": {
+              "generatedAt": "2026-07-07T00:00:00.000Z",
+              "itemCount": 2,
+              "title": "Projection Pack",
+            },
+          },
+          {
+            "id": "source:src-a",
+            "label": "Source",
+            "properties": {
+              "kind": "web",
+              "locator": "https://agency.test/release",
+              "title": "Agency release",
+            },
+          },
+          {
+            "id": "source:src-b",
+            "label": "Source",
+            "properties": {
+              "kind": "text",
+              "locator": "fixtures/transcript.txt",
+              "title": "Local transcript",
+            },
+          },
+        ],
+      }
+    `);
+  });
+
+  it('escapes markdown-sensitive and raw HTML content in markdown reports', () => {
+    const unsafeClaim = transitionClaim(
+      transitionClaim(
+        attachAnchor(createExtractedClaim({ id: 'unsafe', text: '<img src=x onerror=alert(1)> **bold** [link](bad)', aiValue: '<bad>', now }), {
+          anchor: { kind: 'web-link', sourceId: 'src-a', url: 'https://agency.test/release', excerpt: '<bad>' },
+          sourceValue: '<bad>',
+          actor: { kind: 'system', id: 'anchor-fixture' },
+          now
+        }),
+        { to: 'needs-evidence', actor: { kind: 'system', id: 'risk-fixture' }, now }
+      ),
+      { to: 'verified', reviewer, reason: 'Reviewer confirmed <tag>.', now }
+    );
+    const pack = createEvidencePack({
+      id: 'pack-unsafe-report',
+      title: '<Unsafe> *Report*',
+      claims: [unsafeClaim],
+      sources,
+      generatedAt: now()
+    });
+
+    const markdown = renderEvidenceReportMarkdown(pack, { itemLabel: '<Finding>' });
+
+    expect(markdown).toContain('# &lt;Unsafe&gt; \\*Report\\*');
+    expect(markdown).toContain('- Claim: &lt;img src=x onerror=alert\\(1\\)&gt; \\*\\*bold\\*\\* \\[link\\]\\(bad\\)');
+    expect(markdown).not.toContain('<img');
+    expect(markdown).not.toContain('**bold**');
+  });
+
+  it('renders markdown and HTML report primitives from the same Evidence Pack', () => {
+    const rejected = transitionClaim(
+      transitionClaim(
+        attachAnchor(createExtractedClaim({ id: 'rejected', text: 'This must not leak', aiValue: 'bad', now }), {
+          anchor: { kind: 'web-link', sourceId: 'src-a', url: 'https://agency.test/reject' },
+          sourceValue: 'good',
+          actor: { kind: 'system', id: 'anchor-fixture' },
+          now
+        }),
+        { to: 'needs-evidence', actor: { kind: 'system', id: 'risk-fixture' }, now }
+      ),
+      { to: 'rejected', reviewer, now }
+    );
+    const pack = createEvidencePack({
+      id: 'pack-report',
+      title: 'Reusable Evidence',
+      claims: [rejected, reviewedClaim('verified', 'verified'), reviewedClaim('corrected', 'corrected')],
+      sources,
+      generatedAt: now()
+    });
+
+    const markdown = renderEvidenceReportMarkdown(pack, { title: 'Civic Report', itemLabel: 'Finding' });
+    const html = renderEvidenceReportHtml(pack, { title: 'Health Report', itemLabel: 'Claim' });
+
+    expect(markdown).toContain('# Civic Report');
+    expect(markdown).toContain('## Finding 1: corrected');
+    expect(markdown).toContain('Claim corrected');
+    expect(markdown).not.toContain('This must not leak');
+    expect(html).toContain('<h1>Health Report</h1>');
+    expect(html).toContain('Claim verified');
+    expect(html).not.toContain('This must not leak');
+    expect(markdown).not.toEqual(html);
+  });
+  it('encodes graph node and edge id parts deterministically', () => {
+    const pack = createEvidencePack({
+      id: 'pack->source:tricky',
+      title: 'Projection Pack',
+      claims: [reviewedClaim('claim->source:x', 'verified')],
+      sources,
+      generatedAt: now()
+    });
+
+    const graph = projectEvidencePackToGraph(pack);
+
+    expect(graph.nodes.map((node) => node.id)).toContain('evidence-pack:pack-%3Esource%3Atricky');
+    expect(graph.nodes.map((node) => node.id)).toContain('claim:claim-%3Esource%3Ax');
+    expect(graph.edges.map((edge) => edge.id)).toContain('evidence-pack:pack-%3Esource%3Atricky->claim:claim-%3Esource%3Ax');
+  });
+
+  it('normalizes newlines before rendering markdown fields', () => {
+    const unsafeClaim = transitionClaim(
+      transitionClaim(
+        attachAnchor(createExtractedClaim({ id: 'newline', text: 'first\n## injected', aiValue: 'ok', now }), {
+          anchor: { kind: 'web-link', sourceId: 'src-a', url: 'https://agency.test/release', excerpt: 'ok' },
+          sourceValue: 'ok',
+          actor: { kind: 'system', id: 'anchor-fixture' },
+          now
+        }),
+        { to: 'needs-evidence', actor: { kind: 'system', id: 'risk-fixture' }, now }
+      ),
+      { to: 'verified', reviewer, now }
+    );
+    const pack = createEvidencePack({
+      id: 'pack-newline-report',
+      title: 'Unsafe\n# injected',
+      claims: [unsafeClaim],
+      sources,
+      generatedAt: now()
+    });
+
+    const markdown = renderEvidenceReportMarkdown(pack, { itemLabel: 'Finding\n## bad' });
+
+    expect(markdown).toContain('# Unsafe \\# injected');
+    expect(markdown).toContain('## Finding \\#\\# bad 1: verified');
+    expect(markdown).toContain('- Claim: first \\#\\# injected');
+    expect(markdown).not.toContain('\n## injected');
+  });
+
+});
