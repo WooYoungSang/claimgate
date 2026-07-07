@@ -23,8 +23,9 @@ export interface GraphProjection {
 }
 
 export function projectEvidencePackToGraph(pack: EvidencePack): GraphProjection {
+  const packNodeId = graphId('evidence-pack', pack.id);
   const packNode: GraphNode = {
-    id: `evidence-pack:${pack.id}`,
+    id: packNodeId,
     label: 'EvidencePack',
     properties: {
       title: pack.title,
@@ -34,7 +35,7 @@ export function projectEvidencePackToGraph(pack: EvidencePack): GraphProjection 
   };
 
   const claimNodes = pack.items.map<GraphNode>((item) => ({
-    id: `claim:${item.claimId}`,
+    id: graphId('claim', item.claimId),
     label: 'Claim',
     properties: {
       text: item.claimText,
@@ -45,7 +46,7 @@ export function projectEvidencePackToGraph(pack: EvidencePack): GraphProjection 
   }));
 
   const sourceNodes = pack.sources.map<GraphNode>((source) => ({
-    id: `source:${source.id}`,
+    id: graphId('source', source.id),
     label: 'Source',
     properties: {
       kind: source.kind,
@@ -55,19 +56,26 @@ export function projectEvidencePackToGraph(pack: EvidencePack): GraphProjection 
     }
   }));
 
-  const containsEdges = pack.items.map<GraphEdge>((item) => ({
-    id: `${packNode.id}->claim:${item.claimId}`,
-    from: packNode.id,
-    to: `claim:${item.claimId}`,
-    type: 'CONTAINS_CLAIM'
-  }));
+  const containsEdges = pack.items.map<GraphEdge>((item) => {
+    const claimNodeId = graphId('claim', item.claimId);
+    return {
+      id: graphEdgeId(packNode.id, claimNodeId),
+      from: packNode.id,
+      to: claimNodeId,
+      type: 'CONTAINS_CLAIM'
+    };
+  });
 
-  const anchorEdges = pack.items.map<GraphEdge>((item) => ({
-    id: `claim:${item.claimId}->source:${item.sourceAnchor.sourceId}`,
-    from: `claim:${item.claimId}`,
-    to: `source:${item.sourceAnchor.sourceId}`,
-    type: 'ANCHORED_TO'
-  }));
+  const anchorEdges = pack.items.map<GraphEdge>((item) => {
+    const claimNodeId = graphId('claim', item.claimId);
+    const sourceNodeId = graphId('source', item.sourceAnchor.sourceId);
+    return {
+      id: graphEdgeId(claimNodeId, sourceNodeId),
+      from: claimNodeId,
+      to: sourceNodeId,
+      type: 'ANCHORED_TO'
+    };
+  });
 
   return Object.freeze({
     nodes: Object.freeze([packNode, ...claimNodes, ...sourceNodes].map(stripUndefinedProperties).sort(compareNode)),
@@ -90,4 +98,13 @@ function stripUndefinedProperties<T extends GraphNode>(node: T): T {
     ...node,
     properties: Object.freeze(Object.fromEntries(Object.entries(node.properties).filter(([, value]) => value !== undefined)))
   }) as T;
+}
+
+
+function graphId(kind: string, rawId: string): string {
+  return `${kind}:${encodeURIComponent(rawId)}`;
+}
+
+function graphEdgeId(from: string, to: string): string {
+  return `${from}->${to}`;
 }

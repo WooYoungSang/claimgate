@@ -196,4 +196,49 @@ describe('Evidence Pack projectors', () => {
     expect(html).not.toContain('This must not leak');
     expect(markdown).not.toEqual(html);
   });
+  it('encodes graph node and edge id parts deterministically', () => {
+    const pack = createEvidencePack({
+      id: 'pack->source:tricky',
+      title: 'Projection Pack',
+      claims: [reviewedClaim('claim->source:x', 'verified')],
+      sources,
+      generatedAt: now()
+    });
+
+    const graph = projectEvidencePackToGraph(pack);
+
+    expect(graph.nodes.map((node) => node.id)).toContain('evidence-pack:pack-%3Esource%3Atricky');
+    expect(graph.nodes.map((node) => node.id)).toContain('claim:claim-%3Esource%3Ax');
+    expect(graph.edges.map((edge) => edge.id)).toContain('evidence-pack:pack-%3Esource%3Atricky->claim:claim-%3Esource%3Ax');
+  });
+
+  it('normalizes newlines before rendering markdown fields', () => {
+    const unsafeClaim = transitionClaim(
+      transitionClaim(
+        attachAnchor(createExtractedClaim({ id: 'newline', text: 'first\n## injected', aiValue: 'ok', now }), {
+          anchor: { kind: 'web-link', sourceId: 'src-a', url: 'https://agency.test/release', excerpt: 'ok' },
+          sourceValue: 'ok',
+          actor: { kind: 'system', id: 'anchor-fixture' },
+          now
+        }),
+        { to: 'needs-evidence', actor: { kind: 'system', id: 'risk-fixture' }, now }
+      ),
+      { to: 'verified', reviewer, now }
+    );
+    const pack = createEvidencePack({
+      id: 'pack-newline-report',
+      title: 'Unsafe\n# injected',
+      claims: [unsafeClaim],
+      sources,
+      generatedAt: now()
+    });
+
+    const markdown = renderEvidenceReportMarkdown(pack, { itemLabel: 'Finding\n## bad' });
+
+    expect(markdown).toContain('# Unsafe \\# injected');
+    expect(markdown).toContain('## Finding \\#\\# bad 1: verified');
+    expect(markdown).toContain('- Claim: first \\#\\# injected');
+    expect(markdown).not.toContain('\n## injected');
+  });
+
 });

@@ -75,5 +75,5 @@ function escapeHtml(value: string): string {
 }
 
 function escapeMarkdown(value: string): string {
-  return escapeHtml(value).replace(/([\\`*_{}\[\]()#+!|])/g, '\\$1');
+  return escapeHtml(value.replace(/[\r\n]+/g, ' ')).replace(/([\\`*_{}\[\]()#+!|])/g, '\\$1');
 }
