@@ -21,6 +21,7 @@ export interface AuditEvent {
   readonly timestamp: string;
   readonly reason?: string;
   readonly anchorId?: string;
+  readonly trustCredentialRef?: string;
 }
 
 export type AuditTrail = readonly AuditEvent[];
@@ -34,6 +35,7 @@ export interface AuditEventInput {
   readonly timestamp: string;
   readonly reason?: string;
   readonly anchorId?: string;
+  readonly trustCredentialRef?: string;
 }
 
 export function reviewerActor(reviewer: Reviewer): AuditActor {
