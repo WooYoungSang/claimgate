@@ -1,7 +1,7 @@
 {
-  "name": "@claimgate/pack-civic-data",
+  "name": "@claimgate/conformance",
   "version": "0.0.0",
-  "description": "Civic public-data domain pack scaffold for ClaimGate.",
+  "description": "Deterministic conformance kit for ClaimGate DomainPack implementations.",
   "type": "module",
   "license": "MIT",
   "sideEffects": false,
@@ -28,7 +28,6 @@
     "@claimgate/core": "workspace:*"
   },
   "devDependencies": {
-    "@claimgate/conformance": "workspace:*",
     "tsup": "8.3.5",
     "typescript": "5.7.2",
     "vitest": "2.1.8"

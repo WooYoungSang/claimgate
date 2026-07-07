@@ -1,0 +1,29 @@
+#!/usr/bin/env node
+import { spawnSync } from 'node:child_process';
+
+function run(pack) {
+  const result = spawnSync('pnpm', ['--filter', '@claimgate/example-civic-review-app', 'demo', '--', `--pack=${pack}`], {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe']
+  });
+  if (result.status !== 0) {
+    process.stderr.write(result.stderr);
+    process.exit(result.status ?? 1);
+  }
+  return result.stdout.trim();
+}
+
+const civic = run('civic-data');
+const health = run('health-data');
+
+console.log('--- civic-data ---');
+console.log(civic);
+console.log('--- health-data ---');
+console.log(health);
+
+if (civic === health) {
+  console.error('Pack swap failed: outputs are identical.');
+  process.exit(1);
+}
+
+console.log('Pack swap demo changed behavior without core/UI changes.');
