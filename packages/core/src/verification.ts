@@ -25,6 +25,7 @@ export interface TransitionClaimInput {
   readonly reviewer?: Reviewer;
   readonly correction?: CorrectionInput;
   readonly reason?: string;
+  readonly trustCredentialRef?: string;
   readonly now?: () => string;
 }
 
@@ -83,7 +84,8 @@ export function transitionClaim(claim: Claim, input: TransitionClaimInput): Clai
         actor,
         timestamp,
         reason: input.reason ?? transitionReason(input.to),
-        ...(claim.anchor ? { anchorId: sourceAnchorId(claim.anchor) } : {})
+        ...(claim.anchor ? { anchorId: sourceAnchorId(claim.anchor) } : {}),
+        ...(input.trustCredentialRef ? { trustCredentialRef: input.trustCredentialRef } : {})
       })
     )
   });

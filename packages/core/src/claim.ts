@@ -60,6 +60,7 @@ export interface AttachAnchorInput {
   readonly sourceValue?: ClaimValue;
   readonly actor: AuditActor;
   readonly reason?: string;
+  readonly trustCredentialRef?: string;
   readonly now?: () => string;
 }
 
@@ -117,7 +118,8 @@ export function attachAnchor(claim: Claim, input: AttachAnchorInput): Claim {
         actor: input.actor,
         timestamp,
         reason: input.reason ?? 'Source Anchor attached.',
-        anchorId: sourceAnchorId(anchor)
+        anchorId: sourceAnchorId(anchor),
+        ...(input.trustCredentialRef ? { trustCredentialRef: input.trustCredentialRef } : {})
       })
     )
   });
