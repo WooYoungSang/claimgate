@@ -57,19 +57,28 @@ export interface WebLinkAnchor extends SourceAnchorBase {
 export type SourceAnchor = ExcelCellAnchor | PdfPageAnchor | DatasetRowAnchor | TextSpanAnchor | WebLinkAnchor;
 
 export function sourceAnchorId(anchor: SourceAnchor): string {
+  const sourceId = encodeAnchorPart(anchor.sourceId);
+
   switch (anchor.kind) {
     case 'excel-cell':
-      return `${anchor.sourceId}:excel:${anchor.sheet}!${anchor.cell}`;
+      return `${sourceId}:excel:sheet=${encodeAnchorPart(anchor.sheet)}:cell=${encodeAnchorPart(anchor.cell)}`;
     case 'pdf-page':
       return anchor.textRange
-        ? `${anchor.sourceId}:pdf:${anchor.page}:${anchor.textRange.start}-${anchor.textRange.end}`
-        : `${anchor.sourceId}:pdf:${anchor.page}`;
+        ? `${sourceId}:pdf:page=${anchor.page}:range=${anchor.textRange.start}-${anchor.textRange.end}`
+        : `${sourceId}:pdf:page=${anchor.page}`;
     case 'dataset-row':
-      return compactJoin([anchor.sourceId, 'dataset', anchor.dataset, String(anchor.row), anchor.column, anchor.recordId]);
+      return compactJoin([
+        sourceId,
+        'dataset',
+        `name=${encodeAnchorPart(anchor.dataset)}`,
+        `row=${anchor.row}`,
+        anchor.column === undefined ? undefined : `column=${encodeAnchorPart(anchor.column)}`,
+        anchor.recordId === undefined ? undefined : `recordId=${encodeAnchorPart(anchor.recordId)}`
+      ]);
     case 'text-span':
-      return `${anchor.sourceId}:text:${anchor.startOffset}-${anchor.endOffset}`;
+      return `${sourceId}:text:start=${anchor.startOffset}:end=${anchor.endOffset}`;
     case 'web-link':
-      return `${anchor.sourceId}:web:${anchor.url}`;
+      return `${sourceId}:web:url=${encodeAnchorPart(anchor.url)}`;
   }
 }
 
@@ -77,6 +86,22 @@ export function sourceAnchorExcerpt(anchor: SourceAnchor): string | undefined {
   return anchor.excerpt ?? anchor.quote;
 }
 
+export function freezeSourceAnchor<T extends SourceAnchor>(anchor: T): T {
+  if (anchor.kind === 'pdf-page') {
+    return Object.freeze({
+      ...anchor,
+      ...(anchor.textRange ? { textRange: Object.freeze({ ...anchor.textRange }) } : {}),
+      ...(anchor.boundingBox ? { boundingBox: Object.freeze([...anchor.boundingBox] as [number, number, number, number]) } : {})
+    }) as unknown as T;
+  }
+
+  return Object.freeze({ ...anchor }) as unknown as T;
+}
+
 function compactJoin(parts: readonly (string | undefined)[]): string {
   return parts.filter((part): part is string => part !== undefined && part.length > 0).join(':');
+}
+
+function encodeAnchorPart(value: string): string {
+  return encodeURIComponent(value).replace(/[!'()*]/g, (character) => `%${character.charCodeAt(0).toString(16).toUpperCase()}`);
 }

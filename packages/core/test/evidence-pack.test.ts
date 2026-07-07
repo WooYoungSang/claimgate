@@ -3,6 +3,7 @@ import {
   attachAnchor,
   createEvidencePack,
   createExtractedClaim,
+  evidenceItemFromClaim,
   evidencePackToJson,
   transitionClaim,
   type Claim,
@@ -86,6 +87,27 @@ describe('Evidence Pack', () => {
     expect(pack.sources).toEqual([source]);
   });
 
+  it('rejects direct EvidenceItem projection for malformed verified claims without reviewer terminal audit', () => {
+    const malformedVerified = {
+      ...anchored('malformed-verified', { kind: 'text-span', sourceId: source.id, startOffset: 1, endOffset: 4 }, 'bad', 'good'),
+      state: 'verified' as const
+    } satisfies Claim;
+
+    expect(() => evidenceItemFromClaim(malformedVerified)).toThrow('Only reviewer-audited verified or corrected claims with Source Anchor may be projected.');
+  });
+
+  it('fails fast when projectable items reference sources missing from the pack input', () => {
+    expect(() =>
+      createEvidencePack({
+        id: 'pack-missing-source',
+        title: 'Missing Source Pack',
+        claims: [verifiedClaim('verified-missing-source')],
+        sources: [],
+        generatedAt: now()
+      })
+    ).toThrow('Evidence Pack is missing sources referenced by projectable claims: src-civic-1');
+  });
+
   it('serializes deterministically with stable ordering', () => {
     const pack = createEvidencePack({
       id: 'pack-deterministic',
@@ -106,14 +128,14 @@ describe('Evidence Pack', () => {
       claimId: 'a-claim',
       reviewerDecision: 'corrected',
       normalizedValue: 'correct',
-      sourceAnchorId: 'src-civic-1:text:5-12',
+      sourceAnchorId: 'src-civic-1:text:start=5:end=12',
       correctionHistory: [{ correctedValue: 'correct', reason: 'Source value is authoritative.' }]
     });
     expect(parsed.items[1]).toMatchObject({
       claimId: 'b-claim',
       reviewerDecision: 'verified',
       normalizedValue: '100',
-      sourceAnchorId: 'src-civic-1:dataset:civic.csv:2:value',
+      sourceAnchorId: 'src-civic-1:dataset:name=civic.csv:row=2:column=value',
       correctionHistory: []
     });
   });

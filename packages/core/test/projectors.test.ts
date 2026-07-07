@@ -87,7 +87,7 @@ describe('Evidence Pack projectors', () => {
             "label": "Claim",
             "properties": {
               "decision": "corrected",
-              "sourceAnchorId": "src-b:text:0-4",
+              "sourceAnchorId": "src-b:text:start=0:end=4",
               "text": "Claim corrected",
               "value": "good",
             },
@@ -97,7 +97,7 @@ describe('Evidence Pack projectors', () => {
             "label": "Claim",
             "properties": {
               "decision": "verified",
-              "sourceAnchorId": "src-a:web:https://agency.test/release",
+              "sourceAnchorId": "src-a:web:url=https%3A%2F%2Fagency.test%2Frelease",
               "text": "Claim verified",
               "value": "ok",
             },
@@ -132,6 +132,35 @@ describe('Evidence Pack projectors', () => {
         ],
       }
     `);
+  });
+
+  it('escapes markdown-sensitive and raw HTML content in markdown reports', () => {
+    const unsafeClaim = transitionClaim(
+      transitionClaim(
+        attachAnchor(createExtractedClaim({ id: 'unsafe', text: '<img src=x onerror=alert(1)> **bold** [link](bad)', aiValue: '<bad>', now }), {
+          anchor: { kind: 'web-link', sourceId: 'src-a', url: 'https://agency.test/release', excerpt: '<bad>' },
+          sourceValue: '<bad>',
+          actor: { kind: 'system', id: 'anchor-fixture' },
+          now
+        }),
+        { to: 'needs-evidence', actor: { kind: 'system', id: 'risk-fixture' }, now }
+      ),
+      { to: 'verified', reviewer, reason: 'Reviewer confirmed <tag>.', now }
+    );
+    const pack = createEvidencePack({
+      id: 'pack-unsafe-report',
+      title: '<Unsafe> *Report*',
+      claims: [unsafeClaim],
+      sources,
+      generatedAt: now()
+    });
+
+    const markdown = renderEvidenceReportMarkdown(pack, { itemLabel: '<Finding>' });
+
+    expect(markdown).toContain('# &lt;Unsafe&gt; \\*Report\\*');
+    expect(markdown).toContain('- Claim: &lt;img src=x onerror=alert\\(1\\)&gt; \\*\\*bold\\*\\* \\[link\\]\\(bad\\)');
+    expect(markdown).not.toContain('<img');
+    expect(markdown).not.toContain('**bold**');
   });
 
   it('renders markdown and HTML report primitives from the same Evidence Pack', () => {

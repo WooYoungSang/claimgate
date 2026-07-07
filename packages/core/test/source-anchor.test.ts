@@ -19,6 +19,27 @@ describe('Source Anchor schema', () => {
     expect(source).toMatchObject({ id: 'src-city-budget-2026', kind: 'excel', title: 'City Budget 2026' });
   });
 
+  it('does not collide dataset row IDs when column and recordId contain separators', () => {
+    const withColonInColumn: SourceAnchor = {
+      kind: 'dataset-row',
+      sourceId: 'src-csv',
+      dataset: 'permits.csv',
+      row: 7,
+      column: 'count:permit',
+      recordId: '7'
+    };
+    const withColonInRecordId: SourceAnchor = {
+      kind: 'dataset-row',
+      sourceId: 'src-csv',
+      dataset: 'permits.csv',
+      row: 7,
+      column: 'count',
+      recordId: 'permit:7'
+    };
+
+    expect(sourceAnchorId(withColonInColumn)).not.toBe(sourceAnchorId(withColonInRecordId));
+  });
+
   it('creates deterministic IDs for each anchor variant', () => {
     const anchors: readonly SourceAnchor[] = [
       { kind: 'excel-cell', sourceId: 'src-xlsx', sheet: 'Budget', cell: 'B12', excerpt: '12345', confidence: 0.99 },
@@ -29,11 +50,11 @@ describe('Source Anchor schema', () => {
     ];
 
     expect(anchors.map(sourceAnchorId)).toEqual([
-      'src-xlsx:excel:Budget!B12',
-      'src-pdf:pdf:4:10-25',
-      'src-csv:dataset:permits.csv:7:count:permit-7',
-      'src-text:text:3-14',
-      'src-web:web:https://example.test/report'
+      'src-xlsx:excel:sheet=Budget:cell=B12',
+      'src-pdf:pdf:page=4:range=10-25',
+      'src-csv:dataset:name=permits.csv:row=7:column=count:recordId=permit-7',
+      'src-text:text:start=3:end=14',
+      'src-web:web:url=https%3A%2F%2Fexample.test%2Freport'
     ]);
   });
 });

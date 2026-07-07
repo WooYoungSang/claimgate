@@ -12,17 +12,19 @@ export function renderEvidenceReportMarkdown(pack: EvidencePack, template: Evide
   const itemLabel = template.itemLabel ?? 'Claim';
   const includeAudit = template.includeAudit ?? false;
   const includeCorrections = template.includeCorrections ?? true;
-  const lines = [`# ${title}`, '', `Generated: ${pack.generatedAt}`, `Evidence items: ${pack.items.length}`, ''];
+  const lines = [`# ${escapeMarkdown(title)}`, '', `Generated: ${escapeMarkdown(pack.generatedAt)}`, `Evidence items: ${pack.items.length}`, ''];
 
   for (const [index, item] of pack.items.entries()) {
-    lines.push(`## ${itemLabel} ${index + 1}: ${item.reviewerDecision}`);
-    lines.push(`- Claim: ${item.claimText}`);
-    lines.push(`- Value: ${formatValue(item.normalizedValue)}`);
-    lines.push(`- Source Anchor: ${item.sourceAnchorId}`);
-    lines.push(`- Reviewer: ${item.reviewerId}`);
+    lines.push(`## ${escapeMarkdown(itemLabel)} ${index + 1}: ${escapeMarkdown(item.reviewerDecision)}`);
+    lines.push(`- Claim: ${escapeMarkdown(item.claimText)}`);
+    lines.push(`- Value: ${escapeMarkdown(formatValue(item.normalizedValue))}`);
+    lines.push(`- Source Anchor: ${escapeMarkdown(item.sourceAnchorId)}`);
+    lines.push(`- Reviewer: ${escapeMarkdown(item.reviewerId)}`);
     if (includeCorrections && item.correctionHistory.length > 0) {
       for (const correction of item.correctionHistory) {
-        lines.push(`- Correction: ${formatValue(correction.originalAiValue)} → ${formatValue(correction.correctedValue)} (${correction.reason})`);
+        lines.push(
+          `- Correction: ${escapeMarkdown(formatValue(correction.originalAiValue))} → ${escapeMarkdown(formatValue(correction.correctedValue))} (${escapeMarkdown(correction.reason)})`
+        );
       }
     }
     if (includeAudit) {
@@ -70,4 +72,8 @@ function formatValue(value: unknown): string {
 
 function escapeHtml(value: string): string {
   return value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;');
+}
+
+function escapeMarkdown(value: string): string {
+  return escapeHtml(value).replace(/([\\`*_{}\[\]()#+!|])/g, '\\$1');
 }

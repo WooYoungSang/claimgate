@@ -4,6 +4,7 @@ import {
   ClaimAnchorError,
   createExtractedClaim,
   transitionClaim,
+  sourceAnchorId,
   VerificationError,
   type Reviewer
 } from '../src/index.js';
@@ -158,6 +159,46 @@ describe('ClaimGate verification state machine', () => {
         now: fixedNow
       })
     ).toThrow(invalidAnchorAttachError('verified'));
+  });
+
+  it('deep clones and freezes nested Source Anchor fields when attaching anchors', () => {
+    const mutableAnchor: {
+      kind: 'pdf-page';
+      sourceId: string;
+      page: number;
+      textRange: { start: number; end: number };
+      boundingBox: [number, number, number, number];
+    } = {
+      kind: 'pdf-page',
+      sourceId: 'source-pdf-1',
+      page: 3,
+      textRange: { start: 10, end: 20 },
+      boundingBox: [1, 2, 3, 4]
+    };
+
+    const anchored = attachAnchor(
+      createExtractedClaim({ id: 'claim-pdf', text: 'PDF claim', aiValue: 'value' }),
+      {
+        anchor: mutableAnchor,
+        sourceValue: 'value',
+        actor: { kind: 'system', id: 'anchor-fixture' },
+        now: fixedNow
+      }
+    );
+    const anchorIdBeforeMutation = sourceAnchorId(anchored.anchor!);
+
+    mutableAnchor.textRange.start = 99;
+    mutableAnchor.boundingBox[0] = 9;
+
+    const attachedAnchor = anchored.anchor;
+    if (attachedAnchor?.kind !== 'pdf-page') {
+      throw new Error('Expected attached PDF anchor.');
+    }
+
+    expect(sourceAnchorId(attachedAnchor)).toBe(anchorIdBeforeMutation);
+    expect(attachedAnchor).toMatchObject({ textRange: { start: 10, end: 20 }, boundingBox: [1, 2, 3, 4] });
+    expect(Object.isFrozen(attachedAnchor)).toBe(true);
+    expect(Object.isFrozen(attachedAnchor.textRange)).toBe(true);
   });
 
   it('records append-only audit events without mutating prior claim snapshots', () => {

@@ -1,6 +1,6 @@
 import type { Claim, ClaimValue, CorrectionRecord } from './claim.js';
-import { isProjectableClaim } from './projection-guards.js';
-import { sourceAnchorId, type Source, type SourceAnchor } from './source-anchor.js';
+import { assertProjectableClaim, isProjectableClaim } from './projection-guards.js';
+import { freezeSourceAnchor, sourceAnchorId, type Source, type SourceAnchor } from './source-anchor.js';
 
 export { SOURCE_ANCHOR_KINDS, sourceAnchorExcerpt, sourceAnchorId, type Source, type SourceAnchor, type SourceAnchorKind, type SourceKind } from './source-anchor.js';
 export type { DatasetRowAnchor, ExcelCellAnchor, PdfPageAnchor, TextSpanAnchor, WebLinkAnchor } from './source-anchor.js';
@@ -43,7 +43,15 @@ const defaultNow = () => new Date().toISOString();
 export function createEvidencePack(input: CreateEvidencePackInput): EvidencePack {
   const items = input.claims.filter(isProjectableClaim).map(evidenceItemFromClaim).sort(compareByClaimId);
   const referencedSourceIds = new Set(items.map((item) => item.sourceAnchor.sourceId));
-  const sources = (input.sources ?? [])
+  const inputSources = input.sources ?? [];
+  const inputSourceIds = new Set(inputSources.map((source) => source.id));
+  const missingSourceIds = [...referencedSourceIds].filter((sourceId) => !inputSourceIds.has(sourceId)).sort();
+
+  if (missingSourceIds.length > 0) {
+    throw new Error(`Evidence Pack is missing sources referenced by projectable claims: ${missingSourceIds.join(', ')}`);
+  }
+
+  const sources = inputSources
     .filter((source) => referencedSourceIds.has(source.id))
     .map((source) => freezeSource(source))
     .sort((left, right) => left.id.localeCompare(right.id));
@@ -58,7 +66,8 @@ export function createEvidencePack(input: CreateEvidencePackInput): EvidencePack
   });
 }
 
-export function evidenceItemFromClaim(claim: Claim & { readonly state: EvidenceDecision; readonly anchor: SourceAnchor }): EvidenceItem {
+export function evidenceItemFromClaim(claim: Claim): EvidenceItem {
+  assertProjectableClaim(claim);
   const terminalAudit = [...claim.audit].reverse().find((event) => event.action === 'transition' && event.after === claim.state && event.actor.kind === 'reviewer');
   const correctionHistory = claim.state === 'corrected' && claim.correction ? [claim.correction] : [];
 
@@ -68,7 +77,7 @@ export function evidenceItemFromClaim(claim: Claim & { readonly state: EvidenceD
     reviewerDecision: claim.state,
     normalizedValue: claim.state === 'corrected' ? claim.correction?.correctedValue : claim.sourceValue ?? claim.aiValue,
     sourceAnchorId: sourceAnchorId(claim.anchor),
-    sourceAnchor: freezeAnchor(claim.anchor),
+    sourceAnchor: freezeSourceAnchor(claim.anchor),
     reviewerId: terminalAudit?.actor.kind === 'reviewer' ? terminalAudit.actor.id : claim.correction?.reviewerId ?? 'unknown-reviewer',
     correctionHistory: Object.freeze(correctionHistory.map((correction) => Object.freeze({ ...correction }))),
     auditEventCount: claim.audit.length
@@ -76,7 +85,7 @@ export function evidenceItemFromClaim(claim: Claim & { readonly state: EvidenceD
 }
 
 export function evidencePackToJson(pack: EvidencePack): string {
-  return `${JSON.stringify(pack, null, 2)}`;
+  return JSON.stringify(pack, null, 2);
 }
 
 function compareByClaimId(left: EvidenceItem, right: EvidenceItem): number {
@@ -85,10 +94,6 @@ function compareByClaimId(left: EvidenceItem, right: EvidenceItem): number {
 
 function freezeSource(source: Source): Source {
   return Object.freeze({ ...source, ...(source.metadata ? { metadata: Object.freeze({ ...source.metadata }) } : {}) });
-}
-
-function freezeAnchor(anchor: SourceAnchor): SourceAnchor {
-  return Object.freeze({ ...anchor }) as SourceAnchor;
 }
 
 function deepFreezeEvidencePack(pack: EvidencePack): EvidencePack {
