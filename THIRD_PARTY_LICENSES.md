@@ -28,3 +28,13 @@ pnpm eval:framework
 ```
 
 This verifies the framework using the lockfile and local fixtures. It does not replace a formal license audit for distribution.
+
+## Public-release license gate
+
+Refresh from the repository root after `pnpm install` with an organization-approved license tool, for example:
+
+```bash
+pnpm licenses list --json > /tmp/claimgate-licenses.json
+```
+
+GO only if generated dependency licenses remain permissive and required notices are preserved. NO-GO if a dependency introduces copyleft, source-available, unknown, missing, or private/internal license terms that have not been reviewed, or if generated license output cannot be reproduced from a clean install.

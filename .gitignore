@@ -17,6 +17,22 @@
 *.p12
 *.pfx
 
+
+# Private release hygiene: keep local vault exports, runtime state, and reviewer-only bundles out of git.
+secrets/
+secret/
+private/
+.private/
+vault/
+vault-export/
+obsidian-vault/\.obsidian/\.warvis/\.envrc
+*.age
+*.gpg
+*.kdbx
+*.sqlite
+*.sqlite3
+*.db
+
 # Dependencies
 node_modules/
 .pnpm-store/

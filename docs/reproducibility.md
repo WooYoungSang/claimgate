@@ -65,3 +65,9 @@ If a future integration needs any of the above, it must be opt-in and must not b
 - Test failures in state-machine, projection, extraction, or trust-adapter files are trust-invariant regressions.
 - Performance smoke failures indicate framework budget drift, not LLM-quality drift.
 - Any default network dependency is a v0 reproducibility regression.
+
+## Public-release go/no-go rule
+
+GO if a fresh clone can run the clean-room commands and the runtime remains fixture-first/offline. NO-GO if any demo or test requires secrets, local vault state, network APIs, mutable external state, private runtime services, real LLM extraction, OCR services, graph DB projection as a runtime dependency, or real DID wallet/issuer/verifier integration.
+
+Same fixture input should produce the same risk levels, rule traces, Evidence Pack projection, report projection, and graph projection bytes. AI adapter outputs remain candidate inputs only; deterministic risk and human reviewer terminal transitions remain authoritative.

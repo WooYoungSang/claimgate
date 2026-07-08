@@ -42,3 +42,9 @@ For now, report security issues through the project maintainers/operators for th
 - AI adapter output remains candidate-only.
 - Trust adapter output remains context-only and never replaces source anchors or reviewer decisions.
 - UI components remain controlled and do not own hidden verification authority.
+
+## Public release gate
+
+Public visibility is a separate human-approved step. Before any repository visibility flip, reviewers must triage secret/private endpoint/private data findings and confirm that v0 still requires no API key, provider credential, database URL, auth token, local vault export, hosted service, real LLM extraction, OCR service, graph DB, or real DID wallet/issuer/verifier.
+
+Do not include secrets, private vault exports, real credentials, production personal data, or non-public source documents in reports or committed evidence.
