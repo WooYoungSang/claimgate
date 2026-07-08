@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ClaimGate OSS Contest Submission Control Plane
 
 This document is the private-until-ready control plane for the ClaimGate OSS contest submission lane.
@@ -101,6 +102,9 @@ Until then, the lane treats the deadline as visible but unconfirmed and blocks p
 ---
 
 ## Benchmark differentiation appendix
+=======
+# ClaimGate Competition Submission Appendix
+>>>>>>> b8d4925 (docs: add benchmark differentiation strategy)
 
 _Last checked: 2026-07-08 KST. This appendix maps benchmark findings to submission evidence. It is a report appendix draft, not a shipped/ratified claim._
 
