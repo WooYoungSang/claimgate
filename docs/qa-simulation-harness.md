@@ -244,7 +244,10 @@ pnpm eval:framework
 Run this in the sanitized export checkout before public release, not in the private development worktree:
 
 ```bash
-git ls-files | grep -Ei '(^|/)(\.agent|\.agents|\.codex|\.claude|\.omc|\.omx|CLAUDE\.md|AGENTS\.md|\.mcp\.json|\.env|secrets?)' && exit 1 || true
+if git ls-files | grep -Ei '(^|/)(\.agent|\.agents|\.codex|\.claude|\.omc|\.omx|CLAUDE\.md|AGENTS\.md|\.mcp\.json|\.env|secrets?)'; then
+  echo 'Public export hygiene scan failed: internal/private files are tracked.' >&2
+  exit 1
+fi
 ```
 
 Content scan for common secret/private endpoint patterns:
