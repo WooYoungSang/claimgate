@@ -28,15 +28,24 @@ scripts/                # local validation helpers
 Requires Node.js 20+ and pnpm 9.
 
 ```bash
-pnpm install
-pnpm lint
-pnpm typecheck
-pnpm test
-pnpm build
-pnpm demo
+pnpm install --frozen-lockfile
+pnpm eval:framework
 ```
 
-`pnpm demo` runs an offline deterministic demo that composes `@claimgate/core`, `@claimgate/ui`, and two `@claimgate/pack-*` packages. No server, database, auth, OCR, real LLM extraction, or network demo is included in v0.
+`pnpm eval:framework` is the evaluator-facing one-command smoke. It runs lint, typecheck, tests, demo, DomainPack conformance, handoff smoke, and framework performance evaluation using local fixtures only. `pnpm demo` remains available when you only want to see the pack-swap demo.
+
+No server, database, auth, OCR, real LLM extraction, API key, network service, or network demo is included in the v0 default path. Framework performance smoke measures deterministic local framework throughput; it is not a claim about LLM extraction quality.
+
+## Evaluator trust pack
+
+Evaluator evidence lives in:
+
+- [`docs/verification-matrix.md`](docs/verification-matrix.md) — maps invariants to deterministic commands and evidence.
+- [`docs/reproducibility.md`](docs/reproducibility.md) — fresh clone and no-network/default determinism guide.
+- [`SECURITY.md`](SECURITY.md) — v0 security boundary and no-secret default.
+- [`THIRD_PARTY_LICENSES.md`](THIRD_PARTY_LICENSES.md) — direct dependency license notes for review.
+
+The verification matrix explicitly separates ClaimGate framework behavior from future LLM quality evaluation.
 
 ## Package boundaries
 

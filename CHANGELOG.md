@@ -2,6 +2,12 @@
 
 All notable changes to ClaimGate will be documented in this file.
 
+
+## Unreleased
+
+- Added evaluator trust pack docs: verification matrix, reproducibility guide, security policy, and third-party license notes.
+- Positioned `pnpm eval:framework` as the one-command offline evaluator smoke and clarified framework performance vs LLM quality.
+
 ## 0.0.0 - 2026-07-07
 
 - Bootstrapped pnpm monorepo workspace for `packages/*`, `packs/*`, and `examples/*`.

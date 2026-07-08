@@ -7,15 +7,11 @@ Thank you for improving ClaimGate. v0 changes must preserve the offline, determi
 Run the full local gate before proposing a change:
 
 ```bash
-pnpm install
-pnpm lint
-pnpm typecheck
-pnpm test
-pnpm build
-pnpm demo
+pnpm install --frozen-lockfile
+pnpm eval:framework
 ```
 
-Do not mask failing exits with `|| true`.
+For narrower local loops, run `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, or `pnpm demo` directly. Do not mask failing exits with `|| true`.
 
 ## Boundary rules
 
