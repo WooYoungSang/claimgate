@@ -3,6 +3,7 @@ import {
   attachAnchor,
   createEvidencePack,
   createExtractedClaim,
+  evidencePackToJson,
   projectEvidencePackToGraph,
   renderEvidenceReportHtml,
   renderEvidenceReportMarkdown,
@@ -38,14 +39,24 @@ const rejected = transitionClaim(
   { to: 'rejected', reviewer, reason: 'Reviewer rejected a mismatched candidate.', now }
 );
 const pack = createEvidencePack({ id: 'handoff-pack', title: 'ClaimGate handoff pack', claims: [rejected, reviewed], sources: [source], generatedAt: now() });
+const evidencePackJson = evidencePackToJson(pack);
 const graph = projectEvidencePackToGraph(pack);
 const markdown = renderEvidenceReportMarkdown(pack, { includeAudit: true });
 const html = renderEvidenceReportHtml(pack, { includeAudit: true });
 
 assert.equal(pack.items.length, 1, 'only reviewed verified/corrected claims enter evidence pack');
+assert.match(evidencePackJson, /"reviewerDecision": "verified"/, 'Evidence Pack JSON is the primary handoff artifact');
+assert.doesNotMatch(evidencePackJson, /claim-rejected/, 'rejected claims stay out of Evidence Pack JSON');
+assert.equal(graph.nodes.some((node) => node.id === 'evidence-pack:handoff-pack'), true, 'graph projection is rooted in the evidence pack');
 assert.equal(graph.nodes.some((node) => node.id === 'claim:claim-verified'), true, 'verified claim projects to graph');
 assert.equal(graph.nodes.some((node) => node.id.includes('claim-rejected')), false, 'rejected claim stays out of graph');
+assert.match(markdown, /Projection source: Evidence Pack/);
+assert.match(markdown, /Projection boundary: verified\/corrected reviewer decisions only/);
+assert.doesNotMatch(markdown, /claim-rejected|spent \$9M/);
 assert.match(markdown, /Finding 1: verified|Claim 1: verified/);
+assert.match(html, /Projection source: Evidence Pack/);
+assert.match(html, /Projection boundary: verified\/corrected reviewer decisions only/);
+assert.doesNotMatch(html, /claim-rejected|spent \$9M/);
 assert.match(html, /ClaimGate handoff pack/);
 
 const graphUi = ImpactGraphView({
@@ -60,4 +71,16 @@ const reportUi = ImpactReport({ report: { title: pack.title, markdown, html, evi
 
 assert.equal(typeof graphUi.type, 'string');
 assert.equal(typeof reportUi.type, 'string');
-console.log('ClaimGate handoff smoke PASS');
+console.log(
+  JSON.stringify(
+    {
+      status: 'PASS',
+      artifact_order: ['EvidencePack JSON', 'Report Markdown/HTML', 'Graph JSON'],
+      primary: { kind: 'EvidencePack', id: pack.id, projected_claims: pack.items.length },
+      auxiliary: { report_bytes: markdown.length + html.length, graph_nodes: graph.nodes.length, graph_edges: graph.edges.length },
+      excluded_non_projectable_claims: 1
+    },
+    null,
+    2
+  )
+);

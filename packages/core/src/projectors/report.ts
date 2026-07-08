@@ -12,7 +12,15 @@ export function renderEvidenceReportMarkdown(pack: EvidencePack, template: Evide
   const itemLabel = template.itemLabel ?? 'Claim';
   const includeAudit = template.includeAudit ?? false;
   const includeCorrections = template.includeCorrections ?? true;
-  const lines = [`# ${escapeMarkdown(title)}`, '', `Generated: ${escapeMarkdown(pack.generatedAt)}`, `Evidence items: ${pack.items.length}`, ''];
+  const lines = [
+    `# ${escapeMarkdown(title)}`,
+    '',
+    'Projection source: Evidence Pack',
+    'Projection boundary: verified/corrected reviewer decisions only',
+    `Generated: ${escapeMarkdown(pack.generatedAt)}`,
+    `Evidence items: ${pack.items.length}`,
+    ''
+  ];
 
   for (const [index, item] of pack.items.entries()) {
     lines.push(`## ${escapeMarkdown(itemLabel)} ${index + 1}: ${escapeMarkdown(item.reviewerDecision)}`);
@@ -43,7 +51,7 @@ export function renderEvidenceReportHtml(pack: EvidencePack, template: EvidenceR
   const includeCorrections = template.includeCorrections ?? true;
   const items = pack.items.map((item, index) => renderEvidenceItemHtml(item, index, itemLabel, includeAudit, includeCorrections)).join('');
 
-  return `<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(title)}</title></head><body><h1>${escapeHtml(title)}</h1><p>Generated: ${escapeHtml(pack.generatedAt)}</p><p>Evidence items: ${pack.items.length}</p>${items}</body></html>`;
+  return `<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(title)}</title></head><body><h1>${escapeHtml(title)}</h1><p>Projection source: Evidence Pack</p><p>Projection boundary: verified/corrected reviewer decisions only</p><p>Generated: ${escapeHtml(pack.generatedAt)}</p><p>Evidence items: ${pack.items.length}</p>${items}</body></html>`;
 }
 
 function renderEvidenceItemHtml(
