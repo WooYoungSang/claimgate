@@ -2,7 +2,9 @@
 
 This is the judge-facing scenario matrix for the committed Bet `bet-warvis-claimgate-framework--claimgate-user-scenario-simulation-qa-harness`.
 
-The harness is deliberately offline and deterministic. It proves ClaimGate's v0 philosophy with existing repository fixtures, docs, tests, and scripts. It does **not** add real LLM extraction, OCR, PDF/Excel parsing, server, database, auth, multitenancy, graph database persistence, or real DID wallet/verifier behavior.
+The harness is deliberately offline and deterministic. It demonstrates ClaimGate's v0 philosophy with existing repository fixtures, docs, tests, and scripts. It does **not** add real LLM extraction, OCR, PDF/Excel parsing, server, database, auth, multitenancy, graph database persistence, or real DID wallet/verifier behavior.
+
+The harness interpretation is offline deterministic fixture QA only; not real LLM/OCR/server/DB/DID evaluation.
 
 ## How to run the QA harness
 

@@ -37,6 +37,10 @@ const noGos = [
   'graph database',
   'real DID'
 ];
+const requiredNoGoStatements = [
+  'does **not** add real LLM extraction, OCR, PDF/Excel parsing, server, database, auth, multitenancy, graph database persistence, or real DID wallet/verifier behavior',
+  'not real LLM/OCR/server/DB/DID evaluation'
+];
 
 if (!existsSync(docPath)) {
   fail(`Missing QA simulation harness: ${docPath}`);
@@ -68,6 +72,9 @@ for (const command of requiredCommands) {
 
 for (const noGo of noGos) {
   if (!doc.includes(noGo)) missing.push(`explicit v0 no-go: ${noGo}`);
+}
+for (const statement of requiredNoGoStatements) {
+  if (!doc.includes(statement)) missing.push(`negative no-go context: ${statement}`);
 }
 
 for (const claim of forbiddenPositiveClaims) {
