@@ -29,12 +29,42 @@ export interface ClaimExtractor {
   extractClaims(source: ClaimExtractorSource): MaybePromise<readonly CandidateClaim[]>;
 }
 
+export type ClaimExtractorAllowedCapability = 'candidate-claim-proposal' | 'source-anchor-proposal';
+
+export type ClaimExtractorForbiddenAuthority =
+  | 'verify-truth'
+  | 'score-risk'
+  | 'attach-anchor'
+  | 'reviewer-decision'
+  | 'project-evidence';
+
+export interface ClaimExtractorBoundary {
+  readonly mode: ClaimExtractor['mode'];
+  readonly outputContract: 'CandidateClaim[]';
+  readonly providerCalls: 'forbidden-in-v0';
+  readonly allowedCapabilities: readonly ClaimExtractorAllowedCapability[];
+  readonly forbiddenAuthorities: readonly ClaimExtractorForbiddenAuthority[];
+}
+
+export const CLAIM_EXTRACTOR_ALLOWED_CAPABILITIES = Object.freeze([
+  'candidate-claim-proposal',
+  'source-anchor-proposal'
+] as const satisfies readonly ClaimExtractorAllowedCapability[]);
+
+export const CLAIM_EXTRACTOR_FORBIDDEN_AUTHORITIES = Object.freeze([
+  'verify-truth',
+  'score-risk',
+  'attach-anchor',
+  'reviewer-decision',
+  'project-evidence'
+] as const satisfies readonly ClaimExtractorForbiddenAuthority[]);
+
 export type CandidateAuthorityErrorCode = 'E_AI_AUTHORITY_LEAK';
 
 export class CandidateAuthorityError extends Error {
   readonly code: CandidateAuthorityErrorCode;
 
-  constructor(message = 'AI extraction fixtures may only contain extracted candidates and proposed anchors; judge/risk/projection authority is forbidden.') {
+  constructor(message = 'AI extraction candidates may only contain extracted candidates and proposed anchors; judge/risk/projection authority is forbidden.') {
     super(message);
     this.name = 'CandidateAuthorityError';
     this.code = 'E_AI_AUTHORITY_LEAK';
@@ -63,6 +93,32 @@ export function assertCandidateClaim(candidate: CandidateClaim): void {
   if (candidate.state !== 'extracted') {
     throw new CandidateAuthorityError();
   }
+}
+
+export function assertCandidateClaims(candidates: readonly CandidateClaim[]): readonly CandidateClaim[] {
+  for (const candidate of candidates) {
+    assertCandidateClaim(candidate);
+  }
+
+  return Object.freeze([...candidates]);
+}
+
+export async function extractCandidateClaims(
+  extractor: ClaimExtractor,
+  source: ClaimExtractorSource
+): Promise<readonly CandidateClaim[]> {
+  const candidates = await extractor.extractClaims(source);
+  return assertCandidateClaims(candidates);
+}
+
+export function describeClaimExtractorBoundary(mode: ClaimExtractor['mode'] = 'fixture'): ClaimExtractorBoundary {
+  return Object.freeze({
+    mode,
+    outputContract: 'CandidateClaim[]' as const,
+    providerCalls: 'forbidden-in-v0' as const,
+    allowedCapabilities: CLAIM_EXTRACTOR_ALLOWED_CAPABILITIES,
+    forbiddenAuthorities: CLAIM_EXTRACTOR_FORBIDDEN_AUTHORITIES
+  });
 }
 
 export function normalizeCandidateClaim(input: unknown): CandidateClaim {

@@ -1,9 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import {
   createExtractedClaimsFromCandidates,
+  describeClaimExtractorBoundary,
+  extractCandidateClaims,
   FixtureClaimExtractor,
   parseExtractionFixture,
   type CandidateClaim,
+  type ClaimExtractor,
   type ExtractionFixture
 } from '../src/index.js';
 
@@ -93,7 +96,39 @@ describe('AI extraction adapter boundary', () => {
       ]
     });
 
-    expect(() => parseExtractionFixture(authorityLeak)).toThrow(/AI extraction fixtures may only contain extracted candidates/);
+    expect(() => parseExtractionFixture(authorityLeak)).toThrow(/AI extraction candidates may only contain extracted candidates/);
+  });
+
+  it('models the future LLM adapter as a candidate-only boundary without provider calls in v0', () => {
+    const boundary = describeClaimExtractorBoundary('llm-adapter-boundary');
+
+    expect(boundary.outputContract).toBe('CandidateClaim[]');
+    expect(boundary.providerCalls).toBe('forbidden-in-v0');
+    expect(boundary.allowedCapabilities).toEqual(['candidate-claim-proposal', 'source-anchor-proposal']);
+    expect(boundary.forbiddenAuthorities).toEqual(
+      expect.arrayContaining(['verify-truth', 'score-risk', 'attach-anchor', 'reviewer-decision', 'project-evidence'])
+    );
+  });
+
+  it('rejects future adapter outputs that attempt AI verification, risk scoring, or projection authority', async () => {
+    const futureAdapter: ClaimExtractor = {
+      id: 'future-llm-boundary-test-double',
+      mode: 'llm-adapter-boundary',
+      extractClaims: () =>
+        [
+          {
+            id: 'bad-future-claim',
+            text: 'LLM attempted to verify this claim.',
+            state: 'extracted',
+            aiValue: 42,
+            riskLevel: 'green',
+            reviewerDecision: 'verified',
+            projected: true
+          }
+        ] as unknown as readonly CandidateClaim[]
+    };
+
+    await expect(extractCandidateClaims(futureAdapter, source)).rejects.toThrow(/AI extraction candidates may only contain extracted candidates/);
   });
 
   it('keeps fixture loading deterministic and fixture-first, including intentional wrong claims', () => {
