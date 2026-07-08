@@ -188,10 +188,14 @@ describe('Evidence Pack projectors', () => {
     const html = renderEvidenceReportHtml(pack, { title: 'Health Report', itemLabel: 'Claim' });
 
     expect(markdown).toContain('# Civic Report');
+    expect(markdown).toContain('Projection source: Evidence Pack');
+    expect(markdown).toContain('Projection boundary: verified/corrected reviewer decisions only');
     expect(markdown).toContain('## Finding 1: corrected');
     expect(markdown).toContain('Claim corrected');
     expect(markdown).not.toContain('This must not leak');
     expect(html).toContain('<h1>Health Report</h1>');
+    expect(html).toContain('Projection source: Evidence Pack');
+    expect(html).toContain('Projection boundary: verified/corrected reviewer decisions only');
     expect(html).toContain('Claim verified');
     expect(html).not.toContain('This must not leak');
     expect(markdown).not.toEqual(html);
