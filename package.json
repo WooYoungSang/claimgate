@@ -16,7 +16,8 @@
     "test:handoff": "pnpm test:e2e",
     "test:perf": "pnpm build && tsx scripts/framework-performance-eval.ts",
     "eval:framework": "pnpm lint && pnpm typecheck && pnpm test && pnpm demo && pnpm test/conformance && pnpm test:e2e && pnpm test:perf",
-    "test:submission-control-plane": "node scripts/validate-submission-control-plane.mjs"
+    "test:submission-control-plane": "node scripts/validate-submission-control-plane.mjs",
+    "test:simulation-qa": "node scripts/run-simulation-qa.mjs"
   },
   "keywords": [
     "claimgate",
