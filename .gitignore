@@ -25,7 +25,10 @@ private/
 .private/
 vault/
 vault-export/
-obsidian-vault/\.obsidian/\.warvis/\.envrc
+obsidian-vault/
+.obsidian/
+.warvis/
+.envrc
 *.age
 *.gpg
 *.kdbx

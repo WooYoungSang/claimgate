@@ -1,6 +1,12 @@
 # Security Policy
 
-ClaimGate v0 is an offline, deterministic framework evaluation surface. It intentionally excludes production network and identity infrastructure so reviewers can inspect the trust boundary without secret handling.
+ClaimGate v0 is an offline, deterministic, fixture-first framework evaluation surface. It intentionally excludes production network and identity infrastructure so reviewers can inspect the trust boundary without secret handling.
+
+## Supported versions
+
+| Version | Supported | Notes |
+|---|---:|---|
+| `0.0.x` | Yes | Pre-public release readiness branch; APIs may still change before a tagged public release. |
 
 ## Supported scope
 
@@ -25,15 +31,26 @@ The following are not implemented and should not be treated as security-reviewed
 
 ## Secret handling
 
-The default repository path requires no secrets. Do not commit API keys, wallet seeds, private keys, tokens, credentials, or production data. Fixture credentials in `examples/fixtures/mock-credentials.json` are public mock data only.
+The default repository path requires no secrets. Do not commit API keys, wallet seeds, private keys, tokens, credentials, production data, private vault exports, real credentials, production personal data, or non-public source documents. Fixture credentials in `examples/fixtures/mock-credentials.json` are public mock data only.
 
-## Reporting issues
+## Reporting a vulnerability
 
-For now, report security issues through the project maintainers/operators for this repository. Include:
+Before the repository is made public, report security issues through the private project operator/reviewer channel. After a public release, replace this paragraph with a public contact such as a security email address or GitHub Security Advisory workflow.
 
-1. affected package or doc;
-2. reproduction steps using local commands when possible;
-3. whether the issue can affect trust invariants such as No Anchor No Claim, AI Curator Not Judge, deterministic risk traces, Evidence Pack First, or verified/corrected-only projection.
+Please include:
+
+1. affected package or file path;
+2. reproduction steps using offline fixtures only when possible;
+3. expected vs. actual security impact;
+4. whether the issue could affect trust invariants such as No Anchor No Claim, AI Curator Not Judge, deterministic risk traces, Evidence Pack First, verified/corrected-only projection, source anchors, evidence packs, reviewer notes, or local runtime state.
+
+## v0 security boundaries
+
+- No network is required for runtime demos after dependencies are installed.
+- No API key, provider credential, database URL, auth token, or local vault export is required for normal use.
+- AI adapters may propose candidate claims/anchors only; they must not verify truth, score final risk, or project claims.
+- Trust/provenance adapters are mock/offline in v0 and must not bypass Source Anchors, deterministic risk, or reviewer terminal decisions.
+- Public visibility is a separate human-approved step; this readiness branch must not publish or flip repository visibility.
 
 ## Evaluator security checklist
 
