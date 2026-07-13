@@ -15,12 +15,12 @@
 
 ## Official requirement anchors
 
-공식 요구사항은 저장소의 원본 HWP `docs/competition-source/외교 공공데이터 · AI 활용 경진대회 개최 공고문.hwp`를 기준으로 한다. 다음 명령으로 텍스트를 재현하고, 아래 표의 **검색 표제어**로 해당 항목을 확인한다.
+공식 요구사항은 저장소의 원본 HWP `docs/외교 공공데이터 · AI 활용 경진대회 개최 공고문.hwp`를 기준으로 한다. 다음 명령으로 텍스트를 재현하고, 아래 표의 **검색 표제어**로 해당 항목을 확인한다.
 
 ```bash
 PYTHONPATH=/tmp/pyhwp /tmp/pyhwp/bin/hwp5html --html \
   --output /tmp/claimgate-oda-official-notice.html \
-  'docs/competition-source/외교 공공데이터 · AI 활용 경진대회 개최 공고문.hwp'
+  'docs/외교 공공데이터 · AI 활용 경진대회 개최 공고문.hwp'
 ```
 
 HWP 표의 셀 경계 때문에 일부 심사기준은 HTML에서 여러 `span`으로 분리된다. SEC 표제어는 전체 문구로, JC 표제어는 아래에 적은 토큰 쌍으로 확인한다.

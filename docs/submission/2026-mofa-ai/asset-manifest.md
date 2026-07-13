@@ -17,9 +17,9 @@
 |---|---|---|---|
 | `docs/submission/2026-mofa-ai/claimgate-oda-product-service-proposal.md` | PDF 본문 원고 | read-only | 한국어 제출 원고. 9개 논리 페이지를 `<div class="page-break"></div>`로 지정. |
 | `docs/submission/2026-mofa-ai/claim-evidence-matrix.md` | 공식 섹션/심사기준/CE trace 검증 | read-only | SEC-1~SEC-6 및 JC-1~JC-6 coverage matrix. |
-| `docs/competition-source/[26-390](보도자료) 외교 공공데이터와 AI, 국민의 아이디어로 창업의 기회를 열어갑니다.pdf` | 공고/대회 provenance | read-only | competition-source 제공 보도자료 PDF. |
-| `docs/competition-source/외교 공공데이터 · AI 활용 경진대회 개최 공고문.hwp` | 공고/요구사항 provenance | read-only | competition-source 제공 개최 공고문 HWP. |
-| `docs/competition-source/외교 공공데이터 · AI 활용 경진대회 포스터.png` | 공고/대회 provenance | read-only | competition-source 제공 포스터 PNG. |
+| `docs/[26-390](보도자료) 외교 공공데이터와 AI, 국민의 아이디어로 창업의 기회를 열어갑니다.pdf` | 공고/대회 provenance | read-only | 운영자가 제공한 보도자료 PDF. |
+| `docs/외교 공공데이터 · AI 활용 경진대회 개최 공고문.hwp` | 공고/요구사항 provenance | read-only | 운영자가 제공한 개최 공고문 HWP. |
+| `docs/외교 공공데이터 · AI 활용 경진대회 포스터.png` | 공고/대회 provenance | read-only | 운영자가 제공한 포스터 PNG. |
 
 ## Renderer and tool versions
 
@@ -173,7 +173,7 @@ Expected/observed result:
 - `git diff --check` for the markdown manifest: PASS, no output.
 - `git diff --check` for the PDF path: PASS, no output.
 - No tracked-file diff outside the owned deliverables was introduced by this rendering task.
-- Initial worktree state already showed untracked `docs/competition-source/` and `docs/submission/`; this task did not modify source inputs and added only the two owned deliverables inside the existing untracked submission tree.
+- 메인 저장소에서 운영자 제공 원본은 `docs/` 루트의 untracked 파일로 보존되며, 렌더링 작업은 해당 입력을 수정하거나 커밋하지 않았다.
 
 ## SHA-256
 
@@ -184,17 +184,19 @@ sha256sum \
   docs/submission/2026-mofa-ai/claimgate-oda-product-service-proposal.md \
   docs/submission/2026-mofa-ai/claim-evidence-matrix.md \
   docs/submission/2026-mofa-ai/claimgate-oda-product-service-proposal.pdf \
-  docs/competition-source/*
+  'docs/[26-390](보도자료) 외교 공공데이터와 AI, 국민의 아이디어로 창업의 기회를 열어갑니다.pdf' \
+  'docs/외교 공공데이터 · AI 활용 경진대회 개최 공고문.hwp' \
+  'docs/외교 공공데이터 · AI 활용 경진대회 포스터.png'
 ```
 
 | SHA-256 | Path |
 |---|---|
 | `d24fd3edaaf1deb6d6fc71c1c58c77c17490092bf766afa0fc3306bd268b6ad4` | `docs/submission/2026-mofa-ai/claimgate-oda-product-service-proposal.md` |
-| `d6800f79daa5e30fefe6f526ebfd8070e8c09edb29731486f65876ed7c9bb5d6` | `docs/submission/2026-mofa-ai/claim-evidence-matrix.md` |
+| `976f322930420464b2abaddb80221ce5910b00eae35722e4c41f1866d690094e` | `docs/submission/2026-mofa-ai/claim-evidence-matrix.md` |
 | `3bb23e495052bd7873fe41e678baa057c8f840ba0b8b45857f3ccb116c315ca5` | `docs/submission/2026-mofa-ai/claimgate-oda-product-service-proposal.pdf` |
-| `78aa307528f1f63e5f302b7a52e42a2fb4f2c5cc721dad9132515b2387e1e621` | `docs/competition-source/[26-390](보도자료) 외교 공공데이터와 AI, 국민의 아이디어로 창업의 기회를 열어갑니다.pdf` |
-| `d0dd894d15f08f42e93cc81461b0e42669a4fff03417249bb2f15c537e524721` | `docs/competition-source/외교 공공데이터 · AI 활용 경진대회 개최 공고문.hwp` |
-| `8c4bb0be792ed02f3dec3c7bbf8a8b6497f327011279fd1bb7beb11b0fa8f05d` | `docs/competition-source/외교 공공데이터 · AI 활용 경진대회 포스터.png` |
+| `78aa307528f1f63e5f302b7a52e42a2fb4f2c5cc721dad9132515b2387e1e621` | `docs/[26-390](보도자료) 외교 공공데이터와 AI, 국민의 아이디어로 창업의 기회를 열어갑니다.pdf` |
+| `d0dd894d15f08f42e93cc81461b0e42669a4fff03417249bb2f15c537e524721` | `docs/외교 공공데이터 · AI 활용 경진대회 개최 공고문.hwp` |
+| `8c4bb0be792ed02f3dec3c7bbf8a8b6497f327011279fd1bb7beb11b0fa8f05d` | `docs/외교 공공데이터 · AI 활용 경진대회 포스터.png` |
 
 ## Product / ODA / roadmap boundaries
 
