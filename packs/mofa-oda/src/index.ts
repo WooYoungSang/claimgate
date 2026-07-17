@@ -1,4 +1,13 @@
 import type { DomainFixtureClaim, DomainPack, DomainRiskDecision, DomainRiskRule } from '@claimgate/core/domain-pack';
+import { createMofaOdaPresentation } from './presentation.js';
+
+export {
+  createMofaOdaPresentation,
+  type MofaOdaPresentation,
+  type MofaOdaRiskLabelKo,
+  type MofaOdaScenarioPresentation,
+  type SourceSnapshot
+} from './presentation.js';
 
 const COUNTRY_SAFETY_RULE_ID = 'mofa.country-safety-mismatch';
 const PROJECT_MISMATCH_RULE_ID = 'koica.project-period-or-country-mismatch';
@@ -225,3 +234,5 @@ export const mofaOdaPack: DomainPack = {
     }
   ]
 };
+
+export const mofaOdaPresentation = createMofaOdaPresentation(mofaOdaPack);
