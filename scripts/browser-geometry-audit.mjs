@@ -27,6 +27,21 @@ BASE_URL = os.environ["CLAIMGATE_GEOMETRY_URL"]
 VIEWPORTS = json.loads(os.environ["CLAIMGATE_GEOMETRY_VIEWPORTS"])
 INTERACTION_VIEWPORTS = json.loads(os.environ["CLAIMGATE_GEOMETRY_INTERACTION_VIEWPORTS"])
 EXPECTED_PACKS = {"civic-data", "health-data", "mofa-oda"}
+JUDGE_FLOW = os.environ.get("CLAIMGATE_JUDGE_FLOW") == "1"
+MUTATE_DECISION_EXPECTATIONS = os.environ.get("CLAIMGATE_JUDGE_FLOW_SWAP_EXPECTATIONS") == "1"
+PACK_EXPECTATIONS = {
+    "civic-data": {"claimId": "civic-claim-001", "aiValue": 12, "sourceValue": 10},
+    "health-data": {"claimId": "health-claim-001", "aiValue": 94, "sourceValue": 94},
+    "mofa-oda": {
+        "claimId": "mofa-oda-claim-001",
+        "aiValue": "안전·안정",
+        "sourceValue": "특별여행주의보·신변안전 유의",
+    },
+}
+DECISION_EXPECTATIONS = {
+    "corrected": {"label": "정정 완료", "reason": "출처 근거와 AI 제안 값이 달라 근거값으로 정정합니다."},
+    "verified": {"label": "검증 완료", "reason": "출처 근거와 일치함을 검토자가 확인했습니다."},
+}
 EXPECTED_STATES = {
     "guide-launch",
     "free-exploration",
@@ -320,6 +335,230 @@ async def enter_free_exploration(page):
         await launch.wait_for(state="detached")
 
 
+def record_contract(report, pack, step, name, passed, expected, actual):
+    check = {
+        "pack": pack,
+        "step": step,
+        "name": name,
+        "expected": expected,
+        "actual": actual,
+        "passed": passed,
+    }
+    report["checks"].append(check)
+    if not passed:
+        report["failures"].append(check)
+
+
+async def select_pack(page, pack):
+    await page.goto(BASE_URL, wait_until="networkidle")
+    await enter_free_exploration(page)
+    selector = page.locator(".pack-select select")
+    await selector.select_option(value=pack)
+    await page.wait_for_function(
+        "value => document.querySelector('.pack-select select')?.value === value",
+        arg=pack,
+    )
+    await page.wait_for_timeout(30)
+
+
+async def reset_review(page):
+    await page.locator(".reset-button").click()
+    await page.locator(".guide-launch").wait_for(state="visible")
+    await enter_free_exploration(page)
+
+
+async def record_decision(page, decision):
+    selector = {
+        "rejected": ".decision-actions .reject",
+        "corrected": ".decision-actions .correct",
+        "verified": ".decision-actions .verify",
+    }[decision]
+    await page.locator(selector).click()
+    dialog = page.locator(".decision-dialog")
+    await dialog.wait_for(state="visible")
+    await dialog.locator(".primary").click()
+    await dialog.wait_for(state="detached")
+    await page.locator(".audit-note").wait_for(state="visible")
+
+
+async def capture_download(page, button_index):
+    async with page.expect_download(timeout=3_000) as download_info:
+        await page.locator(".evidence-dialog .download-actions > button").nth(button_index).click()
+    download = await download_info.value
+    path = await download.path()
+    with open(path, "rb") as handle:
+        contents = handle.read().decode("utf-8")
+    return download.suggested_filename, contents
+
+
+async def assert_empty_projection(page, report, pack, step):
+    export_disabled = await page.locator(".export-button").is_disabled()
+    evidence_count = await page.locator(".evidence-item").count()
+    projected_count = (await page.locator(".evidence-heading .count-badge").inner_text()).strip()
+    record_contract(report, pack, step, "preview-download-guard", export_disabled, True, export_disabled)
+    record_contract(report, pack, step, "no-evidence-items", evidence_count == 0, 0, evidence_count)
+    record_contract(report, pack, step, "canonical-projection-count", projected_count == "0", "0", projected_count)
+
+
+async def assert_reset(page, report, pack, step):
+    await assert_empty_projection(page, report, pack, step)
+    decisions = await page.locator(".decision-label").all_inner_texts()
+    disabled_buttons = await page.locator(".decision-actions > button:disabled").count()
+    audit_count = await page.locator(".audit-note").count()
+    record_contract(
+        report, pack, step, "all-claims-return-to-pending",
+        bool(decisions) and all(label.strip() == "검토 대기" for label in decisions),
+        ["검토 대기"] * len(decisions), decisions,
+    )
+    record_contract(report, pack, step, "decision-buttons-reenabled", disabled_buttons == 0, 0, disabled_buttons)
+    record_contract(report, pack, step, "audit-history-cleared", audit_count == 0, 0, audit_count)
+
+
+def expected_decision(decision):
+    if not MUTATE_DECISION_EXPECTATIONS:
+        return decision
+    return "verified" if decision == "corrected" else "corrected"
+
+
+def display_value(value):
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    return str(value)
+
+
+async def assert_projected_downloads(page, report, pack, decision, run_label):
+    expected_path = expected_decision(decision)
+    expectation = PACK_EXPECTATIONS[pack]
+    decision_expectation = DECISION_EXPECTATIONS[expected_path]
+    claim_text = (await page.locator(".queue-item.active small").inner_text()).strip()
+    decision_label = (await page.locator(".queue-item.active .decision-label").inner_text()).strip()
+    evidence_count = await page.locator(".evidence-item").count()
+    export_disabled = await page.locator(".export-button").is_disabled()
+    record_contract(report, pack, run_label, "decision-label", decision_label == decision_expectation["label"], decision_expectation["label"], decision_label)
+    record_contract(report, pack, run_label, "one-canonical-evidence-item", evidence_count == 1, 1, evidence_count)
+    record_contract(report, pack, run_label, "preview-enabled", not export_disabled, "enabled", "disabled" if export_disabled else "enabled")
+
+    await page.locator(".export-button").click()
+    dialog = page.locator(".evidence-dialog")
+    await dialog.wait_for(state="visible")
+    footer = (await dialog.locator("footer strong").inner_text()).strip()
+    record_contract(report, pack, run_label, "preview-canonical-count", footer == "1건 투영 가능", "1건 투영 가능", footer)
+
+    json_name, json_contents = await capture_download(page, 0)
+    markdown_name, markdown_contents = await capture_download(page, 1)
+    expected_json_name = f"{pack}-evidence-pack.json"
+    expected_markdown_name = f"{pack}-evidence-pack.md"
+
+    record_contract(report, pack, run_label, "json-filename", json_name == expected_json_name, expected_json_name, json_name)
+    record_contract(report, pack, run_label, "markdown-filename", markdown_name == expected_markdown_name, expected_markdown_name, markdown_name)
+    try:
+        parsed_json = json.loads(json_contents)
+        json_valid = isinstance(parsed_json, dict)
+    except json.JSONDecodeError:
+        parsed_json = {}
+        json_valid = False
+    items = parsed_json.get("items", []) if json_valid else []
+    item = items[0] if len(items) == 1 else {}
+    expected_history = [{
+        "originalAiValue": expectation["aiValue"],
+        "sourceValue": expectation["sourceValue"],
+        "correctedValue": expectation["sourceValue"],
+        "reason": DECISION_EXPECTATIONS["corrected"]["reason"],
+        "reviewerId": "데모-검토자",
+    }] if expected_path == "corrected" else []
+    record_contract(report, pack, run_label, "json-content-valid", json_valid, "JSON object", "JSON object" if json_valid else "invalid JSON")
+    record_contract(report, pack, run_label, "json-exact-single-item", len(items) == 1, 1, len(items))
+    record_contract(report, pack, run_label, "json-claim-id", item.get("claimId") == expectation["claimId"], expectation["claimId"], item.get("claimId"))
+    record_contract(report, pack, run_label, "json-reviewer-decision", item.get("reviewerDecision") == expected_path, expected_path, item.get("reviewerDecision"))
+    record_contract(report, pack, run_label, "json-normalized-value", item.get("normalizedValue") == expectation["sourceValue"], expectation["sourceValue"], item.get("normalizedValue"))
+    record_contract(report, pack, run_label, "json-reviewer-id", item.get("reviewerId") == "데모-검토자", "데모-검토자", item.get("reviewerId"))
+    record_contract(report, pack, run_label, "json-correction-history", item.get("correctionHistory") == expected_history, expected_history, item.get("correctionHistory"))
+    correction_reason_present = DECISION_EXPECTATIONS["corrected"]["reason"] in json_contents
+    reason_boundary_matches = correction_reason_present if expected_path == "corrected" else not correction_reason_present
+    record_contract(report, pack, run_label, "json-correction-reason-boundary", reason_boundary_matches, "exact reason present" if expected_path == "corrected" else "correction reason absent", "matched" if reason_boundary_matches else "mismatch")
+    record_contract(report, pack, run_label, "json-content-pack-specific", parsed_json.get("metadata", {}).get("packId") == pack, pack, parsed_json.get("metadata", {}).get("packId"))
+    record_contract(report, pack, run_label, "json-content-claim", item.get("claimText") == claim_text, claim_text, item.get("claimText"))
+    record_contract(report, pack, run_label, "json-content-fixed-time", parsed_json.get("generatedAt") == "2026-07-08T00:00:00.000Z", "2026-07-08T00:00:00.000Z", parsed_json.get("generatedAt"))
+
+    markdown_decision = f"검토자 판정: {decision_expectation['label']}"
+    expected_correction = (
+        f"- 정정 이력: {display_value(expectation['aiValue'])} → {display_value(expectation['sourceValue'])} "
+        f"({DECISION_EXPECTATIONS['corrected']['reason']})"
+    )
+    record_contract(report, pack, run_label, "markdown-content-claim", f"- 주장: {claim_text}" in markdown_contents, f"- 주장: {claim_text}", "present" if f"- 주장: {claim_text}" in markdown_contents else "missing")
+    record_contract(report, pack, run_label, "markdown-reviewer-decision", markdown_decision in markdown_contents, markdown_decision, "present" if markdown_decision in markdown_contents else "missing")
+    record_contract(report, pack, run_label, "markdown-reviewer-id", "- 검토자: 데모-검토자" in markdown_contents, "- 검토자: 데모-검토자", "present" if "- 검토자: 데모-검토자" in markdown_contents else "missing")
+    correction_matches = expected_correction in markdown_contents if expected_path == "corrected" else "- 정정 이력:" not in markdown_contents
+    record_contract(report, pack, run_label, "markdown-correction-boundary", correction_matches, expected_correction if expected_path == "corrected" else "정정 이력 부재", "matched" if correction_matches else "mismatch")
+    record_contract(report, pack, run_label, "markdown-content-count", "근거 항목: 1" in markdown_contents, "근거 항목: 1", "present" if "근거 항목: 1" in markdown_contents else "missing")
+    record_contract(report, pack, run_label, "markdown-content-fixed-time", "생성 시각: 2026-07-08T00:00:00.000Z" in markdown_contents, "생성 시각: 2026-07-08T00:00:00.000Z", "present" if "생성 시각: 2026-07-08T00:00:00.000Z" in markdown_contents else "missing")
+    await page.keyboard.press("Escape")
+    await dialog.wait_for(state="detached")
+    return {"json": json_contents, "markdown": markdown_contents}
+
+
+async def run_judge_flow():
+    report = {"status": "PASS", "packs": sorted(EXPECTED_PACKS), "checks": [], "failures": []}
+    async with async_playwright() as playwright:
+        browser = await playwright.chromium.launch(headless=True)
+        try:
+            page = await browser.new_page(viewport={"width": 1440, "height": 960}, accept_downloads=True)
+            for pack in sorted(EXPECTED_PACKS):
+                await select_pack(page, pack)
+                await assert_empty_projection(page, report, pack, "pending")
+
+                await record_decision(page, "rejected")
+                await assert_empty_projection(page, report, pack, "rejected")
+                rejected_label = (await page.locator(".queue-item.active .decision-label").inner_text()).strip()
+                record_contract(report, pack, "rejected", "rejected-state-visible", rejected_label == "기각", "기각", rejected_label)
+
+                await reset_review(page)
+                await assert_reset(page, report, pack, "reset-after-reject")
+
+                await record_decision(page, "corrected")
+                corrected_first = await assert_projected_downloads(page, report, pack, "corrected", "corrected-first")
+
+                await reset_review(page)
+                await assert_reset(page, report, pack, "reset-after-correct")
+
+                await record_decision(page, "corrected")
+                corrected_repeat = await assert_projected_downloads(page, report, pack, "corrected", "corrected-repeat")
+                record_contract(report, pack, "corrected-repeat", "json-byte-stable-after-reset", corrected_repeat["json"] == corrected_first["json"], "byte-for-byte equal", "equal" if corrected_repeat["json"] == corrected_first["json"] else "different")
+                record_contract(report, pack, "corrected-repeat", "markdown-byte-stable-after-reset", corrected_repeat["markdown"] == corrected_first["markdown"], "byte-for-byte equal", "equal" if corrected_repeat["markdown"] == corrected_first["markdown"] else "different")
+
+                await reset_review(page)
+                await assert_reset(page, report, pack, "reset-after-correct-repeat")
+
+                await record_decision(page, "verified")
+                verified_first = await assert_projected_downloads(page, report, pack, "verified", "verified-first")
+
+                await reset_review(page)
+                await assert_reset(page, report, pack, "reset-after-verify")
+
+                await record_decision(page, "verified")
+                verified_repeat = await assert_projected_downloads(page, report, pack, "verified", "verified-repeat")
+                record_contract(report, pack, "verified-repeat", "json-byte-stable-after-reset", verified_repeat["json"] == verified_first["json"], "byte-for-byte equal", "equal" if verified_repeat["json"] == verified_first["json"] else "different")
+                record_contract(report, pack, "verified-repeat", "markdown-byte-stable-after-reset", verified_repeat["markdown"] == verified_first["markdown"], "byte-for-byte equal", "equal" if verified_repeat["markdown"] == verified_first["markdown"] else "different")
+
+                await reset_review(page)
+                await assert_reset(page, report, pack, "reset-after-verify-repeat")
+        finally:
+            await browser.close()
+
+    if report["failures"]:
+        report["status"] = "FAIL"
+    print(json.dumps({
+        "status": report["status"],
+        "packs": report["packs"],
+        "decisions": ["rejected", "corrected", "verified"],
+        "resetPaths": 5,
+        "checks": len(report["checks"]),
+        "failureCount": len(report["failures"]),
+        "failures": report["failures"],
+    }, ensure_ascii=False, indent=2))
+    return 1 if report["failures"] else 0
+
+
 async def run():
     report = {
         "status": "PASS",
@@ -427,7 +666,7 @@ async def run():
 
 
 try:
-    exit_code = asyncio.run(run())
+    exit_code = asyncio.run(run_judge_flow() if JUDGE_FLOW else run())
 except Exception as error:
     print(json.dumps({
         "status": "BLOCKED",
@@ -574,7 +813,7 @@ function waitForAudit(child) {
   });
 }
 
-async function runGeometryAudit() {
+async function runGeometryAudit(judgeFlow = false) {
   const preview = startPreview();
   try {
     await waitForPreview(preview);
@@ -584,7 +823,8 @@ async function runGeometryAudit() {
         ...process.env,
         CLAIMGATE_GEOMETRY_URL: baseUrl,
         CLAIMGATE_GEOMETRY_VIEWPORTS: JSON.stringify(viewports),
-        CLAIMGATE_GEOMETRY_INTERACTION_VIEWPORTS: JSON.stringify(interactionViewports)
+        CLAIMGATE_GEOMETRY_INTERACTION_VIEWPORTS: JSON.stringify(interactionViewports),
+        CLAIMGATE_JUDGE_FLOW: judgeFlow ? '1' : '0'
       },
       stdio: 'inherit'
     });
@@ -597,4 +837,4 @@ async function runGeometryAudit() {
 
 installSignalCleanup();
 if (process.argv.includes('--cleanup-self-test')) await runCleanupSelfTest();
-else await runGeometryAudit();
+else await runGeometryAudit(process.argv.includes('--judge-flow'));

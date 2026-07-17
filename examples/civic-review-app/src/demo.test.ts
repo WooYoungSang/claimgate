@@ -142,6 +142,20 @@ describe('example DomainPack composition', () => {
     expect(exported.markdown).not.toContain('- Claim:');
   });
 
+  it('allows a reviewer correction from a non-conflict risk disposition', () => {
+    const queue = buildReviewQueue('health-data');
+    const corrected = createReviewRecord('corrected', {
+      correctedValue: queue[0]!.sourceValue,
+      reason: '검토자가 고정 출처 값으로 정정 판정'
+    });
+
+    const exported = buildEvidenceExport('health-data', { [queue[0]!.fixtureId]: corrected });
+
+    expect(exported.itemCount).toBe(1);
+    expect(exported.json).toContain('health-claim-001');
+    expect(exported.markdown).toContain('검토자가 고정 출처 값으로 정정 판정');
+  });
+
   it('keeps terminal reviewer records append-only until reset', () => {
     const first = createReviewRecord('verified', { reason: 'source confirmed' });
     const records = appendReviewRecord({}, 'fixture-a', first);
