@@ -1,6 +1,6 @@
 import { civicDataPack } from '@claimgate/pack-civic-data';
 import { healthDataPack } from '@claimgate/pack-health-data';
-import { mofaOdaPack } from '@claimgate/pack-mofa-oda';
+import { mofaOdaPack, mofaOdaPresentation } from '@claimgate/pack-mofa-oda';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { create } from 'zustand';
@@ -17,6 +17,16 @@ import {
   type ReviewRecordMap,
   type ReviewQueueItem
 } from './demo.js';
+import {
+  AI_CURATOR_FIXTURE_PIPELINE,
+  GUIDED_DEMO_START,
+  GUIDED_DEMO_STEPS,
+  createGuidedDemoState,
+  currentGuidedDemoStep,
+  reduceGuidedDemo
+} from './guided-demo.js';
+import { summarizeReviewOutcome } from './review-outcome.js';
+import { buildVisualDiff } from './visual-diff.js';
 import './styles.css';
 
 interface DemoState {
@@ -51,6 +61,8 @@ const useDemoStore = create<DemoState>((set) => ({
 
 function App(): React.ReactElement {
   const [decisionDraft, setDecisionDraft] = React.useState<DecisionDraft | null>(null);
+  const [guidedDemo, dispatchGuidedDemo] = React.useReducer(reduceGuidedDemo, undefined, createGuidedDemoState);
+  const guideLaunchRef = React.useRef<HTMLElement>(null);
   const selectedPackId = useDemoStore((state) => state.selectedPackId);
   const selectedFixtureId = useDemoStore((state) => state.selectedFixtureId);
   const records = useDemoStore((state) => state.records);
@@ -64,6 +76,32 @@ function App(): React.ReactElement {
   const queue = buildReviewQueue(selectedPack.id);
   const selected = queue.find((item) => item.fixtureId === selectedFixtureId) ?? queue[0];
 
+  React.useEffect(() => {
+    if (guidedDemo.mode !== 'start') return;
+    const previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const focusable = () => Array.from(guideLaunchRef.current?.querySelectorAll<HTMLButtonElement>('button:not([disabled])') ?? []);
+    focusable()[0]?.focus();
+    const keepFocusInLaunch = (event: KeyboardEvent): void => {
+      if (event.key !== 'Tab') return;
+      const buttons = focusable();
+      const first = buttons[0];
+      const last = buttons[buttons.length - 1];
+      if (!first || !last) return;
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener('keydown', keepFocusInLaunch);
+    return () => {
+      document.removeEventListener('keydown', keepFocusInLaunch);
+      if (previouslyFocused && previouslyFocused !== document.body) previouslyFocused.focus();
+    };
+  }, [guidedDemo.mode]);
+
   if (!selected) return <main className="empty-state">선택한 DomainPack에 fixture가 없습니다.</main>;
 
   const decisionFor = (item: ReviewQueueItem): DemoReviewDecision => records[item.fixtureId]?.decision ?? item.initialDecision;
@@ -72,7 +110,13 @@ function App(): React.ReactElement {
   const evidenceItems = queue.filter((item) => reviewDecisionState(decisionFor(item)).evidenceEligible);
   const reviewedCount = queue.filter((item) => decisionFor(item) !== 'pending').length;
   const evidenceExport = buildEvidenceExport(selectedPack.id, records);
+  const reviewOutcome = summarizeReviewOutcome(queue, records, evidenceExport);
   const currentRecord = records[selected.fixtureId];
+  const guidedStep = currentGuidedDemoStep(guidedDemo);
+  const visualDiff = buildVisualDiff({ aiValue: selected.aiValue, sourceValue: selected.sourceValue });
+  const mofaScenario = selectedPack.id === mofaOdaPack.id
+    ? mofaOdaPresentation.scenarios.find((scenario) => scenario.fixtureId === selected.fixtureId)
+    : undefined;
 
   const openDecision = (decision: DecisionDraft['decision']): void => {
     setDecisionDraft({
@@ -97,6 +141,19 @@ function App(): React.ReactElement {
     setDecisionDraft(null);
   };
 
+  const resetAll = (): void => {
+    setDecisionDraft(null);
+    resetReviews();
+    dispatchGuidedDemo({ type: 'reset' });
+  };
+
+  const startGuidedDemo = (): void => {
+    setDecisionDraft(null);
+    selectPack(mofaOdaPack.id);
+    dispatchGuidedDemo({ type: 'reset' });
+    dispatchGuidedDemo({ type: 'start' });
+  };
+
   return (
     <main className="app-frame">
       <aside className="side-rail" aria-label="ClaimGate primary navigation">
@@ -119,7 +176,10 @@ function App(): React.ReactElement {
           </div>
           <div className="topbar-actions">
             <span className="runtime-badge"><i /> Offline fixture</span>
-            <span className="ai-boundary-badge"><Icon name="spark" /> AI Curator simulation</span>
+            <span className="ai-boundary-badge"><Icon name="spark" /> AI Curator · fixture proposal only</span>
+            {guidedDemo.mode === 'free-exploration' && (
+              <button type="button" className="guide-restart-button" onClick={startGuidedDemo}>가이드 데모</button>
+            )}
             <label className="pack-select">
               <span className="sr-only">DomainPack 선택</span>
               <select value={selectedPack.id} onChange={(event) => { setDecisionDraft(null); selectPack(event.target.value); }}>
@@ -132,27 +192,59 @@ function App(): React.ReactElement {
         <section className="status-strip" aria-label="Review status">
           <div className="status-copy">
             <span className="section-kicker">Review run · 2026-07</span>
-            <strong>{selectedPack.displayName}</strong>
-            <p>AI가 제안한 주장을 출처와 규칙으로 검토하고, 사람의 판정만 Evidence Pack에 반영합니다.</p>
+            <strong>{mofaScenario?.headlineKo ?? selectedPack.displayName}</strong>
+            <p>{mofaScenario?.reviewerPromptKo ?? 'AI가 제안한 주장을 출처와 규칙으로 검토하고, 사람의 판정만 Evidence Pack에 반영합니다.'}</p>
           </div>
           <div className="run-controls">
             <div className="run-progress" aria-label={`${queue.length}건 중 ${reviewedCount}건 판정`}>
               <div className="progress-label"><span>Review progress</span><strong>{reviewedCount} / {queue.length}</strong></div>
               <div className="progress-track"><i style={{ width: `${Math.round((reviewedCount / queue.length) * 100)}%` }} /></div>
             </div>
-            <button type="button" className="reset-button" onClick={() => { setDecisionDraft(null); resetReviews(); }} disabled={reviewedCount === 0}>데모 초기화</button>
+            <button type="button" className="reset-button" onClick={resetAll}>처음부터</button>
           </div>
         </section>
 
-        <ol className="demo-flow" aria-label="Three-minute demo flow">
-          <li className="active"><span>1</span><div><strong>주장 선택</strong><small>위험도 큐</small></div></li>
-          <li><span>2</span><div><strong>근거 비교</strong><small>Source Anchor</small></div></li>
-          <li><span>3</span><div><strong>사람 판정</strong><small>사유 기록</small></div></li>
-          <li><span>4</span><div><strong>Evidence Pack</strong><small>JSON · Markdown</small></div></li>
+        {guidedStep && (
+          <section className="guide-coach" aria-live="polite" aria-label={`가이드 ${guidedStep.order}단계`}>
+            <span className="guide-step-number">{guidedStep.order}</span>
+            <div className="guide-coach-copy">
+              <span className="section-kicker">Guided judge demo · {guidedStep.order} / {GUIDED_DEMO_STEPS.length}</span>
+              <strong>{guidedStep.title}</strong>
+              <p>{guidedStep.instruction}</p>
+            </div>
+            <div className="guide-coach-actions">
+              <button type="button" className="guide-skip" onClick={() => dispatchGuidedDemo({ type: 'skip' })}>가이드 건너뛰기</button>
+              <button
+                type="button"
+                className="guide-next"
+                onClick={() => dispatchGuidedDemo({ type: 'next' })}
+                disabled={guidedStep.id === 'human-review' && !currentRecord}
+              >
+                {guidedStep.id === 'evidence-pack' ? '가이드 완료' : '다음 단계'} <span aria-hidden="true">→</span>
+              </button>
+            </div>
+          </section>
+        )}
+
+        {guidedDemo.mode === 'free-exploration' && guidedDemo.exitReason === 'completed' && (
+          <div className="guide-complete" role="status"><Icon name="check" /><span><strong>4단계 가이드 완료</strong> 이제 모든 DomainPack을 자유롭게 검토할 수 있습니다.</span></div>
+        )}
+
+        <ol className="demo-flow" aria-label="Four-step judge demo flow">
+          {GUIDED_DEMO_STEPS.map((step) => {
+            const active = guidedStep?.id === step.id;
+            const complete = guidedDemo.completedStepIds.includes(step.id);
+            return (
+              <li key={step.id} className={`${active ? 'active' : ''} ${complete ? 'complete' : ''}`} aria-current={active ? 'step' : undefined}>
+                <span>{complete ? <Icon name="check" /> : step.order}</span>
+                <div><strong>{step.shortLabel}</strong><small>{step.title}</small></div>
+              </li>
+            );
+          })}
         </ol>
 
         <section className="review-layout">
-          <aside className="queue-panel" aria-label="Claim review queue">
+          <aside className={`queue-panel ${guidedStep?.target === 'review-queue' ? 'guided-focus' : ''}`} aria-label="Claim review queue">
             <div className="panel-title-row">
               <div><span className="section-kicker">Queue</span><h2>검토할 주장</h2></div>
               <span className="count-badge">{queue.length}</span>
@@ -177,7 +269,9 @@ function App(): React.ReactElement {
                     <span className={`risk-bar ${item.riskLevel}`} />
                     <span className="queue-item-body">
                       <span className="queue-meta"><b>CLM-{String(index + 1).padStart(3, '0')}</b><i className={`risk-pill ${item.riskLevel}`}>{riskLabel(item.riskLevel)}</i></span>
-                      <strong>{item.subject}</strong>
+                      <strong>{selectedPack.id === mofaOdaPack.id
+                        ? mofaOdaPresentation.scenarios.find((scenario) => scenario.fixtureId === item.fixtureId)?.headlineKo ?? item.subject
+                        : item.subject}</strong>
                       <small>{item.claimText}</small>
                       <span className={`decision-label ${decisionFor(item)}`}>{itemDecision.label}</span>
                     </span>
@@ -200,17 +294,17 @@ function App(): React.ReactElement {
               <span className={`review-state ${currentDecision}`}>{currentDecisionState.label}</span>
             </div>
 
-            <section className="comparison" aria-label="AI claim and source comparison">
+            <section className={`comparison ${guidedStep?.target === 'source-comparison' ? 'guided-focus' : ''}`} aria-label="AI claim and source comparison">
               <div className="comparison-card ai-claim">
                 <div className="card-label"><Icon name="spark" /><span>AI 제안</span><small>Curator only</small></div>
-                <blockquote>{selected.claimText}</blockquote>
-                <dl><dt>정규화 값</dt><dd>{displayValue(selected.aiValue)}</dd></dl>
+                <blockquote>{mofaScenario?.claimLabelKo ?? selected.claimText}</blockquote>
+                <dl><dt>{visualDiff.ai.label}</dt><dd>{visualDiff.ai.text}</dd></dl>
               </div>
-              <div className="comparison-divider" aria-hidden="true"><span>VS</span></div>
+              <div className={`comparison-divider ${visualDiff.status}`} aria-label={visualDiff.accessibleLabel}><span aria-hidden="true">{visualDiff.statusSymbol}</span><small>{visualDiff.statusLabel}</small></div>
               <div className="comparison-card source-claim">
                 <div className="card-label"><Icon name="source" /><span>Source Anchor</span><small>Offline snapshot</small></div>
-                <blockquote>{selected.sourceExcerpt}</blockquote>
-                <dl><dt>근거 값</dt><dd>{displayValue(selected.sourceValue)}</dd></dl>
+                <blockquote>{mofaScenario?.sourceLabelKo ?? selected.sourceExcerpt}</blockquote>
+                <dl><dt>{visualDiff.source.label}</dt><dd>{visualDiff.source.text}</dd></dl>
               </div>
             </section>
 
@@ -218,10 +312,10 @@ function App(): React.ReactElement {
               <div className="source-icon"><Icon name="database" /></div>
               <div>
                 <span className="section-kicker">Public-data provenance</span>
-                <strong>{selected.sourceTitle}</strong>
-                <p>{selected.sourceAnchorId}</p>
+                <strong>{mofaScenario?.sourceSnapshot.title ?? selected.sourceTitle}</strong>
+                <p>{mofaScenario?.sourceSnapshot.locator ?? selected.sourceAnchorId}</p>
               </div>
-              <div className="source-boundary"><i /><span>{selected.sourceBoundary}</span></div>
+              <div className="source-boundary"><i /><span>{mofaScenario?.sourceSnapshot.boundary ?? selected.sourceBoundary}</span></div>
             </section>
 
             <section className="rule-trace" aria-label="Deterministic rule trace">
@@ -236,7 +330,7 @@ function App(): React.ReactElement {
               </div>
             </section>
 
-            <section className="decision-bar" aria-label="Reviewer decision controls">
+            <section className={`decision-bar ${guidedStep?.target === 'reviewer-decision' ? 'guided-focus' : ''}`} aria-label="Reviewer decision controls">
               <div><span className="section-kicker">Human decision</span><strong>이 주장을 어떻게 처리할까요?</strong></div>
               <div className="decision-actions">
                 <button type="button" disabled={Boolean(currentRecord)} aria-pressed={currentDecision === 'rejected'} className={currentDecision === 'rejected' ? 'selected reject' : 'reject'} onClick={() => openDecision('rejected')}>기각</button>
@@ -252,11 +346,11 @@ function App(): React.ReactElement {
             )}
           </article>
 
-          <aside className="evidence-panel" aria-label="Evidence Pack preview">
+          <aside className={`evidence-panel ${guidedStep?.target === 'evidence-preview' ? 'guided-focus' : ''}`} aria-label="Evidence Pack preview">
             <div className="evidence-heading">
               <span className="evidence-icon"><Icon name="evidence" /></span>
               <div><span className="section-kicker">Projection</span><h2>Evidence Pack</h2></div>
-              <span className="count-badge dark">{evidenceItems.length}</span>
+              <span className="count-badge dark">{reviewOutcome.canonicalIncludedCount}</span>
             </div>
             <p className="evidence-intro">검증 또는 정정된 주장만 보고서와 그래프에 투영됩니다.</p>
 
@@ -280,6 +374,22 @@ function App(): React.ReactElement {
               <div><span>Mode</span><strong>Offline · deterministic</strong></div>
               <div><span>Authority</span><strong>Human reviewer</strong></div>
             </div>
+            <section className="outcome-summary" aria-label="Review outcome counts">
+              <div className="outcome-heading"><span className="section-kicker">Review outcome</span><strong>{reviewOutcome.reviewedCount} / {reviewOutcome.totalCount} 판정</strong></div>
+              <dl>
+                <div><dt>대기</dt><dd>{reviewOutcome.decisionCounts.pending}</dd></div>
+                <div><dt>검증</dt><dd>{reviewOutcome.decisionCounts.verified}</dd></div>
+                <div><dt>정정</dt><dd>{reviewOutcome.decisionCounts.corrected}</dd></div>
+                <div><dt>기각</dt><dd>{reviewOutcome.decisionCounts.rejected}</dd></div>
+              </dl>
+              {reviewOutcome.guardReasons.length > 0 && (
+                <ul className="guard-reasons" aria-label="Projection guard reasons">
+                  {reviewOutcome.guardReasons.map((reason) => (
+                    <li key={reason.fixtureId}><Icon name="lock" /><span><code>{reason.code}</code>{guardReasonLabel(reason.code)}</span></li>
+                  ))}
+                </ul>
+              )}
+            </section>
             <button type="button" className="export-button" disabled={evidenceItems.length === 0} onClick={() => setPreviewOpen(true)}><Icon name="export" /> Evidence Pack 미리보기</button>
             <p className="prototype-note">시제품 데이터입니다. 실시간 API·LLM·OCR·운영 정확도 평가는 포함하지 않습니다.</p>
           </aside>
@@ -331,6 +441,30 @@ function App(): React.ReactElement {
             </div>
           </section>
         </Modal>
+      )}
+
+      {guidedDemo.mode === 'start' && (
+        <section ref={guideLaunchRef} className="guide-launch" role="dialog" aria-modal="true" aria-labelledby="guide-launch-title">
+          <div className="guide-launch-card">
+            <div className="guide-launch-brand"><span>ClaimGate</span><strong>MOFA ODA prototype</strong></div>
+            <span className="section-kicker">{GUIDED_DEMO_START.eyebrow}</span>
+            <h2 id="guide-launch-title">{GUIDED_DEMO_START.title}</h2>
+            <p className="guide-launch-lede">{GUIDED_DEMO_START.description}</p>
+            <div className="curator-pipeline" aria-label="AI Curator fixture pipeline">
+              <div><small>Input</small><strong>사전 생성 오프라인 fixture</strong></div>
+              <span aria-hidden="true">→</span>
+              <div><small>AI Curator</small><strong>후보 주장 제안 시뮬레이션</strong></div>
+              <span aria-hidden="true">→</span>
+              <div><small>Authority</small><strong>제안 전용 · 판정 불가</strong></div>
+            </div>
+            <p className="curator-boundary"><Icon name="shield" />{AI_CURATOR_FIXTURE_PIPELINE.boundary}</p>
+            <div className="guide-launch-actions">
+              <button type="button" className="launch-primary" data-autofocus onClick={startGuidedDemo}>{GUIDED_DEMO_START.primaryLabel}</button>
+              <button type="button" className="launch-secondary" onClick={() => dispatchGuidedDemo({ type: 'explore' })}>{GUIDED_DEMO_START.secondaryLabel}</button>
+            </div>
+            <footer><span>Offline</span><span>Deterministic</span><span>Fixture-first</span><span>No live AI / API / OCR</span></footer>
+          </div>
+        </section>
       )}
     </main>
   );
@@ -398,8 +532,10 @@ function riskLabel(level: ReviewQueueItem['riskLevel']): string {
   return level === 'red' ? 'RED' : level === 'yellow' ? 'YELLOW' : 'GREEN';
 }
 
-function displayValue(value: unknown): string {
-  return String(value ?? '').replaceAll('|', ' · ').replaceAll('-', ' ');
+function guardReasonLabel(code: 'review-pending' | 'review-rejected'): string {
+  return code === 'review-pending'
+    ? '검토자 판정 전에는 canonical Evidence Pack 투영이 차단됩니다.'
+    : '검토자가 기각한 주장은 canonical Evidence Pack에서 제외됩니다.';
 }
 
 function Icon({ name }: { readonly name: string }): React.ReactElement {
