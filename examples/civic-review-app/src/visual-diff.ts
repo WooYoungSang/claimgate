@@ -32,7 +32,7 @@ export interface VisualDiff {
 
 const sideLabels: Readonly<Record<VisualDiffSideName, string>> = {
   ai: 'AI 제안 값',
-  source: 'Source Anchor 값'
+  source: '출처 근거 값'
 };
 
 function buildSide(side: VisualDiffSideName, value: VisualDiffValue | undefined): VisualDiffSide {
@@ -54,14 +54,18 @@ function buildSide(side: VisualDiffSideName, value: VisualDiffValue | undefined)
       label,
       presence: 'present',
       valueType: 'null',
-      text: 'null',
-      accessibleLabel: `${label}: null`
+      text: '값 없음',
+      accessibleLabel: `${label}: 값 없음`
     });
   }
 
   const valueType: Exclude<VisualDiffValueType, 'null' | 'missing'> =
     typeof value === 'string' ? 'string' : typeof value === 'number' ? 'number' : 'boolean';
-  const text = valueType === 'string' && value === '' ? '빈 문자열' : String(value);
+  const text = valueType === 'string' && value === ''
+    ? '빈 문자열'
+    : valueType === 'boolean'
+      ? value ? '참' : '거짓'
+      : String(value);
   const typeLabel = valueType === 'string' ? '문자열' : valueType === 'number' ? '숫자' : '불리언';
 
   return Object.freeze({
@@ -75,7 +79,7 @@ function buildSide(side: VisualDiffSideName, value: VisualDiffValue | undefined)
 }
 
 function describeMissingSides(missingSides: readonly VisualDiffSideName[]): string {
-  if (missingSides.length === 2) return 'AI 제안 값과 Source Anchor 값이 없습니다.';
+  if (missingSides.length === 2) return 'AI 제안 값과 출처 근거 값이 없습니다.';
   return `${sideLabels[missingSides[0]!]}이 없습니다.`;
 }
 

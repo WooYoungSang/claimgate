@@ -80,4 +80,17 @@ describe('@claimgate/pack-mofa-oda', () => {
       expect(result.decision.trace[0]?.evidenceRef).toContain(result.fixtureId);
     }
   });
+
+  it('keeps text-span anchors aligned with their localized excerpts', () => {
+    const textSpanAnchors = mofaOdaPack.fixtures
+      .map((fixture) => fixture.claim.anchor)
+      .filter((anchor) => anchor.kind === 'text-span');
+
+    for (const anchor of textSpanAnchors) {
+      const excerpt = anchor.excerpt;
+      expect(excerpt).toBeDefined();
+      if (!excerpt) throw new Error('텍스트 범위 근거에는 발췌문이 필요합니다.');
+      expect(anchor.endOffset - anchor.startOffset).toBe(excerpt.length);
+    }
+  });
 });

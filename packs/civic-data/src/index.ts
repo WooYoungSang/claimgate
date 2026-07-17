@@ -2,7 +2,7 @@ import type { DomainPack, DomainRiskRule } from '@claimgate/core/domain-pack';
 
 const budgetVarianceRule: DomainRiskRule = {
   id: 'civic.budget-variance',
-  description: 'Flags civic budget claims when the AI value differs from the anchored source value.',
+  description: 'AI 값과 출처 근거 값이 다른 시민 예산 주장을 표시합니다.',
   evaluate(input) {
     const matches = input.claim.aiValue === input.claim.sourceValue;
     return {
@@ -12,7 +12,7 @@ const budgetVarianceRule: DomainRiskRule = {
         {
           ruleId: 'civic.budget-variance',
           level: matches ? 'green' : 'red',
-          message: matches ? 'AI value matches the civic source row.' : 'AI value differs from the civic source row.',
+          message: matches ? 'AI 값이 시민 예산 출처 행과 일치합니다.' : 'AI 값이 시민 예산 출처 행과 다릅니다.',
           evidenceRef: `${input.claim.anchor.sourceId}:${input.fixtureId ?? input.claim.id}`
         }
       ]
@@ -23,37 +23,37 @@ const budgetVarianceRule: DomainRiskRule = {
 export const civicDataPack: DomainPack = {
   id: 'civic-data',
   packageName: '@claimgate/pack-civic-data',
-  displayName: 'Civic Data Pack',
+  displayName: '시민 예산 데이터 팩',
   version: '0.0.0',
-  description: 'Fixture-first civic finance pack for public budget claims.',
+  description: '공공 예산 주장을 위한 고정 예시 데이터 우선 시민 재정 팩입니다.',
   labels: {
-    claimSingular: 'budget claim',
-    claimPlural: 'budget claims',
-    reviewerNoun: 'civic reviewer',
-    sourceNoun: 'public ledger'
+    claimSingular: '예산 주장',
+    claimPlural: '예산 주장',
+    reviewerNoun: '시민 예산 검토자',
+    sourceNoun: '공공 예산 장부'
   },
   entityTypes: [
-    { id: 'municipality', label: 'Municipality' },
-    { id: 'budget-line', label: 'Budget line' }
+    { id: 'municipality', label: '지방자치단체' },
+    { id: 'budget-line', label: '예산 항목' }
   ],
   anchorKinds: ['dataset-row', 'web-link'],
   riskRules: [budgetVarianceRule],
   reportTemplates: [
-    { id: 'civic-review-summary', title: 'Civic Budget Review Summary', sections: ['Budget claim', 'Source row', 'Reviewer action'] }
+    { id: 'civic-review-summary', title: '시민 예산 검토 요약', sections: ['예산 주장', '출처 행', '검토자 조치'] }
   ],
   fixtures: [
     {
       id: 'civic-budget-mismatch',
-      title: 'Budget amount mismatch',
-      source: { id: 'civic-budget-fy2026', kind: 'csv', title: 'FY2026 city budget CSV', locator: 'fixture://civic/budget.csv' },
+      title: '예산 금액 불일치',
+      source: { id: 'civic-budget-fy2026', kind: 'csv', title: '2026 회계연도 도시 예산 CSV', locator: 'fixture://civic/budget.csv' },
       claim: {
         id: 'civic-claim-001',
-        text: 'The parks budget is 12 million USD.',
-        subject: 'Parks Department',
+        text: '공원 부서 예산은 1,200만 달러입니다.',
+        subject: '공원 부서',
         entityType: 'budget-line',
         aiValue: 12,
         sourceValue: 10,
-        unit: 'USD millions',
+        unit: '백만 달러',
         period: 'FY2026',
         anchor: { kind: 'dataset-row', sourceId: 'civic-budget-fy2026', dataset: 'civic-budget-fy2026', row: 4, column: 'amount_usd_m' }
       },

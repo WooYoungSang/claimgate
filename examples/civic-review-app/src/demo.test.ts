@@ -34,41 +34,41 @@ describe('example DomainPack composition', () => {
   });
 
   it('prints deterministic pack-specific output', () => {
-    expect(formatDemo(runDemo('civic-data'))).toContain('Civic Budget Review Summary');
-    expect(formatDemo(runDemo('health-data'))).toContain('Health Statistic Review Summary');
-    expect(formatDemo(runDemo('mofa-oda'))).toContain('MOFA ODA Claim Review Summary');
+    expect(formatDemo(runDemo('civic-data'))).toContain('시민 예산 검토 요약');
+    expect(formatDemo(runDemo('health-data'))).toContain('보건 통계 검토 요약');
+    expect(formatDemo(runDemo('mofa-oda'))).toContain('외교부 ODA 주장 검토 요약');
   });
 
   it('tells the MOFA ODA public-data review story through reviewed projections', () => {
     const output = formatDemo(runDemo('mofa-oda'));
 
-    expect(output).toContain('Pack: MOFA ODA Public Data Pack (mofa-oda)');
-    expect(output).toContain('Fixture: mofa-country-safety-mismatch');
-    expect(output).toContain('mofa.country-safety-mismatch => red/conflict');
-    expect(output).toContain('Source Anchor: mofa-country-safety-information');
-    expect(output).toContain('Reviewer decision: corrected');
-    expect(output).toContain('Evidence Pack items: 1');
-    expect(output).toContain('Report: MOFA ODA Claim Review Summary');
-    expect(output).toContain('Graph nodes:');
-    expect(output).toContain('Evidence Pack projects 1 verified/corrected claim into the report and graph.');
-    expect(output).toContain('Offline deterministic demo complete.');
+    expect(output).toContain('팩: 외교부 ODA 공공데이터 팩 (mofa-oda)');
+    expect(output).toContain('고정 예시 데이터: mofa-country-safety-mismatch');
+    expect(output).toContain('mofa.country-safety-mismatch => 위험/충돌');
+    expect(output).toContain('출처 근거: mofa-country-safety-information');
+    expect(output).toContain('검토자 판정: 정정 완료');
+    expect(output).toContain('근거 묶음 항목: 1');
+    expect(output).toContain('보고서: 외교부 ODA 주장 검토 요약');
+    expect(output).toContain('그래프 노드:');
+    expect(output).toContain('근거 묶음이 검증·정정된 주장 1건을 보고서와 그래프에 투영합니다.');
+    expect(output).toContain('오프라인 결정론적 데모가 완료되었습니다.');
   });
 
   it('tells the judges-first correction to Evidence Pack story', () => {
     const civic = runDemo('civic-data');
     const output = formatDemo(civic);
 
-    expect(civic.storyTitle).toBe('Wrong AI claim → risk queue → reviewer correction → Evidence Pack');
-    expect(civic.aiBoundary).toBe('AI proposed the candidate; deterministic rules and a reviewer made the decision.');
+    expect(civic.storyTitle).toBe('잘못된 AI 주장 → 위험 대기열 → 검토자 정정 → 근거 묶음');
+    expect(civic.aiBoundary).toBe('AI는 후보만 제안하고 결정론적 규칙과 사람 검토자가 판정했습니다.');
     expect(civic.sourceAnchorId).toContain('civic-budget-fy2026');
     expect(civic.reviewerDecision).toBe('corrected');
     expect(civic.evidenceItemCount).toBe(1);
     expect(civic.graphNodeCount).toBeGreaterThanOrEqual(3);
     expect(civic.reportIncludesCorrection).toBe(true);
-    expect(output).toContain('Story: Wrong AI claim → risk queue → reviewer correction → Evidence Pack');
-    expect(output).toContain('AI boundary: AI proposed the candidate; deterministic rules and a reviewer made the decision.');
-    expect(output).toContain('Evidence Pack items: 1');
-    expect(output).toContain('Graph nodes:');
+    expect(output).toContain('이야기: 잘못된 AI 주장 → 위험 대기열 → 검토자 정정 → 근거 묶음');
+    expect(output).toContain('AI 경계: AI는 후보만 제안하고 결정론적 규칙과 사람 검토자가 판정했습니다.');
+    expect(output).toContain('근거 묶음 항목: 1');
+    expect(output).toContain('그래프 노드:');
   });
 
   it('builds a synchronized three-claim MOFA ODA review queue', () => {
@@ -84,7 +84,7 @@ describe('example DomainPack composition', () => {
     expect(queue[0]).toMatchObject({
       fixtureId: 'mofa-country-safety-mismatch',
       sourceTitle: '외교부_국가별 안전정보',
-      sourceBoundary: 'public-data provenance; no live OpenAPI call',
+      sourceBoundary: '공공데이터 출처 이력 · 실시간 OpenAPI 호출 없음',
       initialDecision: 'pending',
       evidenceEligible: false
     });
@@ -101,17 +101,17 @@ describe('example DomainPack composition', () => {
 
   it('requires a reviewer-authored value and reason for corrections', () => {
     expect(() => createReviewRecord('corrected', { correctedValue: '', reason: 'source mismatch' })).toThrow(
-      'Corrected decisions require a corrected value.'
+      '정정 판정에는 정정 값이 필요합니다.'
     );
     expect(() => createReviewRecord('corrected', { correctedValue: 'anchored value', reason: '' })).toThrow(
-      'Corrected decisions require a reason.'
+      '정정 판정에는 검토 사유가 필요합니다.'
     );
 
     expect(createReviewRecord('corrected', { correctedValue: 'anchored value', reason: 'MOFA source conflict' })).toEqual({
       decision: 'corrected',
       correctedValue: 'anchored value',
       reason: 'MOFA source conflict',
-      reviewerId: 'demo-reviewer',
+      reviewerId: '데모-검토자',
       decidedAt: '2026-07-08T00:00:00.000Z'
     });
   });
@@ -133,9 +133,13 @@ describe('example DomainPack composition', () => {
     expect(exported.json).toContain('mofa-oda-claim-001');
     expect(exported.json).toContain('mofa-oda-claim-003');
     expect(exported.json).not.toContain('mofa-oda-claim-002');
-    expect(exported.markdown).toContain('# MOFA ODA Claim Review Summary');
+    expect(exported.markdown).toContain('# 외교부 ODA 주장 검토 요약');
     expect(exported.markdown).toContain('외교부 국가별 안전정보와 충돌하여 근거값으로 정정');
-    expect(exported.markdown).toContain('Offline · deterministic · fixture-first');
+    expect(exported.markdown).toContain('오프라인 · 결정론적 · 고정 예시 데이터 우선');
+    expect(exported.markdown).toContain('투영 출처: 근거 묶음');
+    expect(exported.markdown).toContain('검토자 판정: 정정 완료');
+    expect(exported.markdown).not.toContain('Projection source: Evidence Pack');
+    expect(exported.markdown).not.toContain('- Claim:');
   });
 
   it('keeps terminal reviewer records append-only until reset', () => {
@@ -144,7 +148,7 @@ describe('example DomainPack composition', () => {
 
     expect(records['fixture-a']).toBe(first);
     expect(() => appendReviewRecord(records, 'fixture-a', createReviewRecord('rejected', { reason: 'later overwrite' }))).toThrow(
-      "Fixture 'fixture-a' already has a terminal reviewer record. Reset the review run before changing it."
+      "고정 예시 데이터 'fixture-a'에는 이미 최종 검토 기록이 있습니다. 변경하려면 검토 실행을 초기화하세요."
     );
   });
 

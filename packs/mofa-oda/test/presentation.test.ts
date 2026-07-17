@@ -41,7 +41,7 @@ describe('MOFA ODA Korean scenario presentation', () => {
         accessMode: 'offline-fixture-only'
       }
     });
-    expect(redScenario?.sourceSnapshot.boundary).toContain('no live OpenAPI call');
+    expect(redScenario?.sourceSnapshot.boundary).toContain('실시간 OpenAPI 호출 없음');
   });
 
   it('returns frozen presentation collections so judge-demo copy stays deterministic', () => {

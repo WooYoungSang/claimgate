@@ -8,7 +8,7 @@ describe('@claimgate/pack-civic-data', () => {
 
     expect(report.passed).toBe(true);
     expect(report.fixtureResults.map((result) => result.decision.level)).toEqual(['red']);
-    expect(civicDataPack.labels.claimPlural).toBe('budget claims');
+    expect(civicDataPack.labels.claimPlural).toBe('예산 주장');
   });
 
   it('keeps civic judgment in pack-owned rule traces', () => {

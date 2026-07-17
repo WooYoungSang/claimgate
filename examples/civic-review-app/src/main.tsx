@@ -133,7 +133,7 @@ function App(): React.ReactElement {
     return () => window.cancelAnimationFrame(frame);
   }, [guidedDemo.currentStepId, guidedDemo.exitReason, guidedDemo.mode, guidedStep]);
 
-  if (!selected) return <main className="empty-state">선택한 DomainPack에 fixture가 없습니다.</main>;
+  if (!selected) return <main className="empty-state">선택한 도메인 팩에 고정 예시 데이터가 없습니다.</main>;
 
   const decisionFor = (item: ReviewQueueItem): DemoReviewDecision => records[item.fixtureId]?.decision ?? item.initialDecision;
   const currentDecision = decisionFor(selected);
@@ -153,10 +153,10 @@ function App(): React.ReactElement {
       decision,
       correctedValue: decision === 'corrected' ? String(selected.sourceValue ?? '') : '',
       reason: decision === 'corrected'
-        ? 'Source Anchor와 AI 제안 값이 달라 근거값으로 정정합니다.'
+        ? '출처 근거와 AI 제안 값이 달라 근거값으로 정정합니다.'
         : decision === 'verified'
-          ? 'Source Anchor와 일치함을 검토자가 확인했습니다.'
-          : '공공데이터 근거 검토 결과 Evidence Pack에서 제외합니다.'
+          ? '출처 근거와 일치함을 검토자가 확인했습니다.'
+          : '공공데이터 근거 검토 결과 근거 묶음에서 제외합니다.'
     });
   };
 
@@ -186,14 +186,14 @@ function App(): React.ReactElement {
 
   return (
     <main className="app-frame">
-      <aside ref={sideRailRef} className="side-rail" aria-label="ClaimGate primary navigation">
+      <aside ref={sideRailRef} className="side-rail" aria-label="ClaimGate 기본 탐색">
         <div className="brand-mark" aria-label="ClaimGate">
           <span>CG</span>
         </div>
-        <nav className="rail-nav" aria-label="Workspace sections">
-          <button type="button" className="rail-button active" aria-label="Review queue"><Icon name="queue" /></button>
-          <button type="button" className="rail-button" aria-label="Evidence packs"><Icon name="evidence" /></button>
-          <button type="button" className="rail-button" aria-label="Rule registry"><Icon name="rules" /></button>
+        <nav className="rail-nav" aria-label="작업 영역">
+          <button type="button" className="rail-button active" aria-label="검토 대기열"><Icon name="queue" /></button>
+          <button type="button" className="rail-button" aria-label="근거 묶음"><Icon name="evidence" /></button>
+          <button type="button" className="rail-button" aria-label="규칙 목록"><Icon name="rules" /></button>
         </nav>
         <div className="rail-footer"><span className="avatar">JW</span></div>
       </aside>
@@ -205,13 +205,13 @@ function App(): React.ReactElement {
             <h1 ref={workspaceHeadingRef} tabIndex={-1}>공공데이터 주장 검토</h1>
           </div>
           <div className="topbar-actions">
-            <span className="runtime-badge"><i /> Offline fixture</span>
-            <span className="ai-boundary-badge"><Icon name="spark" /> AI Curator · fixture proposal only</span>
+            <span className="runtime-badge"><i /> 오프라인 고정 예시 데이터</span>
+            <span className="ai-boundary-badge"><Icon name="spark" /> AI 후보 제안기 · 제안 전용</span>
             {guidedDemo.mode === 'free-exploration' && (
               <button type="button" className="guide-restart-button" onClick={startGuidedDemo}>가이드 데모</button>
             )}
             <label className="pack-select">
-              <span className="sr-only">DomainPack 선택</span>
+              <span className="sr-only">도메인 팩 선택</span>
               <select value={selectedPack.id} onChange={(event) => {
                 setDecisionDraft(null);
                 selectPack(event.target.value);
@@ -223,23 +223,23 @@ function App(): React.ReactElement {
           </div>
         </header>
 
-        <section className="status-strip" aria-label="Review status">
+        <section className="status-strip" aria-label="검토 상태">
           <div className="status-copy">
-            <span className="section-kicker">Review run · 2026-07</span>
+            <span className="section-kicker">검토 회차 · 2026-07</span>
             <strong>{mofaScenario?.headlineKo ?? selectedPack.displayName}</strong>
-            <p>{mofaScenario?.reviewerPromptKo ?? 'AI가 제안한 주장을 출처와 규칙으로 검토하고, 사람의 판정만 Evidence Pack에 반영합니다.'}</p>
+            <p>{mofaScenario?.reviewerPromptKo ?? 'AI가 제안한 주장을 출처와 규칙으로 검토하고, 사람의 판정만 근거 묶음에 반영합니다.'}</p>
           </div>
           <div className="run-controls">
             <div
               className="run-progress"
               role="progressbar"
-              aria-label="Review progress"
+              aria-label="검토 진행률"
               aria-valuemin={0}
               aria-valuemax={queue.length}
               aria-valuenow={reviewedCount}
               aria-valuetext={`${queue.length}건 중 ${reviewedCount}건 판정`}
             >
-              <div className="progress-label"><span>Review progress</span><strong>{reviewedCount} / {queue.length}</strong></div>
+              <div className="progress-label"><span>검토 진행률</span><strong>{reviewedCount} / {queue.length}</strong></div>
               <div className="progress-track" aria-hidden="true"><i style={{ width: `${Math.round((reviewedCount / queue.length) * 100)}%` }} /></div>
             </div>
             <button type="button" className="reset-button" onClick={resetAll}>처음부터</button>
@@ -250,7 +250,7 @@ function App(): React.ReactElement {
           <section ref={guideCoachRef} className="guide-coach" tabIndex={-1} aria-live="polite" aria-label={`가이드 ${guidedStep.order}단계`}>
             <span className="guide-step-number">{guidedStep.order}</span>
             <div className="guide-coach-copy">
-              <span className="section-kicker">Guided judge demo · {guidedStep.order} / {GUIDED_DEMO_STEPS.length}</span>
+              <span className="section-kicker">판정 가이드 데모 · {guidedStep.order} / {GUIDED_DEMO_STEPS.length}</span>
               <strong>{guidedStep.title}</strong>
               <p>{guidedStep.instruction}</p>
             </div>
@@ -272,12 +272,12 @@ function App(): React.ReactElement {
           <div ref={guideExitRef} className="guide-complete" tabIndex={-1} role="status"><Icon name="check" /><span>
             <strong>{guidedDemo.exitReason === 'completed' ? '4단계 가이드 완료' : '가이드 종료'}</strong>
             {guidedDemo.exitReason === 'completed'
-              ? '이제 모든 DomainPack을 자유롭게 검토할 수 있습니다.'
-              : 'DomainPack 선택과 전체 검토 기능을 자유롭게 사용할 수 있습니다.'}
+              ? '이제 모든 도메인 팩을 자유롭게 검토할 수 있습니다.'
+              : '도메인 팩 선택과 전체 검토 기능을 자유롭게 사용할 수 있습니다.'}
           </span></div>
         )}
 
-        <ol className="demo-flow" aria-label="Four-step judge demo flow">
+        <ol className="demo-flow" aria-label="4단계 판정 데모 흐름">
           {GUIDED_DEMO_STEPS.map((step) => {
             const active = guidedStep?.id === step.id;
             const complete = guidedDemo.completedStepIds.includes(step.id);
@@ -291,12 +291,12 @@ function App(): React.ReactElement {
         </ol>
 
         <section className="review-layout">
-          <aside data-guide-target="review-queue" tabIndex={-1} className={`queue-panel ${guidedStep?.target === 'review-queue' ? 'guided-focus' : ''}`} aria-label="Claim review queue">
+          <aside data-guide-target="review-queue" tabIndex={-1} className={`queue-panel ${guidedStep?.target === 'review-queue' ? 'guided-focus' : ''}`} aria-label="주장 검토 대기열">
             <div className="panel-title-row">
-              <div><span className="section-kicker">Queue</span><h2>검토할 주장</h2></div>
+              <div><span className="section-kicker">대기열</span><h2>검토할 주장</h2></div>
               <span className="count-badge">{queue.length}</span>
             </div>
-            <div className="queue-filters" aria-label="Risk legend">
+            <div className="queue-filters" aria-label="위험도 범례">
               <span><i className="risk-dot red" /> 위험</span>
               <span><i className="risk-dot yellow" /> 주의</span>
               <span><i className="risk-dot green" /> 일치</span>
@@ -328,10 +328,10 @@ function App(): React.ReactElement {
             </div>
           </aside>
 
-          <article className="claim-workspace" aria-label="Selected claim review">
+          <article className="claim-workspace" aria-label="선택한 주장 검토">
             <div className="claim-header">
               <div>
-                <span className="section-kicker">Selected claim</span>
+                <span className="section-kicker">선택한 주장</span>
                 <div className="claim-title-row">
                   <h2>{selected.subject}</h2>
                   <span className={`risk-pill large ${selected.riskLevel}`}>{riskLabel(selected.riskLevel)}</span>
@@ -341,44 +341,44 @@ function App(): React.ReactElement {
               <span className={`review-state ${currentDecision}`}>{currentDecisionState.label}</span>
             </div>
 
-            <section data-guide-target="source-comparison" tabIndex={-1} className={`comparison ${guidedStep?.target === 'source-comparison' ? 'guided-focus' : ''}`} aria-label="AI claim and source comparison">
+            <section data-guide-target="source-comparison" tabIndex={-1} className={`comparison ${guidedStep?.target === 'source-comparison' ? 'guided-focus' : ''}`} aria-label="AI 제안과 출처 근거 비교">
               <div className="comparison-card ai-claim">
-                <div className="card-label"><Icon name="spark" /><span>AI 제안</span><small>Curator only</small></div>
+                <div className="card-label"><Icon name="spark" /><span>AI 제안</span><small>후보 제안 전용</small></div>
                 <blockquote>{mofaScenario?.claimLabelKo ?? selected.claimText}</blockquote>
                 <dl><dt>{visualDiff.ai.label}</dt><dd>{visualDiff.ai.text}</dd></dl>
               </div>
               <div className={`comparison-divider ${visualDiff.status}`} aria-label={visualDiff.accessibleLabel}><span aria-hidden="true">{visualDiff.statusSymbol}</span><small>{visualDiff.statusLabel}</small></div>
               <div className="comparison-card source-claim">
-                <div className="card-label"><Icon name="source" /><span>Source Anchor</span><small>Offline snapshot</small></div>
+                <div className="card-label"><Icon name="source" /><span>출처 근거</span><small>오프라인 사본</small></div>
                 <blockquote>{mofaScenario?.sourceLabelKo ?? selected.sourceExcerpt}</blockquote>
                 <dl><dt>{visualDiff.source.label}</dt><dd>{visualDiff.source.text}</dd></dl>
               </div>
             </section>
 
-            <section className="source-record" aria-label="Source provenance">
+            <section className="source-record" aria-label="출처 이력">
               <div className="source-icon"><Icon name="database" /></div>
               <div>
-                <span className="section-kicker">Public-data provenance</span>
+                <span className="section-kicker">공공데이터 출처 이력</span>
                 <strong>{mofaScenario?.sourceSnapshot.title ?? selected.sourceTitle}</strong>
                 <p>{mofaScenario?.sourceSnapshot.locator ?? selected.sourceAnchorId}</p>
               </div>
               <div className="source-boundary"><i /><span>{mofaScenario?.sourceSnapshot.boundary ?? selected.sourceBoundary}</span></div>
             </section>
 
-            <section className="rule-trace" aria-label="Deterministic rule trace">
+            <section className="rule-trace" aria-label="결정론적 규칙 추적">
               <div className="panel-title-row compact">
-                <div><span className="section-kicker">Deterministic trace</span><h3>판정 규칙</h3></div>
-                <span className="engine-badge">Rule Engine v0</span>
+                <div><span className="section-kicker">결정론적 추적</span><h3>판정 규칙</h3></div>
+                <span className="engine-badge">규칙 엔진 v0</span>
               </div>
               <div className="trace-line">
                 <span className="trace-check"><Icon name="check" /></span>
                 <div><code>{selected.ruleId}</code><p>{selected.ruleMessage}</p></div>
-                <strong className={`trace-result ${selected.riskLevel}`}>{selected.riskLevel} → {selected.recommendedState}</strong>
+                <strong className={`trace-result ${selected.riskLevel}`}>{riskLabel(selected.riskLevel)} → {recommendedStateLabel(selected.recommendedState)}</strong>
               </div>
             </section>
 
-            <section data-guide-target="reviewer-decision" tabIndex={-1} className={`decision-bar ${guidedStep?.target === 'reviewer-decision' ? 'guided-focus' : ''}`} aria-label="Reviewer decision controls">
-              <div><span className="section-kicker">Human decision</span><strong>이 주장을 어떻게 처리할까요?</strong></div>
+            <section data-guide-target="reviewer-decision" tabIndex={-1} className={`decision-bar ${guidedStep?.target === 'reviewer-decision' ? 'guided-focus' : ''}`} aria-label="검토자 판정 조작부">
+              <div><span className="section-kicker">사람의 판정</span><strong>이 주장을 어떻게 처리할까요?</strong></div>
               <div className="decision-actions">
                 <button type="button" disabled={Boolean(currentRecord)} aria-pressed={currentDecision === 'rejected'} className={currentDecision === 'rejected' ? 'selected reject' : 'reject'} onClick={() => openDecision('rejected')}>기각</button>
                 <button type="button" disabled={Boolean(currentRecord)} aria-pressed={currentDecision === 'corrected'} className={currentDecision === 'corrected' ? 'selected correct' : 'correct'} onClick={() => openDecision('corrected')}>근거값으로 정정</button>
@@ -386,24 +386,24 @@ function App(): React.ReactElement {
               </div>
             </section>
             {currentRecord && (
-              <section className="audit-note" aria-label="Reviewer audit record">
+              <section className="audit-note" aria-label="검토자 판정 이력">
                 <Icon name="audit" />
-                <div><span className="section-kicker">Audit record</span><strong>{currentRecord.reason}</strong><small>{currentRecord.reviewerId} · {currentRecord.decidedAt}</small></div>
+                <div><span className="section-kicker">검토 이력</span><strong>{currentRecord.reason}</strong><small>{currentRecord.reviewerId} · {currentRecord.decidedAt}</small></div>
               </section>
             )}
           </article>
 
-          <aside data-guide-target="evidence-preview" tabIndex={-1} className={`evidence-panel ${guidedStep?.target === 'evidence-preview' ? 'guided-focus' : ''}`} aria-label="Evidence Pack preview">
+          <aside data-guide-target="evidence-preview" tabIndex={-1} className={`evidence-panel ${guidedStep?.target === 'evidence-preview' ? 'guided-focus' : ''}`} aria-label="근거 묶음 미리보기">
             <div className="evidence-heading">
               <span className="evidence-icon"><Icon name="evidence" /></span>
-              <div><span className="section-kicker">Projection</span><h2>Evidence Pack</h2></div>
+              <div><span className="section-kicker">투영</span><h2>근거 묶음</h2></div>
               <span className="count-badge dark">{reviewOutcome.canonicalIncludedCount}</span>
             </div>
             <p className="evidence-intro">검증 또는 정정된 주장만 보고서와 그래프에 투영됩니다.</p>
 
             <div className={`eligibility-card ${currentDecisionState.evidenceEligible ? 'eligible' : 'blocked'}`}>
               <span>{currentDecisionState.evidenceEligible ? <Icon name="shield" /> : <Icon name="lock" />}</span>
-              <div><small>현재 주장</small><strong>{currentDecisionState.evidenceEligible ? 'Projection eligible' : 'Projection blocked'}</strong></div>
+              <div><small>현재 주장</small><strong>{currentDecisionState.evidenceEligible ? '투영 가능' : '투영 차단'}</strong></div>
             </div>
 
             <div className="evidence-list">
@@ -417,12 +417,12 @@ function App(): React.ReactElement {
             </div>
 
             <div className="pack-summary">
-              <div><span>Report</span><strong>{selectedPack.reportTemplates[0]?.title ?? 'Evidence report'}</strong></div>
-              <div><span>Mode</span><strong>Offline · deterministic</strong></div>
-              <div><span>Authority</span><strong>Human reviewer</strong></div>
+              <div><span>보고서</span><strong>{selectedPack.reportTemplates[0]?.title ?? '근거 보고서'}</strong></div>
+              <div><span>실행 방식</span><strong>오프라인 · 결정론적</strong></div>
+              <div><span>판정 주체</span><strong>사람 검토자</strong></div>
             </div>
-            <section className="outcome-summary" aria-label="Review outcome counts">
-              <div className="outcome-heading"><span className="section-kicker">Review outcome</span><strong>{reviewOutcome.reviewedCount} / {reviewOutcome.totalCount} 판정</strong></div>
+            <section className="outcome-summary" aria-label="검토 결과 건수">
+              <div className="outcome-heading"><span className="section-kicker">검토 결과</span><strong>{reviewOutcome.reviewedCount} / {reviewOutcome.totalCount} 판정</strong></div>
               <dl>
                 <div><dt>대기</dt><dd>{reviewOutcome.decisionCounts.pending}</dd></div>
                 <div><dt>검증</dt><dd>{reviewOutcome.decisionCounts.verified}</dd></div>
@@ -430,14 +430,14 @@ function App(): React.ReactElement {
                 <div><dt>기각</dt><dd>{reviewOutcome.decisionCounts.rejected}</dd></div>
               </dl>
               {reviewOutcome.guardReasons.length > 0 && (
-                <ul className="guard-reasons" aria-label="Projection guard reasons">
+                <ul className="guard-reasons" aria-label="투영 차단 사유">
                   {reviewOutcome.guardReasons.map((reason) => (
-                    <li key={reason.fixtureId}><Icon name="lock" /><span><code>{reason.code}</code>{guardReasonLabel(reason.code)}</span></li>
+                    <li key={reason.fixtureId}><Icon name="lock" /><span><code>{guardReasonCodeLabel(reason.code)}</code>{guardReasonLabel(reason.code)}</span></li>
                   ))}
                 </ul>
               )}
             </section>
-            <button type="button" className="export-button" disabled={evidenceItems.length === 0} onClick={() => setPreviewOpen(true)}><Icon name="export" /> Evidence Pack 미리보기</button>
+            <button type="button" className="export-button" disabled={evidenceItems.length === 0} onClick={() => setPreviewOpen(true)}><Icon name="export" /> 근거 묶음 미리보기</button>
             <p className="prototype-note">시제품 데이터입니다. 실시간 API·LLM·OCR·운영 정확도 평가는 포함하지 않습니다.</p>
           </aside>
         </section>
@@ -447,10 +447,10 @@ function App(): React.ReactElement {
         <Modal labelledBy="evidence-dialog-title" onClose={() => setPreviewOpen(false)}>
           <section className="evidence-dialog">
             <div className="dialog-heading">
-              <div><span className="section-kicker">Static preview</span><h2 id="evidence-dialog-title">{selectedPack.displayName} Evidence Pack</h2></div>
-              <button type="button" data-autofocus className="dialog-close" onClick={() => setPreviewOpen(false)} aria-label="Evidence Pack 미리보기 닫기">×</button>
+              <div><span className="section-kicker">정적 미리보기</span><h2 id="evidence-dialog-title">{selectedPack.displayName} 근거 묶음</h2></div>
+              <button type="button" data-autofocus className="dialog-close" onClick={() => setPreviewOpen(false)} aria-label="근거 묶음 미리보기 닫기">×</button>
             </div>
-            <p>검토자가 검증하거나 정정한 주장만 포함된 offline fixture 결과입니다.</p>
+            <p>검토자가 검증하거나 정정한 주장만 포함된 오프라인 고정 예시 데이터 결과입니다.</p>
             <div className="dialog-items">
               {evidenceItems.map((item) => (
                 <article key={item.fixtureId}>
@@ -461,9 +461,9 @@ function App(): React.ReactElement {
             </div>
             <div className="download-actions">
               <button type="button" onClick={() => downloadText(`${selectedPack.id}-evidence-pack.json`, evidenceExport.json, 'application/json')}><Icon name="download" /> JSON 다운로드</button>
-              <button type="button" onClick={() => downloadText(`${selectedPack.id}-evidence-pack.md`, evidenceExport.markdown, 'text/markdown')}><Icon name="download" /> Markdown 다운로드</button>
+              <button type="button" onClick={() => downloadText(`${selectedPack.id}-evidence-pack.md`, evidenceExport.markdown, 'text/markdown')}><Icon name="download" /> 마크다운 다운로드</button>
             </div>
-            <footer><span>Offline · deterministic · fixture-first</span><strong>{evidenceExport.itemCount} projectable claim{evidenceExport.itemCount === 1 ? '' : 's'}</strong></footer>
+            <footer><span>오프라인 · 결정론적 · 고정 예시 데이터 우선</span><strong>{evidenceExport.itemCount}건 투영 가능</strong></footer>
           </section>
         </Modal>
       )}
@@ -472,7 +472,7 @@ function App(): React.ReactElement {
         <Modal labelledBy="decision-dialog-title" onClose={() => setDecisionDraft(null)}>
           <section className="decision-dialog">
             <div className="dialog-heading">
-              <div><span className="section-kicker">Human review</span><h2 id="decision-dialog-title">{decisionTitle(decisionDraft.decision)}</h2></div>
+              <div><span className="section-kicker">사람 검토</span><h2 id="decision-dialog-title">{decisionTitle(decisionDraft.decision)}</h2></div>
               <button type="button" className="dialog-close" onClick={() => setDecisionDraft(null)} aria-label="판정 입력 닫기">×</button>
             </div>
             <p className="dialog-lede">AI 제안이나 위험 규칙이 아니라 검토자가 최종 값과 사유를 기록합니다.</p>
@@ -481,7 +481,7 @@ function App(): React.ReactElement {
               <label className="form-field"><span>정정 값</span><input data-autofocus value={decisionDraft.correctedValue} onChange={(event) => setDecisionDraft({ ...decisionDraft, correctedValue: event.target.value })} /></label>
             )}
             <label className="form-field"><span>판정 사유</span><textarea data-autofocus={decisionDraft.decision !== 'corrected' || undefined} rows={4} value={decisionDraft.reason} onChange={(event) => setDecisionDraft({ ...decisionDraft, reason: event.target.value })} /></label>
-            <div className="form-boundary"><Icon name="shield" /><span>reviewer: demo-reviewer · audit timestamp는 deterministic fixture 시간으로 기록됩니다.</span></div>
+            <div className="form-boundary"><Icon name="shield" /><span>검토자: 데모-검토자 · 검토 시각은 결정론적 고정 예시 데이터 시각으로 기록됩니다.</span></div>
             <div className="dialog-actions">
               <button type="button" className="secondary" onClick={() => setDecisionDraft(null)}>취소</button>
               <button type="button" className="primary" onClick={submitDecision} disabled={!decisionDraft.reason.trim() || (decisionDraft.decision === 'corrected' && !decisionDraft.correctedValue.trim())}>판정 기록</button>
@@ -493,23 +493,23 @@ function App(): React.ReactElement {
       {guidedDemo.mode === 'start' && (
         <section ref={guideLaunchRef} className="guide-launch" role="dialog" aria-modal="true" aria-labelledby="guide-launch-title">
           <div className="guide-launch-card">
-            <div className="guide-launch-brand"><span>ClaimGate</span><strong>MOFA ODA prototype</strong></div>
+            <div className="guide-launch-brand"><span>ClaimGate</span><strong>외교부 ODA 시제품</strong></div>
             <span className="section-kicker">{GUIDED_DEMO_START.eyebrow}</span>
             <h2 id="guide-launch-title">{GUIDED_DEMO_START.title}</h2>
             <p className="guide-launch-lede">{GUIDED_DEMO_START.description}</p>
-            <div className="curator-pipeline" aria-label="AI Curator fixture pipeline">
-              <div><small>Input</small><strong>사전 생성 오프라인 fixture</strong></div>
+            <div className="curator-pipeline" aria-label="AI 후보 제안기 고정 예시 데이터 흐름">
+              <div><small>입력</small><strong>사전 생성 오프라인 고정 예시 데이터</strong></div>
               <span aria-hidden="true">→</span>
-              <div><small>AI Curator</small><strong>후보 주장 제안 시뮬레이션</strong></div>
+              <div><small>AI 후보 제안기</small><strong>후보 주장 제안 모의 실행</strong></div>
               <span aria-hidden="true">→</span>
-              <div><small>Authority</small><strong>제안 전용 · 판정 불가</strong></div>
+              <div><small>판정 권한</small><strong>제안 전용 · 판정 불가</strong></div>
             </div>
             <p className="curator-boundary"><Icon name="shield" />{AI_CURATOR_FIXTURE_PIPELINE.boundary}</p>
             <div className="guide-launch-actions">
               <button type="button" className="launch-primary" data-autofocus onClick={startGuidedDemo}>{GUIDED_DEMO_START.primaryLabel}</button>
               <button type="button" className="launch-secondary" onClick={() => dispatchGuidedDemo({ type: 'explore' })}>{GUIDED_DEMO_START.secondaryLabel}</button>
             </div>
-            <footer><span>Offline</span><span>Deterministic</span><span>Fixture-first</span><span>No live AI / API / OCR</span></footer>
+            <footer><span>오프라인</span><span>결정론적</span><span>고정 예시 데이터 우선</span><span>실시간 AI·API·OCR 미사용</span></footer>
           </div>
         </section>
       )}
@@ -576,13 +576,24 @@ function decisionTitle(decision: Exclude<DemoReviewDecision, 'pending'>): string
 }
 
 function riskLabel(level: ReviewQueueItem['riskLevel']): string {
-  return level === 'red' ? 'RED' : level === 'yellow' ? 'YELLOW' : 'GREEN';
+  return level === 'red' ? '위험' : level === 'yellow' ? '주의' : '일치';
+}
+
+function recommendedStateLabel(state: string): string {
+  if (state === 'conflict') return '충돌';
+  if (state === 'needs-evidence') return '근거 필요';
+  if (state === 'aggregate-only') return '집계 전용';
+  return state;
+}
+
+function guardReasonCodeLabel(code: 'review-pending' | 'review-rejected'): string {
+  return code === 'review-pending' ? '검토 대기' : '검토 기각';
 }
 
 function guardReasonLabel(code: 'review-pending' | 'review-rejected'): string {
   return code === 'review-pending'
-    ? '검토자 판정 전에는 canonical Evidence Pack 투영이 차단됩니다.'
-    : '검토자가 기각한 주장은 canonical Evidence Pack에서 제외됩니다.';
+    ? '검토자 판정 전에는 정식 근거 묶음 투영이 차단됩니다.'
+    : '검토자가 기각한 주장은 정식 근거 묶음에서 제외됩니다.';
 }
 
 function Icon({ name }: { readonly name: string }): React.ReactElement {

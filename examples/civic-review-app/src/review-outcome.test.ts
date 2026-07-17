@@ -22,7 +22,7 @@ describe('review outcome projection guard', () => {
         fixtureId: item.fixtureId,
         decision: 'pending',
         code: 'review-pending',
-        message: 'Reviewer decision is pending; canonical Evidence Pack projection remains blocked.'
+        message: '검토자 판정 대기 중이므로 정식 근거 묶음 투영이 차단됩니다.'
       }))
     );
   });
@@ -31,7 +31,7 @@ describe('review outcome projection guard', () => {
     const records = {
       [queue[0]!.fixtureId]: createReviewRecord('corrected', {
         correctedValue: queue[0]!.sourceValue,
-        reason: 'Source Anchor 값으로 정정'
+        reason: '출처 근거 값으로 정정'
       }),
       [queue[1]!.fixtureId]: createReviewRecord('rejected', {
         reason: '추가 근거 확인 전 제외'
@@ -55,13 +55,13 @@ describe('review outcome projection guard', () => {
         fixtureId: queue[1]!.fixtureId,
         decision: 'rejected',
         code: 'review-rejected',
-        message: 'Reviewer rejected this claim; canonical Evidence Pack projection excludes it.'
+        message: '검토자가 이 주장을 기각하여 정식 근거 묶음 투영에서 제외됩니다.'
       },
       {
         fixtureId: queue[2]!.fixtureId,
         decision: 'pending',
         code: 'review-pending',
-        message: 'Reviewer decision is pending; canonical Evidence Pack projection remains blocked.'
+        message: '검토자 판정 대기 중이므로 정식 근거 묶음 투영이 차단됩니다.'
       }
     ]);
   });
@@ -70,7 +70,7 @@ describe('review outcome projection guard', () => {
     const records = {
       [queue[0]!.fixtureId]: createReviewRecord('corrected', {
         correctedValue: queue[0]!.sourceValue,
-        reason: 'Source Anchor 값으로 정정'
+        reason: '출처 근거 값으로 정정'
       }),
       [queue[1]!.fixtureId]: createReviewRecord('rejected', {
         reason: '근거 불충분으로 제외'

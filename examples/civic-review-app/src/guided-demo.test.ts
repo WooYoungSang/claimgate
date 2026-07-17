@@ -26,11 +26,11 @@ describe('domain-neutral guided demo orchestration', () => {
 
   it('frames AI Curator as an offline proposal pipeline without decision authority', () => {
     expect(AI_CURATOR_FIXTURE_PIPELINE).toEqual({
-      input: 'pre-generated offline fixture',
-      process: 'candidate extraction simulation',
-      output: 'candidate claim proposal',
-      authority: 'proposal-only',
-      boundary: 'AI proposes candidates only; deterministic rules and a human reviewer make decisions.'
+      input: '사전 생성 오프라인 고정 예시 데이터',
+      process: '후보 주장 추출 모의 실행',
+      output: '후보 주장 제안',
+      authority: '제안 전용',
+      boundary: 'AI는 후보만 제안하며, 결정론적 규칙과 사람 검토자가 판정합니다.'
     });
   });
 

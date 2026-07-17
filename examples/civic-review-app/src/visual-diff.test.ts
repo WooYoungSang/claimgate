@@ -5,9 +5,9 @@ describe('buildVisualDiff', () => {
   it.each([
     ['ordinary strings', '서울', '서울', 'string', '서울'],
     ['zero', 0, 0, 'number', '0'],
-    ['false', false, false, 'boolean', 'false'],
+    ['false', false, false, 'boolean', '거짓'],
     ['empty strings', '', '', 'string', '빈 문자열'],
-    ['null', null, null, 'null', 'null']
+    ['null', null, null, 'null', '값 없음']
   ] as const)('reports matching %s without hiding the primitive type', (_name, aiValue, sourceValue, valueType, text) => {
     const diff = buildVisualDiff({ aiValue, sourceValue });
 
@@ -37,7 +37,7 @@ describe('buildVisualDiff', () => {
       status: 'missing',
       missingSides: ['ai'],
       ai: { presence: 'missing', valueType: 'missing', text: '값 없음' },
-      source: { presence: 'present', valueType: 'null', text: 'null' }
+      source: { presence: 'present', valueType: 'null', text: '값 없음' }
     });
     expect(buildVisualDiff({ aiValue: false })).toMatchObject({ status: 'missing', missingSides: ['source'] });
     expect(buildVisualDiff({ aiValue: 0, sourceValue: undefined })).toMatchObject({ status: 'missing', missingSides: ['source'] });
@@ -51,8 +51,8 @@ describe('buildVisualDiff', () => {
     expect(diff.statusLabel).toBe('값 누락');
     expect(diff.statusSymbol).toBe('?');
     expect(diff.ai.accessibleLabel).toBe('AI 제안 값: 문자열 정상');
-    expect(diff.source.accessibleLabel).toBe('Source Anchor 값: 값 없음');
-    expect(diff.accessibleLabel).toBe('비교 결과: 값 누락. Source Anchor 값이 없습니다.');
+    expect(diff.source.accessibleLabel).toBe('출처 근거 값: 값 없음');
+    expect(diff.accessibleLabel).toBe('비교 결과: 값 누락. 출처 근거 값이 없습니다.');
   });
 
   it('returns text-only render data without interpreting markup or making a truth judgment', () => {

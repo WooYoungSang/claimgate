@@ -11,10 +11,10 @@ export interface GuidedDemoStartConfig {
 }
 
 export interface AiCuratorFixturePipeline {
-  readonly input: 'pre-generated offline fixture';
-  readonly process: 'candidate extraction simulation';
-  readonly output: 'candidate claim proposal';
-  readonly authority: 'proposal-only';
+  readonly input: '사전 생성 오프라인 고정 예시 데이터';
+  readonly process: '후보 주장 추출 모의 실행';
+  readonly output: '후보 주장 제안';
+  readonly authority: '제안 전용';
   readonly boundary: string;
 }
 
@@ -28,9 +28,9 @@ export interface GuidedDemoStep {
 }
 
 export const GUIDED_DEMO_START: Readonly<GuidedDemoStartConfig> = Object.freeze({
-  eyebrow: 'ClaimGate guided review',
+  eyebrow: 'ClaimGate 검토 가이드',
   title: '근거 중심 검토 흐름을 따라가세요',
-  description: '오프라인 fixture의 후보 주장부터 사람의 판정과 Evidence Pack까지 네 단계로 확인합니다.',
+  description: '오프라인 고정 예시 데이터의 후보 주장부터 사람의 판정과 근거 묶음까지 네 단계로 확인합니다.',
   primaryAction: 'guided',
   primaryLabel: '가이드 데모 시작',
   secondaryAction: 'free-exploration',
@@ -38,11 +38,11 @@ export const GUIDED_DEMO_START: Readonly<GuidedDemoStartConfig> = Object.freeze(
 });
 
 export const AI_CURATOR_FIXTURE_PIPELINE: Readonly<AiCuratorFixturePipeline> = Object.freeze({
-  input: 'pre-generated offline fixture',
-  process: 'candidate extraction simulation',
-  output: 'candidate claim proposal',
-  authority: 'proposal-only',
-  boundary: 'AI proposes candidates only; deterministic rules and a human reviewer make decisions.'
+  input: '사전 생성 오프라인 고정 예시 데이터',
+  process: '후보 주장 추출 모의 실행',
+  output: '후보 주장 제안',
+  authority: '제안 전용',
+  boundary: 'AI는 후보만 제안하며, 결정론적 규칙과 사람 검토자가 판정합니다.'
 });
 
 export const GUIDED_DEMO_STEPS: readonly Readonly<GuidedDemoStep>[] = Object.freeze([
@@ -51,7 +51,7 @@ export const GUIDED_DEMO_STEPS: readonly Readonly<GuidedDemoStep>[] = Object.fre
     order: 1,
     title: '후보 주장 확인',
     shortLabel: '주장 선택',
-    instruction: 'AI Curator가 제안한 fixture 기반 후보를 검토 큐에서 선택합니다.',
+    instruction: 'AI 후보 제안기가 만든 고정 예시 데이터 기반 후보를 검토 대기열에서 선택합니다.',
     target: 'review-queue'
   }),
   Object.freeze({
@@ -59,7 +59,7 @@ export const GUIDED_DEMO_STEPS: readonly Readonly<GuidedDemoStep>[] = Object.fre
     order: 2,
     title: '출처 근거 비교',
     shortLabel: '근거 비교',
-    instruction: '후보 값과 Source Anchor의 근거 값을 나란히 비교합니다.',
+    instruction: '후보 값과 출처 근거 값을 나란히 비교합니다.',
     target: 'source-comparison'
   }),
   Object.freeze({
@@ -73,8 +73,8 @@ export const GUIDED_DEMO_STEPS: readonly Readonly<GuidedDemoStep>[] = Object.fre
   Object.freeze({
     id: 'evidence-pack',
     order: 4,
-    title: 'Evidence Pack 확인',
-    shortLabel: 'Evidence Pack',
+    title: '근거 묶음 확인',
+    shortLabel: '근거 묶음',
     instruction: '검증 또는 정정되어 투영 가능한 주장만 결과물에 포함되는지 확인합니다.',
     target: 'evidence-preview'
   })

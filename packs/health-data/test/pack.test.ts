@@ -8,7 +8,7 @@ describe('@claimgate/pack-health-data', () => {
 
     expect(report.passed).toBe(true);
     expect(report.fixtureResults.map((result) => result.decision.level)).toEqual(['yellow']);
-    expect(healthDataPack.labels.claimPlural).toBe('health statistic claims');
+    expect(healthDataPack.labels.claimPlural).toBe('보건 통계 주장');
   });
 
   it('keeps health judgment in pack-owned rule traces', () => {

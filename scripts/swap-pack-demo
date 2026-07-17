@@ -10,9 +10,9 @@ function run(pack) {
     process.stderr.write(result.stderr);
     process.exit(result.status ?? 1);
   }
-  const storyStart = result.stdout.indexOf('ClaimGate demo:');
+  const storyStart = result.stdout.indexOf('ClaimGate 데모:');
   if (storyStart < 0) {
-    console.error(`Pack '${pack}' produced no formatted ClaimGate story.`);
+    console.error(`팩 '${pack}'에서 형식화된 ClaimGate 이야기를 만들지 못했습니다.`);
     process.exit(1);
   }
   return result.stdout.slice(storyStart).trim();
@@ -22,13 +22,13 @@ const packIds = ['civic-data', 'health-data', 'mofa-oda'];
 const outputs = packIds.map((packId) => [packId, run(packId)]);
 
 for (const [packId, output] of outputs) {
-  console.log(`--- ${packId} ---`);
+  console.log(`--- ${packId} 팩 ---`);
   console.log(output);
 }
 
 if (new Set(outputs.map(([, output]) => output)).size !== outputs.length) {
-  console.error('Pack swap failed: at least two pack outputs are identical.');
+  console.error('팩 교체 실패: 두 개 이상의 팩 출력이 같습니다.');
   process.exit(1);
 }
 
-console.log('Three-pack swap demo changed behavior without core/UI changes.');
+console.log('세 가지 팩 교체 데모가 core/UI 변경 없이 서로 다른 동작을 보였습니다.');

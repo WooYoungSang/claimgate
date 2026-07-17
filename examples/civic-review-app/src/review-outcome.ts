@@ -12,13 +12,13 @@ export type ProjectionGuardReason = Readonly<
       fixtureId: string;
       decision: 'pending';
       code: 'review-pending';
-      message: 'Reviewer decision is pending; canonical Evidence Pack projection remains blocked.';
+      message: '검토자 판정 대기 중이므로 정식 근거 묶음 투영이 차단됩니다.';
     }
   | {
       fixtureId: string;
       decision: 'rejected';
       code: 'review-rejected';
-      message: 'Reviewer rejected this claim; canonical Evidence Pack projection excludes it.';
+      message: '검토자가 이 주장을 기각하여 정식 근거 묶음 투영에서 제외됩니다.';
     }
 >;
 
@@ -62,7 +62,7 @@ export function summarizeReviewOutcome(
         fixtureId: item.fixtureId,
         decision: 'pending',
         code: 'review-pending',
-        message: 'Reviewer decision is pending; canonical Evidence Pack projection remains blocked.'
+        message: '검토자 판정 대기 중이므로 정식 근거 묶음 투영이 차단됩니다.'
       }));
       continue;
     }
@@ -73,7 +73,7 @@ export function summarizeReviewOutcome(
         fixtureId: item.fixtureId,
         decision: record.decision,
         code: 'review-rejected',
-        message: 'Reviewer rejected this claim; canonical Evidence Pack projection excludes it.'
+        message: '검토자가 이 주장을 기각하여 정식 근거 묶음 투영에서 제외됩니다.'
       }));
     }
   }

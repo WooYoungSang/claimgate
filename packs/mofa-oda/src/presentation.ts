@@ -48,8 +48,8 @@ const SCENARIO_COPY: Readonly<Record<string, ScenarioCopy>> = Object.freeze({
   }),
   'koica-project-period-or-country-mismatch': Object.freeze({
     headlineKo: 'KOICA 사업 국가·기간 정보에 추가 확인이 필요',
-    claimLabelKo: 'AI 제안: Country B에서 2022~2026년 농촌 식수 사업 수행',
-    sourceLabelKo: '공공데이터 근거: Country A, 2021~2025년, 시행기관 KOICA',
+    claimLabelKo: 'AI 제안: 국가 B에서 2022~2026년 농촌 식수 사업 수행',
+    sourceLabelKo: '공공데이터 근거: 국가 A, 2021~2025년, 시행기관 KOICA',
     reviewerPromptKo: '대상 국가와 사업 기간을 확인한 뒤 검증·정정·기각을 결정해 주세요.',
     riskLabelKo: '추가 확인'
   }),
@@ -67,7 +67,7 @@ export function createMofaOdaPresentation(pack: DomainPack): MofaOdaPresentation
 
   return Object.freeze({
     titleKo: '외교부 ODA 공공데이터 주장 검토',
-    descriptionKo: '오프라인 fixture와 결정론적 규칙으로 AI 후보 주장과 공공데이터 근거를 비교합니다.',
+    descriptionKo: '오프라인 고정 예시 데이터와 결정론적 규칙으로 AI 후보 주장과 공공데이터 근거를 비교합니다.',
     scenarios: Object.freeze(scenarios)
   });
 }
@@ -92,7 +92,7 @@ function createScenario(fixture: DomainPackFixture): MofaOdaScenarioPresentation
       title: fixture.source.title,
       locator: fixture.source.locator ?? '',
       accessMode: typeof accessMode === 'string' ? accessMode : 'offline-fixture-only',
-      boundary: typeof sourceBoundary === 'string' ? sourceBoundary : 'offline fixture provenance',
+      boundary: typeof sourceBoundary === 'string' ? sourceBoundary : '오프라인 고정 예시 데이터 출처 이력',
       excerpt: fixture.claim.anchor.excerpt ?? fixture.claim.anchor.quote ?? ''
     })
   });
