@@ -28,6 +28,10 @@ const packs: Record<string, DomainPack> = {
 const fixedNow = () => '2026-07-08T00:00:00.000Z';
 const reviewer: Reviewer = { id: 'judge-demo-reviewer', displayName: 'Judge demo reviewer' };
 
+export function defaultPackId(hostname: string | undefined): string {
+  return hostname?.toLowerCase() === 'mofa.warvis.org' ? mofaOdaPack.id : civicDataPack.id;
+}
+
 export interface DemoSummary {
   readonly corePackage: string;
   readonly packId: string;
@@ -192,6 +196,6 @@ function cliPackId(argv: readonly string[]): string {
   return civicDataPack.id;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (typeof process !== 'undefined' && import.meta.url === `file://${process.argv[1]}`) {
   console.log(formatDemo(runDemo(cliPackId(process.argv.slice(2)))));
 }

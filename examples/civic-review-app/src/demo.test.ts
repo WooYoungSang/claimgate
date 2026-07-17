@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { formatDemo, runDemo } from './demo.js';
+import { defaultPackId, formatDemo, runDemo } from './demo.js';
 
 describe('example DomainPack composition', () => {
+  it('defaults the public MOFA hostname to the MOFA ODA pack', () => {
+    expect(defaultPackId('mofa.warvis.org')).toBe('mofa-oda');
+    expect(defaultPackId('localhost')).toBe('civic-data');
+  });
+
   it('can swap between three domain packs without changing core or UI', () => {
     const civic = runDemo('civic-data');
     const health = runDemo('health-data');

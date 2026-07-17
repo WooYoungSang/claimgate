@@ -6,7 +6,7 @@ import { ReviewShell } from '@claimgate/ui';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { create } from 'zustand';
-import { runDemo } from './demo.js';
+import { defaultPackId, runDemo } from './demo.js';
 import './styles.css';
 
 interface DemoState {
@@ -16,7 +16,7 @@ interface DemoState {
 
 const packs = [civicDataPack, healthDataPack, mofaOdaPack] as const;
 const useDemoStore = create<DemoState>((set) => ({
-  selectedPackId: civicDataPack.id,
+  selectedPackId: defaultPackId(window.location.hostname),
   selectPack: (id) => set({ selectedPackId: id })
 }));
 
