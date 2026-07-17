@@ -27,4 +27,13 @@ describe('responsive review workstation layout policy', () => {
     expect(tablet).not.toMatch(/\.queue-list\s*\{[^}]*overflow-x:\s*auto/);
     expect(mobile).toMatch(/\.queue-list\s*\{[^}]*grid-template-columns:\s*1fr/);
   });
+
+  it('keeps reviewer decision controls inside a padded boundary at every width', () => {
+    const mobile = mediaBlock('@media (max-width: 600px)', '@media (max-width: 420px)');
+
+    expect(css).toMatch(/\.decision-bar\s*\{[^}]*padding:\s*16px[^}]*flex-wrap:\s*wrap/);
+    expect(css).toMatch(/\.decision-actions\s*\{[^}]*max-width:\s*100%[^}]*flex-wrap:\s*wrap/);
+    expect(css).toMatch(/\.decision-actions button\.selected\s*\{[^}]*box-shadow:\s*inset/);
+    expect(mobile).toMatch(/\.decision-bar > div:first-child\s*\{[^}]*flex:\s*0 1 auto/);
+  });
 });

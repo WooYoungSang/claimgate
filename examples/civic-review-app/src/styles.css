@@ -175,15 +175,16 @@ h1, h2, h3, p, blockquote, dl, dd { margin: 0; }
 .trace-result.red { color: var(--red); background: var(--red-soft); }
 .trace-result.yellow { color: #916415; background: var(--yellow-soft); }
 .trace-result.green { color: var(--green); background: var(--green-soft); }
-.decision-bar { margin-top: 18px; padding-top: 17px; display: flex; align-items: center; justify-content: space-between; gap: 14px; border-top: 1px solid var(--line); }
+.decision-bar { margin-top: 18px; padding: 16px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; background: #fafcfa; border: 1px solid var(--line); border-radius: 12px; }
+.decision-bar > div:first-child { min-width: 0; flex: 1 1 160px; }
 .decision-bar > div > strong { display: block; margin-top: 3px; font-size: .75rem; }
-.decision-actions { display: flex; gap: 7px; }
-.decision-actions button { min-height: 38px; padding: 8px 11px; display: inline-flex; align-items: center; gap: 5px; color: #5f6964; background: white; border: 1px solid #d7ddd9; border-radius: 9px; font-size: .75rem; font-weight: 700; }
+.decision-actions { max-width: 100%; display: flex; flex: 0 1 auto; flex-wrap: wrap; justify-content: flex-end; gap: 7px; }
+.decision-actions button { max-width: 100%; min-height: 38px; padding: 8px 11px; display: inline-flex; align-items: center; gap: 5px; color: #5f6964; background: white; border: 1px solid #d7ddd9; border-radius: 9px; font-size: .75rem; font-weight: 700; }
 .decision-actions button:hover { border-color: #9bacA3; background: #f7f9f8; }
 .decision-actions button:disabled { cursor: not-allowed; opacity: .72; }
 .decision-actions button.verify { color: white; background: var(--green); border-color: var(--green); }
-.decision-actions button.selected { box-shadow: 0 0 0 3px rgb(22 107 73 / 15%); }
-.decision-actions button.reject.selected { color: white; background: var(--red); border-color: var(--red); box-shadow: 0 0 0 3px rgb(199 72 67 / 14%); }
+.decision-actions button.selected { box-shadow: inset 0 0 0 2px rgb(255 255 255 / 38%); }
+.decision-actions button.reject.selected { color: white; background: var(--red); border-color: var(--red); box-shadow: inset 0 0 0 2px rgb(255 255 255 / 34%); }
 .decision-actions button.correct.selected { color: var(--green-dark); background: var(--green-soft); border-color: #9dc2ae; }
 .decision-actions svg { width: 14px; }
 .audit-note { margin-top: 12px; padding: 11px 13px; display: grid; grid-template-columns: auto 1fr; align-items: start; gap: 10px; color: #305440; background: #edf6f1; border: 1px solid #d3e8dc; border-radius: 10px; }
@@ -342,7 +343,8 @@ h1, h2, h3, p, blockquote, dl, dd { margin: 0; }
   .source-boundary { grid-column: 1 / -1; max-width: none; }
   .trace-line { grid-template-columns: auto 1fr; }
   .trace-result { grid-column: 2; width: max-content; }
-  .decision-bar { align-items: flex-start; flex-direction: column; }
+  .decision-bar { align-items: flex-start; justify-content: flex-start; flex-direction: column; }
+  .decision-bar > div:first-child { width: 100%; flex: 0 1 auto; }
   .decision-actions { width: 100%; display: grid; grid-template-columns: 1fr 1fr; }
   .decision-actions button { justify-content: center; }
   .decision-actions button.verify { grid-column: 1 / -1; }
