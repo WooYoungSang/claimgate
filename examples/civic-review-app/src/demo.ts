@@ -8,6 +8,7 @@ import {
   listCoreInvariants,
   projectEvidencePackToGraph,
   renderEvidenceReportMarkdown,
+  sourceAnchorExcerpt,
   sourceAnchorId,
   transitionClaim,
   type Claim,
@@ -27,6 +28,77 @@ const packs: Record<string, DomainPack> = {
 
 const fixedNow = () => '2026-07-08T00:00:00.000Z';
 const reviewer: Reviewer = { id: 'judge-demo-reviewer', displayName: 'Judge demo reviewer' };
+
+export type DemoReviewDecision = 'pending' | 'verified' | 'corrected' | 'rejected';
+
+export interface ReviewQueueItem {
+  readonly fixtureId: string;
+  readonly claimId: string;
+  readonly title: string;
+  readonly subject: string;
+  readonly claimText: string;
+  readonly aiValue: string;
+  readonly sourceValue: string;
+  readonly sourceTitle: string;
+  readonly sourceLocator: string;
+  readonly sourceAnchorId: string;
+  readonly sourceExcerpt: string;
+  readonly sourceBoundary: string;
+  readonly ruleId: string;
+  readonly ruleMessage: string;
+  readonly riskLevel: 'red' | 'yellow' | 'green';
+  readonly recommendedState: string;
+  readonly initialDecision: DemoReviewDecision;
+  readonly evidenceEligible: boolean;
+}
+
+export function reviewDecisionState(decision: DemoReviewDecision): { readonly label: string; readonly evidenceEligible: boolean } {
+  const states = {
+    pending: { label: '검토 대기', evidenceEligible: false },
+    verified: { label: '검증 완료', evidenceEligible: true },
+    corrected: { label: '정정 완료', evidenceEligible: true },
+    rejected: { label: '기각', evidenceEligible: false }
+  } as const;
+
+  return states[decision];
+}
+
+export function buildReviewQueue(packId: string): readonly ReviewQueueItem[] {
+  const pack = packs[packId];
+  if (!pack) {
+    throw new Error(`Unknown pack '${packId}'. Available packs: ${Object.keys(packs).join(', ')}`);
+  }
+
+  return Object.freeze(
+    pack.fixtures.map((fixture) => {
+      const rule = pack.riskRules.find((candidate) => candidate.id === fixture.expected.ruleId);
+      if (!rule) throw new Error(`Fixture '${fixture.id}' references missing rule '${fixture.expected.ruleId}'.`);
+      const decision = rule.evaluate({ packId: pack.id, fixtureId: fixture.id, claim: fixture.claim });
+      const initialDecision: DemoReviewDecision = 'pending';
+
+      return Object.freeze({
+        fixtureId: fixture.id,
+        claimId: fixture.claim.id,
+        title: fixture.title,
+        subject: fixture.claim.subject ?? fixture.claim.id,
+        claimText: fixture.claim.text,
+        aiValue: String(fixture.claim.aiValue ?? ''),
+        sourceValue: String(fixture.claim.sourceValue ?? ''),
+        sourceTitle: fixture.source.title,
+        sourceLocator: fixture.source.locator ?? '',
+        sourceAnchorId: sourceAnchorId(fixture.claim.anchor),
+        sourceExcerpt: sourceAnchorExcerpt(fixture.claim.anchor) ?? 'Anchored fixture record',
+        sourceBoundary: String(fixture.source.metadata?.sourceBoundary ?? 'offline fixture provenance'),
+        ruleId: rule.id,
+        ruleMessage: decision.trace[0]?.message ?? rule.description,
+        riskLevel: decision.level,
+        recommendedState: decision.recommendedState,
+        initialDecision,
+        evidenceEligible: reviewDecisionState(initialDecision).evidenceEligible
+      });
+    })
+  );
+}
 
 export function defaultPackId(hostname: string | undefined): string {
   return hostname?.toLowerCase() === 'mofa.warvis.org' ? mofaOdaPack.id : civicDataPack.id;

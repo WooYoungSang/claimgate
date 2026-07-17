@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { defaultPackId, formatDemo, runDemo } from './demo.js';
+import { buildReviewQueue, defaultPackId, formatDemo, reviewDecisionState, runDemo } from './demo.js';
 
 describe('example DomainPack composition', () => {
   it('defaults the public MOFA hostname to the MOFA ODA pack', () => {
@@ -59,6 +59,34 @@ describe('example DomainPack composition', () => {
     expect(output).toContain('AI boundary: AI proposed the candidate; deterministic rules and a reviewer made the decision.');
     expect(output).toContain('Evidence Pack items: 1');
     expect(output).toContain('Graph nodes:');
+  });
+
+  it('builds a synchronized three-claim MOFA ODA review queue', () => {
+    const queue = buildReviewQueue('mofa-oda');
+
+    expect(queue).toHaveLength(3);
+    expect(queue.map((item) => item.riskLevel)).toEqual(['red', 'yellow', 'green']);
+    expect(queue.map((item) => item.ruleId)).toEqual([
+      'mofa.country-safety-mismatch',
+      'koica.project-period-or-country-mismatch',
+      'oda.term-definition-match'
+    ]);
+    expect(queue[0]).toMatchObject({
+      fixtureId: 'mofa-country-safety-mismatch',
+      sourceTitle: '외교부_국가별 안전정보',
+      sourceBoundary: 'public-data provenance; no live OpenAPI call',
+      initialDecision: 'pending',
+      evidenceEligible: false
+    });
+    expect(queue[1]?.initialDecision).toBe('pending');
+    expect(queue[2]?.initialDecision).toBe('pending');
+  });
+
+  it('keeps Evidence Pack eligibility controlled by the reviewer decision', () => {
+    expect(reviewDecisionState('pending')).toEqual({ label: '검토 대기', evidenceEligible: false });
+    expect(reviewDecisionState('verified')).toEqual({ label: '검증 완료', evidenceEligible: true });
+    expect(reviewDecisionState('corrected')).toEqual({ label: '정정 완료', evidenceEligible: true });
+    expect(reviewDecisionState('rejected')).toEqual({ label: '기각', evidenceEligible: false });
   });
 
 });
