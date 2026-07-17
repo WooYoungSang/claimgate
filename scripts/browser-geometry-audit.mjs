@@ -27,6 +27,7 @@ BASE_URL = os.environ["CLAIMGATE_GEOMETRY_URL"]
 VIEWPORTS = json.loads(os.environ["CLAIMGATE_GEOMETRY_VIEWPORTS"])
 INTERACTION_VIEWPORTS = json.loads(os.environ["CLAIMGATE_GEOMETRY_INTERACTION_VIEWPORTS"])
 EXPECTED_PACKS = {"civic-data", "health-data", "mofa-oda"}
+JUDGE_FLOW = os.environ.get("CLAIMGATE_JUDGE_FLOW") == "1"
 EXPECTED_STATES = {
     "guide-launch",
     "free-exploration",
@@ -320,6 +321,172 @@ async def enter_free_exploration(page):
         await launch.wait_for(state="detached")
 
 
+def record_contract(report, pack, step, name, passed, expected, actual):
+    check = {
+        "pack": pack,
+        "step": step,
+        "name": name,
+        "expected": expected,
+        "actual": actual,
+        "passed": passed,
+    }
+    report["checks"].append(check)
+    if not passed:
+        report["failures"].append(check)
+
+
+async def select_pack(page, pack):
+    await page.goto(BASE_URL, wait_until="networkidle")
+    await enter_free_exploration(page)
+    selector = page.locator(".pack-select select")
+    await selector.select_option(value=pack)
+    await page.wait_for_function(
+        "value => document.querySelector('.pack-select select')?.value === value",
+        arg=pack,
+    )
+    await page.wait_for_timeout(30)
+
+
+async def reset_review(page):
+    await page.locator(".reset-button").click()
+    await page.locator(".guide-launch").wait_for(state="visible")
+    await enter_free_exploration(page)
+
+
+async def record_decision(page, decision):
+    selector = {
+        "rejected": ".decision-actions .reject",
+        "corrected": ".decision-actions .correct",
+        "verified": ".decision-actions .verify",
+    }[decision]
+    await page.locator(selector).click()
+    dialog = page.locator(".decision-dialog")
+    await dialog.wait_for(state="visible")
+    await dialog.locator(".primary").click()
+    await dialog.wait_for(state="detached")
+    await page.locator(".audit-note").wait_for(state="visible")
+
+
+async def capture_download(page, button_index):
+    async with page.expect_download(timeout=3_000) as download_info:
+        await page.locator(".evidence-dialog .download-actions > button").nth(button_index).click()
+    download = await download_info.value
+    path = await download.path()
+    with open(path, "rb") as handle:
+        contents = handle.read().decode("utf-8")
+    return download.suggested_filename, contents
+
+
+async def assert_empty_projection(page, report, pack, step):
+    export_disabled = await page.locator(".export-button").is_disabled()
+    evidence_count = await page.locator(".evidence-item").count()
+    projected_count = (await page.locator(".evidence-heading .count-badge").inner_text()).strip()
+    record_contract(report, pack, step, "preview-download-guard", export_disabled, True, export_disabled)
+    record_contract(report, pack, step, "no-evidence-items", evidence_count == 0, 0, evidence_count)
+    record_contract(report, pack, step, "canonical-projection-count", projected_count == "0", "0", projected_count)
+
+
+async def assert_reset(page, report, pack, step):
+    await assert_empty_projection(page, report, pack, step)
+    decisions = await page.locator(".decision-label").all_inner_texts()
+    disabled_buttons = await page.locator(".decision-actions > button:disabled").count()
+    audit_count = await page.locator(".audit-note").count()
+    record_contract(
+        report, pack, step, "all-claims-return-to-pending",
+        bool(decisions) and all(label.strip() == "검토 대기" for label in decisions),
+        ["검토 대기"] * len(decisions), decisions,
+    )
+    record_contract(report, pack, step, "decision-buttons-reenabled", disabled_buttons == 0, 0, disabled_buttons)
+    record_contract(report, pack, step, "audit-history-cleared", audit_count == 0, 0, audit_count)
+
+
+async def assert_projected_downloads(page, report, pack, decision, capture_files):
+    claim_text = (await page.locator(".queue-item.active small").inner_text()).strip()
+    evidence_count = await page.locator(".evidence-item").count()
+    export_disabled = await page.locator(".export-button").is_disabled()
+    record_contract(report, pack, decision, "one-canonical-evidence-item", evidence_count == 1, 1, evidence_count)
+    record_contract(report, pack, decision, "preview-enabled", not export_disabled, False, export_disabled)
+
+    await page.locator(".export-button").click()
+    dialog = page.locator(".evidence-dialog")
+    await dialog.wait_for(state="visible")
+    footer = (await dialog.locator("footer strong").inner_text()).strip()
+    record_contract(report, pack, decision, "preview-canonical-count", footer == "1건 투영 가능", "1건 투영 가능", footer)
+
+    if not capture_files:
+        await page.keyboard.press("Escape")
+        await dialog.wait_for(state="detached")
+        return
+
+    json_name, json_contents = await capture_download(page, 0)
+    markdown_name, markdown_contents = await capture_download(page, 1)
+    expected_json_name = f"{pack}-evidence-pack.json"
+    expected_markdown_name = f"{pack}-evidence-pack.md"
+
+    record_contract(report, pack, decision, "json-filename", json_name == expected_json_name, expected_json_name, json_name)
+    record_contract(report, pack, decision, "markdown-filename", markdown_name == expected_markdown_name, expected_markdown_name, markdown_name)
+    try:
+        parsed_json = json.loads(json_contents)
+        json_valid = isinstance(parsed_json, dict)
+    except json.JSONDecodeError:
+        json_valid = False
+    record_contract(report, pack, decision, "json-content-valid", json_valid, "JSON object", "JSON object" if json_valid else "invalid JSON")
+    record_contract(report, pack, decision, "json-content-pack-specific", pack in json_contents, pack, "present" if pack in json_contents else "missing")
+    record_contract(report, pack, decision, "json-content-claim", claim_text in json_contents, claim_text, "present" if claim_text in json_contents else "missing")
+    record_contract(report, pack, decision, "json-content-fixed-time", "2026-07-08T00:00:00.000Z" in json_contents, "fixed fixture timestamp", "present" if "2026-07-08T00:00:00.000Z" in json_contents else "missing")
+    record_contract(report, pack, decision, "markdown-content-claim", claim_text in markdown_contents, claim_text, "present" if claim_text in markdown_contents else "missing")
+    record_contract(report, pack, decision, "markdown-content-count", "근거 항목: 1" in markdown_contents, "근거 항목: 1", "present" if "근거 항목: 1" in markdown_contents else "missing")
+    record_contract(report, pack, decision, "markdown-content-fixed-time", "2026-07-08T00:00:00.000Z" in markdown_contents, "fixed fixture timestamp", "present" if "2026-07-08T00:00:00.000Z" in markdown_contents else "missing")
+    await page.keyboard.press("Escape")
+    await dialog.wait_for(state="detached")
+
+
+async def run_judge_flow():
+    report = {"status": "PASS", "packs": sorted(EXPECTED_PACKS), "checks": [], "failures": []}
+    async with async_playwright() as playwright:
+        browser = await playwright.chromium.launch(headless=True)
+        try:
+            page = await browser.new_page(viewport={"width": 1440, "height": 960}, accept_downloads=True)
+            for pack in sorted(EXPECTED_PACKS):
+                await select_pack(page, pack)
+                await assert_empty_projection(page, report, pack, "pending")
+
+                await record_decision(page, "rejected")
+                await assert_empty_projection(page, report, pack, "rejected")
+                rejected_label = (await page.locator(".queue-item.active .decision-label").inner_text()).strip()
+                record_contract(report, pack, "rejected", "rejected-state-visible", rejected_label == "기각", "기각", rejected_label)
+
+                await reset_review(page)
+                await assert_reset(page, report, pack, "reset-after-reject")
+
+                await record_decision(page, "corrected")
+                await assert_projected_downloads(page, report, pack, "corrected", True)
+
+                await reset_review(page)
+                await assert_reset(page, report, pack, "reset-after-correct")
+
+                await record_decision(page, "verified")
+                await assert_projected_downloads(page, report, pack, "verified", False)
+
+                await reset_review(page)
+                await assert_reset(page, report, pack, "reset-after-verify")
+        finally:
+            await browser.close()
+
+    if report["failures"]:
+        report["status"] = "FAIL"
+    print(json.dumps({
+        "status": report["status"],
+        "packs": report["packs"],
+        "decisions": ["rejected", "corrected", "verified"],
+        "resetPaths": 3,
+        "checks": len(report["checks"]),
+        "failureCount": len(report["failures"]),
+        "failures": report["failures"],
+    }, ensure_ascii=False, indent=2))
+    return 1 if report["failures"] else 0
+
+
 async def run():
     report = {
         "status": "PASS",
@@ -427,7 +594,7 @@ async def run():
 
 
 try:
-    exit_code = asyncio.run(run())
+    exit_code = asyncio.run(run_judge_flow() if JUDGE_FLOW else run())
 except Exception as error:
     print(json.dumps({
         "status": "BLOCKED",
@@ -574,7 +741,7 @@ function waitForAudit(child) {
   });
 }
 
-async function runGeometryAudit() {
+async function runGeometryAudit(judgeFlow = false) {
   const preview = startPreview();
   try {
     await waitForPreview(preview);
@@ -584,7 +751,8 @@ async function runGeometryAudit() {
         ...process.env,
         CLAIMGATE_GEOMETRY_URL: baseUrl,
         CLAIMGATE_GEOMETRY_VIEWPORTS: JSON.stringify(viewports),
-        CLAIMGATE_GEOMETRY_INTERACTION_VIEWPORTS: JSON.stringify(interactionViewports)
+        CLAIMGATE_GEOMETRY_INTERACTION_VIEWPORTS: JSON.stringify(interactionViewports),
+        CLAIMGATE_JUDGE_FLOW: judgeFlow ? '1' : '0'
       },
       stdio: 'inherit'
     });
@@ -597,4 +765,4 @@ async function runGeometryAudit() {
 
 installSignalCleanup();
 if (process.argv.includes('--cleanup-self-test')) await runCleanupSelfTest();
-else await runGeometryAudit();
+else await runGeometryAudit(process.argv.includes('--judge-flow'));

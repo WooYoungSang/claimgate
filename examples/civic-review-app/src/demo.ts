@@ -191,7 +191,13 @@ export function buildEvidenceExport(packId: string, records: ReviewRecordMap): E
     });
     const recordReviewer: Reviewer = { id: record.reviewerId, displayName: '데모 검토자' };
     if (record.decision === 'corrected') {
-      return [applyReviewerCorrection({ claim: dispositioned, reviewer: recordReviewer, correctedValue: record.correctedValue ?? null, reason: record.reason, now: fixedNow })];
+      return [transitionClaim(dispositioned, {
+        to: 'corrected',
+        reviewer: recordReviewer,
+        correction: { correctedValue: record.correctedValue ?? null, reason: record.reason },
+        reason: record.reason,
+        now: fixedNow
+      })];
     }
     return [transitionClaim(dispositioned, { to: record.decision, reviewer: recordReviewer, reason: record.reason, now: fixedNow })];
   });
