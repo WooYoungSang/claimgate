@@ -5,6 +5,7 @@ import {
   claimGateCoreInfo,
   createEvidencePack,
   createExtractedClaim,
+  evidencePackToJson,
   listCoreInvariants,
   projectEvidencePackToGraph,
   renderEvidenceReportMarkdown,
@@ -31,14 +32,30 @@ const reviewer: Reviewer = { id: 'judge-demo-reviewer', displayName: 'Judge demo
 
 export type DemoReviewDecision = 'pending' | 'verified' | 'corrected' | 'rejected';
 
+export interface ReviewRecord {
+  readonly decision: Exclude<DemoReviewDecision, 'pending'>;
+  readonly correctedValue?: ClaimValue;
+  readonly reason: string;
+  readonly reviewerId: string;
+  readonly decidedAt: string;
+}
+
+export type ReviewRecordMap = Readonly<Record<string, ReviewRecord>>;
+
+export interface EvidenceExport {
+  readonly itemCount: number;
+  readonly json: string;
+  readonly markdown: string;
+}
+
 export interface ReviewQueueItem {
   readonly fixtureId: string;
   readonly claimId: string;
   readonly title: string;
   readonly subject: string;
   readonly claimText: string;
-  readonly aiValue: string;
-  readonly sourceValue: string;
+  readonly aiValue: ClaimValue | undefined;
+  readonly sourceValue: ClaimValue | undefined;
   readonly sourceTitle: string;
   readonly sourceLocator: string;
   readonly sourceAnchorId: string;
@@ -63,6 +80,113 @@ export function reviewDecisionState(decision: DemoReviewDecision): { readonly la
   return states[decision];
 }
 
+export function createReviewRecord(
+  decision: Exclude<DemoReviewDecision, 'pending'>,
+  input: { readonly correctedValue?: ClaimValue; readonly reason?: string }
+): ReviewRecord {
+  const correctedValue = typeof input.correctedValue === 'string' ? input.correctedValue.trim() : input.correctedValue;
+  const reason = input.reason?.trim() ?? '';
+  if (decision === 'corrected' && (correctedValue === undefined || correctedValue === null || correctedValue === '')) {
+    throw new Error('Corrected decisions require a corrected value.');
+  }
+  if (!reason) {
+    throw new Error(`${decision === 'corrected' ? 'Corrected' : 'Reviewer'} decisions require a reason.`);
+  }
+
+  return Object.freeze({
+    decision,
+    ...(correctedValue !== undefined ? { correctedValue } : {}),
+    reason,
+    reviewerId: 'demo-reviewer',
+    decidedAt: fixedNow()
+  });
+}
+
+export function coerceCorrectionValue(draft: string, sourceValue: ClaimValue | undefined): ClaimValue {
+  if (typeof sourceValue === 'number') {
+    const numeric = Number(draft);
+    if (!Number.isFinite(numeric)) throw new Error('Numeric corrections require a finite number.');
+    return numeric;
+  }
+  if (typeof sourceValue === 'boolean') {
+    const normalized = draft.trim().toLowerCase();
+    if (normalized !== 'true' && normalized !== 'false') throw new Error('Boolean corrections require true or false.');
+    return normalized === 'true';
+  }
+  return draft;
+}
+
+export function appendReviewRecord(records: ReviewRecordMap, fixtureId: string, record: ReviewRecord): ReviewRecordMap {
+  if (records[fixtureId]) {
+    throw new Error(`Fixture '${fixtureId}' already has a terminal reviewer record. Reset the review run before changing it.`);
+  }
+  return Object.freeze({ ...records, [fixtureId]: record });
+}
+
+export function buildEvidenceExport(packId: string, records: ReviewRecordMap): EvidenceExport {
+  const pack = packs[packId];
+  if (!pack) {
+    throw new Error(`Unknown pack '${packId}'. Available packs: ${Object.keys(packs).join(', ')}`);
+  }
+  const reviewedClaims = pack.fixtures.flatMap((fixture) => {
+    const record = records[fixture.id];
+    if (!record) return [];
+    const rule = pack.riskRules.find((candidate) => candidate.id === fixture.expected.ruleId);
+    if (!rule) throw new Error(`Fixture '${fixture.id}' references missing rule '${fixture.expected.ruleId}'.`);
+    const risk = rule.evaluate({ packId: pack.id, fixtureId: fixture.id, claim: fixture.claim });
+    const anchored = attachAnchor(
+      createExtractedClaim({
+        id: fixture.claim.id,
+        text: fixture.claim.text,
+        subject: fixture.claim.subject,
+        aiValue: fixture.claim.aiValue,
+        actor: { kind: 'system', id: 'offline-ai-curator' },
+        now: fixedNow
+      }),
+      {
+        anchor: fixture.claim.anchor,
+        sourceValue: fixture.claim.sourceValue,
+        actor: { kind: 'system', id: 'fixture-anchorer' },
+        reason: 'Offline fixture supplied the Source Anchor; no live API, OCR, or model call was invoked.',
+        now: fixedNow
+      }
+    );
+    const dispositioned = applyRiskDisposition({
+      claim: anchored,
+      recommendedState: risk.recommendedState,
+      reason: `Deterministic domain rule ${rule.id}: ${risk.trace[0]?.message ?? rule.description}`,
+      now: fixedNow
+    });
+    const recordReviewer: Reviewer = { id: record.reviewerId, displayName: 'Demo reviewer' };
+    if (record.decision === 'corrected') {
+      return [applyReviewerCorrection({ claim: dispositioned, reviewer: recordReviewer, correctedValue: record.correctedValue ?? null, reason: record.reason, now: fixedNow })];
+    }
+    return [transitionClaim(dispositioned, { to: record.decision, reviewer: recordReviewer, reason: record.reason, now: fixedNow })];
+  });
+  const evidencePack = createEvidencePack({
+    id: `${pack.id}-offline-demo-evidence-pack`,
+    title: pack.reportTemplates[0]?.title ?? `${pack.displayName} Evidence Pack`,
+    claims: reviewedClaims,
+    sources: pack.fixtures.map((fixture) => fixture.source),
+    generatedAt: fixedNow(),
+    metadata: {
+      packId: pack.id,
+      offline: true,
+      deterministic: true,
+      fixtureFirst: true,
+      aiBoundary: 'AI candidate proposals are fixture-backed; no live model call was made.'
+    }
+  });
+  const markdown = [
+    '> Offline · deterministic · fixture-first',
+    '> AI candidates are pre-generated fixtures. No live LLM, API, OCR, server, database, or authentication is used.',
+    '',
+    renderEvidenceReportMarkdown(evidencePack, { title: evidencePack.title, itemLabel: pack.labels.claimSingular, includeAudit: true })
+  ].join('\n');
+
+  return Object.freeze({ itemCount: evidencePack.items.length, json: evidencePackToJson(evidencePack), markdown });
+}
+
 export function buildReviewQueue(packId: string): readonly ReviewQueueItem[] {
   const pack = packs[packId];
   if (!pack) {
@@ -82,8 +206,8 @@ export function buildReviewQueue(packId: string): readonly ReviewQueueItem[] {
         title: fixture.title,
         subject: fixture.claim.subject ?? fixture.claim.id,
         claimText: fixture.claim.text,
-        aiValue: String(fixture.claim.aiValue ?? ''),
-        sourceValue: String(fixture.claim.sourceValue ?? ''),
+        aiValue: fixture.claim.aiValue,
+        sourceValue: fixture.claim.sourceValue,
         sourceTitle: fixture.source.title,
         sourceLocator: fixture.source.locator ?? '',
         sourceAnchorId: sourceAnchorId(fixture.claim.anchor),

@@ -1,5 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { buildReviewQueue, defaultPackId, formatDemo, reviewDecisionState, runDemo } from './demo.js';
+import {
+  buildEvidenceExport,
+  buildReviewQueue,
+  appendReviewRecord,
+  createReviewRecord,
+  coerceCorrectionValue,
+  defaultPackId,
+  formatDemo,
+  reviewDecisionState,
+  runDemo
+} from './demo.js';
 
 describe('example DomainPack composition', () => {
   it('defaults the public MOFA hostname to the MOFA ODA pack', () => {
@@ -87,6 +97,63 @@ describe('example DomainPack composition', () => {
     expect(reviewDecisionState('verified')).toEqual({ label: '검증 완료', evidenceEligible: true });
     expect(reviewDecisionState('corrected')).toEqual({ label: '정정 완료', evidenceEligible: true });
     expect(reviewDecisionState('rejected')).toEqual({ label: '기각', evidenceEligible: false });
+  });
+
+  it('requires a reviewer-authored value and reason for corrections', () => {
+    expect(() => createReviewRecord('corrected', { correctedValue: '', reason: 'source mismatch' })).toThrow(
+      'Corrected decisions require a corrected value.'
+    );
+    expect(() => createReviewRecord('corrected', { correctedValue: 'anchored value', reason: '' })).toThrow(
+      'Corrected decisions require a reason.'
+    );
+
+    expect(createReviewRecord('corrected', { correctedValue: 'anchored value', reason: 'MOFA source conflict' })).toEqual({
+      decision: 'corrected',
+      correctedValue: 'anchored value',
+      reason: 'MOFA source conflict',
+      reviewerId: 'demo-reviewer',
+      decidedAt: '2026-07-08T00:00:00.000Z'
+    });
+  });
+
+  it('exports only explicitly verified or corrected review records', () => {
+    const queue = buildReviewQueue('mofa-oda');
+    const records = {
+      'mofa-country-safety-mismatch': createReviewRecord('corrected', {
+        correctedValue: queue[0]!.sourceValue,
+        reason: '외교부 국가별 안전정보와 충돌하여 근거값으로 정정'
+      }),
+      'koica-project-period-or-country-mismatch': createReviewRecord('rejected', { reason: '추가 확인 전 제외' }),
+      'oda-term-definition-match': createReviewRecord('verified', { reason: 'ODA 용어사전 정의와 일치' })
+    } as const;
+
+    const exported = buildEvidenceExport('mofa-oda', records);
+
+    expect(exported.itemCount).toBe(2);
+    expect(exported.json).toContain('mofa-oda-claim-001');
+    expect(exported.json).toContain('mofa-oda-claim-003');
+    expect(exported.json).not.toContain('mofa-oda-claim-002');
+    expect(exported.markdown).toContain('# MOFA ODA Claim Review Summary');
+    expect(exported.markdown).toContain('외교부 국가별 안전정보와 충돌하여 근거값으로 정정');
+    expect(exported.markdown).toContain('Offline · deterministic · fixture-first');
+  });
+
+  it('keeps terminal reviewer records append-only until reset', () => {
+    const first = createReviewRecord('verified', { reason: 'source confirmed' });
+    const records = appendReviewRecord({}, 'fixture-a', first);
+
+    expect(records['fixture-a']).toBe(first);
+    expect(() => appendReviewRecord(records, 'fixture-a', createReviewRecord('rejected', { reason: 'later overwrite' }))).toThrow(
+      "Fixture 'fixture-a' already has a terminal reviewer record. Reset the review run before changing it."
+    );
+  });
+
+  it('preserves numeric and boolean ClaimValue types in corrections', () => {
+    expect(createReviewRecord('corrected', { correctedValue: 0, reason: 'zero is the anchored value' }).correctedValue).toBe(0);
+    expect(createReviewRecord('corrected', { correctedValue: false, reason: 'false is the anchored value' }).correctedValue).toBe(false);
+    expect(coerceCorrectionValue('10', 10)).toBe(10);
+    expect(coerceCorrectionValue('false', false)).toBe(false);
+    expect(coerceCorrectionValue('010', '010')).toBe('010');
   });
 
 });
