@@ -11,6 +11,13 @@ const modulePath = fileURLToPath(import.meta.url);
 const defaultConfigPath = path.join(path.dirname(modulePath), 'Caddyfile');
 const APP_SHELL = /\bid=["']root["']/i;
 const SCRIPT_ASSET = /<script\b[^>]*\bsrc=["']([^"']+\.(?:m?js)(?:\?[^"']*)?)["'][^>]*>/i;
+const EXPECTED_SECURITY_HEADERS = Object.freeze({
+  'x-content-type-options': 'nosniff',
+  'referrer-policy': 'strict-origin-when-cross-origin',
+  'x-frame-options': 'DENY',
+  'permissions-policy': 'camera=(), microphone=(), geolocation=()',
+  'content-security-policy': "default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; form-action 'self'",
+});
 
 function normalizeDnsRecords(records) {
   return [...new Set(records.flatMap((record) => {
@@ -45,8 +52,31 @@ async function defaultTlsInspect(hostname, port = 443, timeoutMs = 8_000) {
   });
 }
 
-async function safeFetch(fetchImpl, url, timeoutMs) {
-  return fetchImpl(url, { redirect: 'follow', signal: AbortSignal.timeout(timeoutMs) });
+function remainingTime(deadlineAt) {
+  return Math.max(0, deadlineAt - Date.now());
+}
+
+async function withDeadline(operation, deadlineAt) {
+  const remaining = remainingTime(deadlineAt);
+  if (remaining === 0) throw new Error('Public probe deadline exceeded');
+  let timer;
+  try {
+    return await Promise.race([
+      Promise.resolve().then(operation),
+      new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error('Public probe deadline exceeded')), remaining);
+      }),
+    ]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function safeFetch(fetchImpl, url, deadlineAt) {
+  return withDeadline(
+    () => fetchImpl(url, { redirect: 'follow', signal: AbortSignal.timeout(Math.max(1, remainingTime(deadlineAt))) }),
+    deadlineAt,
+  );
 }
 
 function header(response, name) {
@@ -74,6 +104,34 @@ function tlsIsHealthy(result, now) {
   return Number.isFinite(expiry) && expiry > now.getTime();
 }
 
+function finalUrlIsExpected(response, origin) {
+  try {
+    const finalUrl = new URL(response?.url);
+    return finalUrl.protocol === 'https:' && finalUrl.origin === origin;
+  } catch {
+    return false;
+  }
+}
+
+function normalizedHeader(value) {
+  return value.replace(/\s+/g, ' ').trim();
+}
+
+function securityHeadersAreExact(response) {
+  return Object.entries(EXPECTED_SECURITY_HEADERS).every(([name, expected]) => (
+    normalizedHeader(header(response, name)) === expected
+  ));
+}
+
+function shellAssetIdentity(assetPath, origin) {
+  try {
+    const asset = new URL(assetPath, origin);
+    return asset.origin === origin ? `${asset.pathname}${asset.search}` : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function probePublicSite(input, dependencies = {}) {
   const checks = [];
   const add = (id, ok, detail) => checks.push(Object.freeze({ id, ok: Boolean(ok), detail }));
@@ -96,10 +154,11 @@ export async function probePublicSite(input, dependencies = {}) {
   const tlsInspect = dependencies.tlsInspect ?? ((hostname) => defaultTlsInspect(hostname, Number(url.port || 443), timeoutMs));
   const fetchImpl = dependencies.fetchImpl ?? globalThis.fetch;
   const now = (dependencies.now ?? (() => new Date()))();
+  const deadlineAt = Date.now() + timeoutMs;
 
   let addresses = [];
   try {
-    addresses = normalizeDnsRecords(await dnsResolve(url.hostname));
+    addresses = normalizeDnsRecords(await withDeadline(() => dnsResolve(url.hostname), deadlineAt));
   } catch {
     addresses = [];
   }
@@ -107,7 +166,7 @@ export async function probePublicSite(input, dependencies = {}) {
 
   let tlsResult = null;
   try {
-    tlsResult = await tlsInspect(url.hostname);
+    tlsResult = await withDeadline(() => tlsInspect(url.hostname), deadlineAt);
   } catch {
     tlsResult = null;
   }
@@ -116,8 +175,8 @@ export async function probePublicSite(input, dependencies = {}) {
   let rootResponse = null;
   let rootBody = '';
   try {
-    rootResponse = await safeFetch(fetchImpl, url, timeoutMs);
-    rootBody = await rootResponse.text();
+    rootResponse = await safeFetch(fetchImpl, url, deadlineAt);
+    rootBody = await withDeadline(() => rootResponse.text(), deadlineAt);
   } catch {
     rootResponse = null;
   }
@@ -125,39 +184,47 @@ export async function probePublicSite(input, dependencies = {}) {
   const rootCache = header(rootResponse, 'cache-control');
   const shellFound = APP_SHELL.test(rootBody);
   const assetPath = rootBody.match(SCRIPT_ASSET)?.[1] ?? null;
+  const rootFinalUrlOk = finalUrlIsExpected(rootResponse, url.origin);
+  add('root-final-url', rootFinalUrlOk, rootResponse?.url || 'root final URL missing');
   add('root-status', rootResponse?.status === 200, rootResponse ? `HTTP ${rootResponse.status}` : 'root fetch failed');
   add('root-content-type', /^text\/html\b/i.test(rootType), rootType || 'missing content-type');
   add('root-cache', noCache(rootCache), rootCache || 'missing cache-control');
   add('root-shell', shellFound && Boolean(assetPath), shellFound && assetPath ? 'app shell and script asset found' : 'app shell or script asset missing');
-  add('root-security-headers', header(rootResponse, 'x-content-type-options').toLowerCase() === 'nosniff' && Boolean(header(rootResponse, 'referrer-policy')), 'nosniff and referrer-policy required');
+  add('root-security-headers', securityHeadersAreExact(rootResponse), 'exact nosniff, referrer, frame, permissions and CSP policy required');
 
   const spaUrl = new URL('/__claimgate_spa_probe__', url);
   let spaResponse = null;
   let spaBody = '';
   try {
-    spaResponse = await safeFetch(fetchImpl, spaUrl, timeoutMs);
-    spaBody = await spaResponse.text();
+    spaResponse = await safeFetch(fetchImpl, spaUrl, deadlineAt);
+    spaBody = await withDeadline(() => spaResponse.text(), deadlineAt);
   } catch {
     spaResponse = null;
   }
   const spaType = header(spaResponse, 'content-type');
   const spaCache = header(spaResponse, 'cache-control');
+  const spaAssetPath = spaBody.match(SCRIPT_ASSET)?.[1] ?? null;
+  add('spa-final-url', finalUrlIsExpected(spaResponse, url.origin), spaResponse?.url || 'SPA final URL missing');
   add('spa-status', spaResponse?.status === 200, spaResponse ? `HTTP ${spaResponse.status}` : 'SPA fallback fetch failed');
   add('spa-content-type', /^text\/html\b/i.test(spaType), spaType || 'missing content-type');
   add('spa-cache', noCache(spaCache), spaCache || 'missing cache-control');
   add('spa-shell', APP_SHELL.test(spaBody), APP_SHELL.test(spaBody) ? 'app shell found' : 'app shell missing');
+  const rootAssetIdentity = shellAssetIdentity(assetPath, url.origin);
+  const spaAssetIdentity = shellAssetIdentity(spaAssetPath, url.origin);
+  add('spa-shell-identity', Boolean(rootAssetIdentity) && spaAssetIdentity === rootAssetIdentity, spaAssetIdentity ?? 'SPA script asset missing or cross-origin');
 
   let assetResponse = null;
   if (assetPath) {
     try {
       const assetUrl = new URL(assetPath, url);
-      if (assetUrl.origin === url.origin) assetResponse = await safeFetch(fetchImpl, assetUrl, timeoutMs);
+      if (assetUrl.origin === url.origin) assetResponse = await safeFetch(fetchImpl, assetUrl, deadlineAt);
     } catch {
       assetResponse = null;
     }
   }
   const assetType = header(assetResponse, 'content-type');
   const assetCache = header(assetResponse, 'cache-control');
+  add('asset-final-url', finalUrlIsExpected(assetResponse, url.origin), assetResponse?.url || 'asset final URL missing');
   add('asset-status', assetResponse?.status === 200, assetResponse ? `HTTP ${assetResponse.status}` : 'same-origin asset fetch failed');
   add('asset-content-type', Boolean(assetPath) && contentTypeMatches(assetPath, assetType), assetType || 'missing content-type');
   add('asset-cache', immutableCache(assetCache), assetCache || 'missing cache-control');
@@ -191,7 +258,10 @@ export function validateCaddyConfig(config) {
   requireMatch(/max-age=31536000,\s*immutable/, 'immutable asset cache is missing');
   requireMatch(/no-cache,\s*no-store,\s*must-revalidate/, 'HTML and fallback no-cache policy is missing');
   requireMatch(/X-Content-Type-Options\s+["']?nosniff/i, 'nosniff header is missing');
-  requireMatch(/Referrer-Policy\s+["']?strict-origin-when-cross-origin/i, 'referrer policy is missing');
+  requireMatch(/Referrer-Policy\s+"strict-origin-when-cross-origin"/i, 'exact referrer policy is missing');
+  requireMatch(/X-Frame-Options\s+"DENY"/i, 'exact frame policy is missing');
+  requireMatch(/Permissions-Policy\s+"camera=\(\), microphone=\(\), geolocation=\(\)"/i, 'exact permissions policy is missing');
+  requireMatch(/Content-Security-Policy\s+"default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; form-action 'self'"/i, 'exact content security policy is missing');
   if (/(?:CLOUDFLARE|CF)_?(?:API_?)?TOKEN|dns\s+cloudflare/i.test(config)) {
     failures.push('credential-free TLS boundary was violated');
   }

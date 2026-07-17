@@ -73,13 +73,17 @@ pnpm deploy:static -- \
 └── current -> releases/<active-release>
 ```
 
-스크립트는 artifact를 새 불변 버전 디렉터리에 복사한 뒤 임시 상대 symlink를 `current`로 `rename`한다. 기존 release 디렉터리는 덮어쓰지 않는다.
+스크립트는 artifact를 `releases/.staging-*`에 복사하고 재검증한 다음 불변 버전 디렉터리로 `rename`한다. 그 뒤 임시 상대 symlink를 `current`로 원자 교체한다. 기존 release 디렉터리는 덮어쓰지 않으며, 복사 실패 시 staging을 지워 같은 release ID로 안전하게 재시도할 수 있다.
+
+배포 중에는 release root의 `.deploy.lock`을 원자 획득한다. 동시에 실행된 배포는 `DEPLOYMENT_LOCKED`로 실패한다. 배포 후 성공 확정과 rollback 직전에는 `current`가 이번 배포 release인지 다시 비교하므로, 다른 주체가 활성 release를 바꾼 경우 각각 `CURRENT_CONFLICT`, `ROLLBACK_CONFLICT`로 실패하고 제3의 release를 덮어쓰지 않는다.
 
 ### 결과 판정
 
 - 배포 전 스모크 실패: `PRE_DEPLOY_SMOKE_FAILED`, `current` 변경 없음
 - 배포 후 스모크 성공: `status=deployed`, 새 release 활성
 - 배포 후 스모크 실패: `POST_DEPLOY_SMOKE_FAILED`, 직전 release 복원 후 rollback 스모크 실행
+- 성공 검사 중 활성 release 변경: `CURRENT_CONFLICT`, 제3의 release 유지
+- rollback 직전 활성 release 변경: `ROLLBACK_CONFLICT`, 제3의 release 유지
 - `rollbackVerified=false`: 링크는 복원됐어도 공개 복구가 검증되지 않은 상태이므로 Gate 실패
 
 ## 5. 공개 읽기 스모크
@@ -94,10 +98,13 @@ pnpm probe:deployment
 - DNS가 하나 이상의 주소로 해석되는지
 - TLS 1.2 이상, 인증서 검증 성공, 만료 전인지
 - `/`이 `200 text/html`이고 앱 셸과 module asset을 포함하는지
-- 존재하지 않는 `__claimgate_spa_probe__` 경로가 같은 앱 셸로 fallback되는지
+- root, SPA fallback, asset의 최종 redirect URL이 HTTPS이고 `mofa.warvis.org` 원본을 유지하는지
+- 존재하지 않는 `__claimgate_spa_probe__` 경로가 같은 앱 셸과 동일한 버전 asset 경로/hash로 fallback되는지
 - HTML/fallback이 no-cache인지
 - JS/CSS asset이 올바른 `Content-Type`과 1년 immutable cache를 가지는지
-- `nosniff`, `Referrer-Policy`가 있는지
+- `nosniff`, 정확한 `Referrer-Policy`, `X-Frame-Options`, `Permissions-Policy`, CSP가 있는지
+
+DNS, TLS, fetch와 본문 읽기는 개별 제한을 누적하지 않고 전체 probe 하나의 hard deadline을 공유한다. 의존 호출이 abort를 무시해도 보고서는 제한 시간 안에 실패로 닫힌다.
 
 Cloudflare의 `server`, `cf-ray`, `cf-cache-status`는 관측값으로만 기록하고 통과 조건으로 가장하지 않는다.
 
@@ -113,6 +120,17 @@ Cloudflare의 `server`, `cf-ray`, `cf-cache-status`는 관측값으로만 기록
 | `pnpm probe:deployment` 녹색 | 미실시 | JSON 출력 artifact |
 
 토큰 값, Zone ID 전체 값, 원본 IP가 비밀로 분류된 환경 정보는 증거에 복사하지 않는다.
+
+### 2026-07-17 공개 읽기 관측
+
+`2026-07-17T15:08:47.288Z`에 `pnpm probe:deployment`를 실행했다. HTTPS, DNS 4개 주소, TLS 1.3과 인증서 유효성, root/SPA `200 text/html`, 동일 shell asset(`/assets/index-VN1YndhQ.js`), asset `200 text/javascript`, Cloudflare edge는 통과했다. 다음 4개 조건은 실패했다.
+
+1. root 응답에 `Cache-Control`이 없다.
+2. SPA fallback 응답에 `Cache-Control`이 없다.
+3. asset cache가 `max-age=14400`이며 1년 immutable 정책이 아니다.
+4. 현재 공개 응답이 이 문서의 정확한 5종 보안 헤더 정책을 모두 충족하지 않는다.
+
+저장소의 `scripts/deploy/Caddyfile`에는 이를 교정하는 cache split과 보안 헤더 정책이 포함되어 있고 로컬 `caddy validate`를 통과했지만, 공개 노드에는 적용하지 않았다. 관측 시 `/srv/claimgate` release root가 없고 비대화형 `sudo` 권한도 없어 Caddy 교체/reload를 수행하지 않았다. DNS, Cloudflare 토큰, 인증서 또는 서비스 설정은 읽거나 변경하지 않았다. 운영자 적용·reload 증거가 생긴 뒤 `pnpm probe:deployment`를 다시 실행해야 Gate를 통과할 수 있다.
 
 ## 7. 롤백 리허설과 장애 대응
 

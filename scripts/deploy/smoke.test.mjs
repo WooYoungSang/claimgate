@@ -5,6 +5,13 @@ import test from 'node:test';
 import { probePublicSite, resolveDnsAddresses, validateCaddyConfig } from './smoke.mjs';
 
 const shell = '<!doctype html><div id="root"></div><script type="module" src="/assets/app-abc123.js"></script>';
+const securityHeaders = {
+  'x-content-type-options': 'nosniff',
+  'referrer-policy': 'strict-origin-when-cross-origin',
+  'x-frame-options': 'DENY',
+  'permissions-policy': 'camera=(), microphone=(), geolocation=()',
+  'content-security-policy': "default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; form-action 'self'",
+};
 
 function response(body, { status = 200, headers = {}, url } = {}) {
   const value = new Response(body, { status, headers });
@@ -29,8 +36,7 @@ function healthyDependencies(overrides = {}) {
       headers: {
         'content-type': 'text/html; charset=utf-8',
         'cache-control': 'no-cache, no-store, must-revalidate',
-        'x-content-type-options': 'nosniff',
-        'referrer-policy': 'strict-origin-when-cross-origin',
+        ...securityHeaders,
       },
       url,
     });
@@ -58,15 +64,19 @@ test('HTTPS, DNS, TLS, app shell, SPA fallback and immutable asset contract all 
     { id: 'https' },
     { id: 'dns' },
     { id: 'tls' },
+    { id: 'root-final-url' },
     { id: 'root-status' },
     { id: 'root-content-type' },
     { id: 'root-cache' },
     { id: 'root-shell' },
     { id: 'root-security-headers' },
+    { id: 'spa-final-url' },
     { id: 'spa-status' },
     { id: 'spa-content-type' },
     { id: 'spa-cache' },
     { id: 'spa-shell' },
+    { id: 'spa-shell-identity' },
+    { id: 'asset-final-url' },
     { id: 'asset-status' },
     { id: 'asset-content-type' },
     { id: 'asset-cache' },
@@ -105,6 +115,91 @@ test('missing DNS and unauthorized or expired TLS are independent failures', asy
   assert.equal(report.checks.find(({ id }) => id === 'tls').ok, false);
 });
 
+test('followed redirects must preserve HTTPS and the expected origin for every response', async () => {
+  const report = await probePublicSite('https://mofa.warvis.org', healthyDependencies({
+    fetchImpl: async (input) => {
+      const url = String(input);
+      if (url.includes('/assets/')) {
+        return response('console.log("ok")', {
+          headers: { 'content-type': 'text/javascript', 'cache-control': 'public, max-age=31536000, immutable' },
+          url: 'https://assets.invalid/app-abc123.js',
+        });
+      }
+      if (url.includes('__claimgate_spa_probe__')) {
+        return response(shell, {
+          headers: { 'content-type': 'text/html', 'cache-control': 'no-cache', ...securityHeaders },
+          url: 'http://mofa.warvis.org/__claimgate_spa_probe__',
+        });
+      }
+      return response(shell, {
+        headers: { 'content-type': 'text/html', 'cache-control': 'no-cache', ...securityHeaders },
+        url: 'https://redirect.invalid/',
+      });
+    },
+  }));
+
+  for (const id of ['root-final-url', 'spa-final-url', 'asset-final-url']) {
+    assert.equal(report.checks.find((check) => check.id === id)?.ok, false, `${id} must fail`);
+  }
+});
+
+test('SPA fallback must reference the exact same versioned shell asset as root', async () => {
+  const report = await probePublicSite('https://mofa.warvis.org', healthyDependencies({
+    fetchImpl: async (input) => {
+      const url = String(input);
+      if (url.includes('/assets/')) {
+        return response('console.log("ok")', { headers: { 'content-type': 'text/javascript', 'cache-control': 'public, max-age=31536000, immutable' }, url });
+      }
+      const body = url.includes('__claimgate_spa_probe__')
+        ? shell.replace('app-abc123.js', 'app-wrong999.js')
+        : shell;
+      return response(body, { headers: { 'content-type': 'text/html', 'cache-control': 'no-cache', ...securityHeaders }, url });
+    },
+  }));
+
+  assert.equal(report.checks.find(({ id }) => id === 'spa-shell').ok, true);
+  assert.equal(report.checks.find(({ id }) => id === 'spa-shell-identity').ok, false);
+});
+
+test('DNS and the complete probe have one hard deadline even for non-cooperative dependencies', async () => {
+  const started = Date.now();
+  const observed = await Promise.race([
+    probePublicSite('https://mofa.warvis.org', healthyDependencies({
+      timeoutMs: 40,
+      dnsResolve: async () => new Promise(() => {}),
+      tlsInspect: async () => new Promise(() => {}),
+      fetchImpl: async () => new Promise(() => {}),
+    })).then((report) => ({ report })),
+    new Promise((resolve) => setTimeout(() => resolve({ timedOut: true }), 250)),
+  ]);
+
+  assert.equal(observed.timedOut, undefined, 'probe exceeded its hard deadline');
+  assert.ok(Date.now() - started < 250);
+  assert.equal(observed.report.checks.find(({ id }) => id === 'dns').ok, false);
+});
+
+test('security header policy is exact and fails closed on weak or missing values', async () => {
+  const report = await probePublicSite('https://mofa.warvis.org', healthyDependencies({
+    fetchImpl: async (input) => {
+      const url = String(input);
+      if (url.includes('/assets/')) {
+        return response('console.log("ok")', { headers: { 'content-type': 'text/javascript', 'cache-control': 'public, max-age=31536000, immutable' }, url });
+      }
+      return response(shell, {
+        headers: {
+          'content-type': 'text/html',
+          'cache-control': 'no-cache',
+          'x-content-type-options': 'nosniff',
+          'referrer-policy': 'unsafe-url',
+          'x-frame-options': 'SAMEORIGIN',
+        },
+        url,
+      });
+    },
+  }));
+  assert.equal(report.checks.find(({ id }) => id === 'root-security-headers').ok, false);
+});
+
 test('plain HTTP is rejected before any network probe runs', async () => {
   let calls = 0;
   const report = await probePublicSite('http://mofa.warvis.org', healthyDependencies({
@@ -135,6 +230,10 @@ test('repository Caddy contract has host, SPA fallback, cache split and no crede
     [config.replace('mofa.warvis.org', 'localhost'), 'public host'],
     [config.replace('try_files {path} /index.html', 'try_files {path}'), 'SPA fallback'],
     [config.replace('max-age=31536000, immutable', 'max-age=60'), 'immutable asset cache'],
+    [config.replace('Referrer-Policy "strict-origin-when-cross-origin"', 'Referrer-Policy "unsafe-url"'), 'referrer policy'],
+    [config.replace('X-Frame-Options "DENY"', 'X-Frame-Options "SAMEORIGIN"'), 'frame policy'],
+    [config.replace('Permissions-Policy "camera=(), microphone=(), geolocation=()"', 'Permissions-Policy "camera=(*)"'), 'permissions policy'],
+    [config.replace(/\n\s*Content-Security-Policy[^\n]*/, ''), 'content security policy'],
     [`${config}\ntls { dns cloudflare {env.CLOUDFLARE_API_TOKEN} }`, 'credential-free TLS'],
   ];
   for (const [mutated, label] of mutations) {

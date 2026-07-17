@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, readlink, rm, symlink, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readdir, readlink, rm, symlink, writeFile } from 'node:fs/promises';
 import test from 'node:test';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -152,5 +152,168 @@ test('release identifiers and an existing non-symlink current path fail closed',
     );
   } finally {
     await rm(fx.root, { recursive: true, force: true });
+  }
+});
+
+test('release root and releases directory reject canonical path escape and non-directory mutations', async () => {
+  const fx = await fixture();
+  const outside = await mkdtemp(path.join(tmpdir(), 'claimgate-release-outside-'));
+  try {
+    const symlinkRoot = path.join(fx.root, 'symlink-root');
+    await symlink(outside, symlinkRoot);
+    await assert.rejects(
+      deployRelease({ artifactPath: fx.artifact, releaseRoot: symlinkRoot, releaseId: 'v2' }),
+      (error) => error instanceof DeploymentError && error.code === 'UNSAFE_RELEASE_ROOT',
+    );
+
+    await mkdir(fx.releaseRoot, { recursive: true });
+    await symlink(outside, path.join(fx.releaseRoot, 'releases'));
+    await assert.rejects(
+      deployRelease({ artifactPath: fx.artifact, releaseRoot: fx.releaseRoot, releaseId: 'v2' }),
+      (error) => error instanceof DeploymentError && error.code === 'UNSAFE_RELEASES_PATH',
+    );
+    await rm(path.join(fx.releaseRoot, 'releases'));
+    await writeFile(path.join(fx.releaseRoot, 'releases'), 'not-a-directory');
+    await assert.rejects(
+      deployRelease({ artifactPath: fx.artifact, releaseRoot: fx.releaseRoot, releaseId: 'v2' }),
+      (error) => error instanceof DeploymentError && error.code === 'UNSAFE_RELEASES_PATH',
+    );
+  } finally {
+    await Promise.all([rm(fx.root, { recursive: true, force: true }), rm(outside, { recursive: true, force: true })]);
+  }
+});
+
+test('copy failure removes staging and permits a clean retry with the same release id', async () => {
+  const fx = await fixture();
+  try {
+    await assert.rejects(
+      deployRelease({
+        artifactPath: fx.artifact,
+        releaseRoot: fx.releaseRoot,
+        releaseId: 'v2',
+        copyArtifact: async (_source, destination) => {
+          await mkdir(destination, { recursive: true });
+          await writeFile(path.join(destination, 'partial.txt'), 'partial');
+          throw new Error('injected copy failure');
+        },
+      }),
+      (error) => error instanceof DeploymentError && error.code === 'STAGING_COPY_FAILED',
+    );
+    assert.deepEqual((await readdir(path.join(fx.releaseRoot, 'releases'))).filter((name) => name.includes('staging')), []);
+
+    const result = await deployRelease({ artifactPath: fx.artifact, releaseRoot: fx.releaseRoot, releaseId: 'v2' });
+    assert.equal(result.status, 'deployed');
+  } finally {
+    await rm(fx.root, { recursive: true, force: true });
+  }
+});
+
+test('release-root lock rejects same-id deployment race and is released after completion', async () => {
+  const fx = await fixture();
+  let enteredAfter;
+  let continueAfter;
+  const afterEntered = new Promise((resolve) => { enteredAfter = resolve; });
+  const afterGate = new Promise((resolve) => { continueAfter = resolve; });
+  try {
+    const first = deployRelease({
+      artifactPath: fx.artifact,
+      releaseRoot: fx.releaseRoot,
+      releaseId: 'v2',
+      smoke: async ({ phase }) => {
+        if (phase === 'after') {
+          enteredAfter();
+          await afterGate;
+        }
+        return { ok: true };
+      },
+    });
+    await afterEntered;
+    await assert.rejects(
+      deployRelease({ artifactPath: fx.artifact, releaseRoot: fx.releaseRoot, releaseId: 'v2' }),
+      (error) => error instanceof DeploymentError && error.code === 'DEPLOYMENT_LOCKED',
+    );
+    continueAfter();
+    await first;
+    const third = await deployRelease({ artifactPath: fx.artifact, releaseRoot: fx.releaseRoot, releaseId: 'v3' });
+    assert.equal(third.releaseId, 'v3');
+  } finally {
+    continueAfter?.();
+    await rm(fx.root, { recursive: true, force: true });
+  }
+});
+
+test('failed v2 rollback never overwrites a concurrently activated v3 release', async () => {
+  const fx = await fixture();
+  try {
+    await seedCurrent(fx.releaseRoot, 'v1');
+    const v3 = path.join(fx.releaseRoot, 'releases', 'v3');
+    await mkdir(v3, { recursive: true });
+    await writeFile(path.join(v3, 'index.html'), 'release=v3');
+
+    await assert.rejects(
+      deployRelease({
+        artifactPath: fx.artifact,
+        releaseRoot: fx.releaseRoot,
+        releaseId: 'v2',
+        smoke: async ({ phase }) => {
+          if (phase !== 'after') return { ok: true };
+          await rm(path.join(fx.releaseRoot, 'current'));
+          await symlink(path.join('releases', 'v3'), path.join(fx.releaseRoot, 'current'));
+          return { ok: false };
+        },
+      }),
+      (error) => error instanceof DeploymentError && error.code === 'ROLLBACK_CONFLICT',
+    );
+    assert.equal(await readActiveRelease(fx.releaseRoot), v3);
+  } finally {
+    await rm(fx.root, { recursive: true, force: true });
+  }
+});
+
+test('success is refused if current no longer points to the deployment own release', async () => {
+  const fx = await fixture();
+  try {
+    await seedCurrent(fx.releaseRoot, 'v1');
+    const v3 = path.join(fx.releaseRoot, 'releases', 'v3');
+    await mkdir(v3, { recursive: true });
+    await writeFile(path.join(v3, 'index.html'), 'release=v3');
+    await assert.rejects(
+      deployRelease({
+        artifactPath: fx.artifact,
+        releaseRoot: fx.releaseRoot,
+        releaseId: 'v2',
+        smoke: async ({ phase }) => {
+          if (phase === 'after') {
+            await rm(path.join(fx.releaseRoot, 'current'));
+            await symlink(path.join('releases', 'v3'), path.join(fx.releaseRoot, 'current'));
+          }
+          return { ok: true };
+        },
+      }),
+      (error) => error instanceof DeploymentError && error.code === 'CURRENT_CONFLICT',
+    );
+    assert.equal(await readActiveRelease(fx.releaseRoot), v3);
+  } finally {
+    await rm(fx.root, { recursive: true, force: true });
+  }
+});
+
+test('credential guard rejects common credential, service-account, SSH and certificate paths', async () => {
+  const names = [
+    'credentials.json', 'service-account.json', '.npmrc', '.netrc', 'id_rsa', 'id_dsa', 'id_ed25519',
+    'origin.crt', 'origin.pem', 'client.p12', 'client.pfx', 'private.key',
+  ];
+  for (const name of names) {
+    const fx = await fixture();
+    try {
+      await writeFile(path.join(fx.artifact, name), 'fixture');
+      await assert.rejects(
+        validateArtifact(fx.artifact),
+        (error) => error instanceof DeploymentError && error.code === 'SENSITIVE_ARTIFACT_PATH',
+        name,
+      );
+    } finally {
+      await rm(fx.root, { recursive: true, force: true });
+    }
   }
 });

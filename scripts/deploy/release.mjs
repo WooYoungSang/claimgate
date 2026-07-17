@@ -6,7 +6,7 @@ import process from 'node:process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const RELEASE_ID = /^[A-Za-z0-9](?:[A-Za-z0-9._-]{0,63})$/;
-const SENSITIVE_COMPONENT = /^(?:\.env(?:\..*)?|secrets?|.*(?:[._-](?:secret|token))(?:[._-].*)?|.*\.(?:pem|key|p12|pfx|kdbx|age|gpg))$/i;
+const SENSITIVE_COMPONENT = /^(?:\.env(?:\..*)?|\.npmrc|\.netrc|credentials(?:\..*)?|service[-_.]?account(?:\..*)?|id_(?:rsa|dsa|ed25519)(?:\..*)?|secrets?|.*(?:[._-](?:secret|token))(?:[._-].*)?|.*\.(?:crt|pem|key|p12|pfx|kdbx|age|gpg))$/i;
 
 export class DeploymentError extends Error {
   constructor(code, message, details = {}) {
@@ -28,6 +28,42 @@ async function pathState(candidate) {
     if (error.code === 'ENOENT') return null;
     throw error;
   }
+}
+
+async function initializeReleaseRoot(releaseRoot) {
+  const requestedRoot = path.resolve(releaseRoot);
+  const rootState = await pathState(requestedRoot);
+  if (rootState && (rootState.isSymbolicLink() || !rootState.isDirectory())) {
+    throw new DeploymentError('UNSAFE_RELEASE_ROOT', 'Release root must be a real directory');
+  }
+  if (!rootState) await mkdir(requestedRoot, { recursive: true });
+
+  const root = await realpath(requestedRoot);
+  const releasesPath = path.join(root, 'releases');
+  const releasesState = await pathState(releasesPath);
+  if (releasesState && (releasesState.isSymbolicLink() || !releasesState.isDirectory())) {
+    throw new DeploymentError('UNSAFE_RELEASES_PATH', 'Releases path must be a real directory');
+  }
+  if (!releasesState) await mkdir(releasesPath);
+
+  const releases = await realpath(releasesPath);
+  if (!isContained(root, releases)) {
+    throw new DeploymentError('UNSAFE_RELEASES_PATH', 'Releases path escapes the release root');
+  }
+  return { root, releases };
+}
+
+async function acquireDeploymentLock(root) {
+  const lock = path.join(root, '.deploy.lock');
+  try {
+    await mkdir(lock);
+  } catch (error) {
+    if (error.code === 'EEXIST') {
+      throw new DeploymentError('DEPLOYMENT_LOCKED', 'Another deployment is already active');
+    }
+    throw error;
+  }
+  return async () => rm(lock, { recursive: true, force: true });
 }
 
 async function inspectArtifact(directory, root = directory) {
@@ -120,53 +156,106 @@ async function smokePassed(smoke, input) {
   }
 }
 
-export async function deployRelease({ artifactPath, releaseRoot, releaseId, smoke }) {
+async function assertActiveRelease(root, expectedRelease, code) {
+  const activeRelease = await readActiveRelease(root);
+  if (activeRelease !== expectedRelease) {
+    throw new DeploymentError(code, 'Active release changed during deployment', {
+      expectedRelease,
+      activeRelease,
+    });
+  }
+}
+
+async function stageRelease({ artifact, releases, releaseId, copyArtifact }) {
+  const nextRelease = path.join(releases, releaseId);
+  if (!isContained(releases, nextRelease)) {
+    throw new DeploymentError('UNSAFE_RELEASE_PATH', 'Release target escapes the canonical releases directory');
+  }
+  if (await pathState(nextRelease)) {
+    throw new DeploymentError('RELEASE_EXISTS', 'Release ID already exists and will not be overwritten', { releaseId });
+  }
+
+  const staging = path.join(releases, `.staging-${releaseId}-${process.pid}-${Date.now()}`);
+  try {
+    try {
+      await copyArtifact(artifact, staging, {
+        recursive: true,
+        errorOnExist: true,
+        force: false,
+        preserveTimestamps: true,
+      });
+    } catch (error) {
+      throw new DeploymentError('STAGING_COPY_FAILED', 'Artifact copy into staging failed', {
+        releaseId,
+        cause: error instanceof Error ? error.message : String(error),
+      });
+    }
+
+    const canonicalStaging = await validateArtifact(staging);
+    if (!isContained(releases, canonicalStaging)) {
+      throw new DeploymentError('UNSAFE_RELEASE_PATH', 'Staged artifact escapes the canonical releases directory');
+    }
+    try {
+      await rename(staging, nextRelease);
+    } catch (error) {
+      if (error.code === 'EEXIST' || error.code === 'ENOTEMPTY') {
+        throw new DeploymentError('RELEASE_EXISTS', 'Release ID appeared during staging and was not overwritten', { releaseId });
+      }
+      throw error;
+    }
+    return nextRelease;
+  } finally {
+    await rm(staging, { recursive: true, force: true });
+  }
+}
+
+export async function deployRelease({ artifactPath, releaseRoot, releaseId, smoke, copyArtifact = cp }) {
   if (!RELEASE_ID.test(releaseId) || releaseId === '.' || releaseId === '..') {
     throw new DeploymentError('INVALID_RELEASE_ID', 'Release ID must be a bounded path-safe identifier');
   }
 
   const artifact = await validateArtifact(artifactPath);
-  const root = path.resolve(releaseRoot);
-  const releases = path.join(root, 'releases');
-  await mkdir(releases, { recursive: true });
-  const previousRelease = await readActiveRelease(root);
-  const nextRelease = path.join(releases, releaseId);
-  if (await pathState(nextRelease)) {
-    throw new DeploymentError('RELEASE_EXISTS', 'Release ID already exists and will not be overwritten', { releaseId });
-  }
+  const { root, releases } = await initializeReleaseRoot(releaseRoot);
+  const releaseLock = await acquireDeploymentLock(root);
+  try {
+    const previousRelease = await readActiveRelease(root);
+    const nextRelease = await stageRelease({ artifact, releases, releaseId, copyArtifact });
 
-  await cp(artifact, nextRelease, { recursive: true, errorOnExist: true, force: false, preserveTimestamps: true });
+    if (smoke && !await smokePassed(smoke, { phase: 'before', activeRelease: previousRelease, previousRelease })) {
+      await rm(nextRelease, { recursive: true, force: true });
+      throw new DeploymentError('PRE_DEPLOY_SMOKE_FAILED', 'Pre-deployment smoke failed; active release was not changed', {
+        releaseId,
+        activeRelease: previousRelease,
+      });
+    }
 
-  if (smoke && !await smokePassed(smoke, { phase: 'before', activeRelease: previousRelease, previousRelease })) {
-    await rm(nextRelease, { recursive: true, force: true });
-    throw new DeploymentError('PRE_DEPLOY_SMOKE_FAILED', 'Pre-deployment smoke failed; active release was not changed', {
+    await atomicSwitch(root, nextRelease);
+    if (smoke && !await smokePassed(smoke, { phase: 'after', activeRelease: nextRelease, previousRelease })) {
+      await assertActiveRelease(root, nextRelease, 'ROLLBACK_CONFLICT');
+      await atomicSwitch(root, previousRelease);
+      const rollbackVerified = previousRelease === null
+        ? await readActiveRelease(root) === null
+        : await smokePassed(smoke, { phase: 'rollback', activeRelease: previousRelease, previousRelease });
+      throw new DeploymentError('POST_DEPLOY_SMOKE_FAILED', 'Post-deployment smoke failed; previous release was restored', {
+        releaseId,
+        activeRelease: previousRelease,
+        rollbackPerformed: true,
+        rollbackVerified,
+      });
+    }
+
+    await assertActiveRelease(root, nextRelease, 'CURRENT_CONFLICT');
+    return Object.freeze({
+      status: 'deployed',
       releaseId,
-      activeRelease: previousRelease,
+      activeRelease: nextRelease,
+      previousRelease,
+      rollbackPerformed: false,
+      rollbackVerified: null,
     });
+  } finally {
+    await releaseLock();
   }
-
-  await atomicSwitch(root, nextRelease);
-  if (smoke && !await smokePassed(smoke, { phase: 'after', activeRelease: nextRelease, previousRelease })) {
-    await atomicSwitch(root, previousRelease);
-    const rollbackVerified = previousRelease === null
-      ? await readActiveRelease(root) === null
-      : await smokePassed(smoke, { phase: 'rollback', activeRelease: previousRelease, previousRelease });
-    throw new DeploymentError('POST_DEPLOY_SMOKE_FAILED', 'Post-deployment smoke failed; previous release was restored', {
-      releaseId,
-      activeRelease: previousRelease,
-      rollbackPerformed: true,
-      rollbackVerified,
-    });
-  }
-
-  return Object.freeze({
-    status: 'deployed',
-    releaseId,
-    activeRelease: nextRelease,
-    previousRelease,
-    rollbackPerformed: false,
-    rollbackVerified: null,
-  });
 }
 
 function parseArgs(argv) {
