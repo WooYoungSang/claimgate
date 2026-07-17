@@ -1,11 +1,18 @@
 import assert from 'node:assert/strict';
+import { mkdir, mkdtemp, rm } from 'node:fs/promises';
 import test from 'node:test';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+import process from 'node:process';
 
 import {
   REQUIRED_COMMANDS,
   buildReport,
+  findNestedNodeModules,
   formatMarkdown,
   parseArgs,
+  resolveOutputDirectory,
+  runCommandSequence,
 } from './verify-clean-clone.mjs';
 
 test('uses the complete offline clean-clone command manifest in acceptance order', () => {
@@ -41,7 +48,7 @@ test('passes only when every exit code is zero and the ten-minute target is met'
   assert.equal(report.status, 'PASS');
   assert.equal(report.withinTenMinuteTarget, true);
   assert.equal(report.offlineInstallEnforced, true);
-  assert.equal(report.inheritedNodeModules, false);
+  assert.deepEqual(report.inheritedNodeModules, []);
 });
 
 test('fails loud on a non-zero command without masking later results', () => {
@@ -100,4 +107,129 @@ test('parses explicit source ref and evidence directory without hidden defaults'
     keepClone: true,
   });
   assert.throws(() => parseArgs(['--unknown']), /Unknown argument/);
+});
+
+test('rejects absolute and traversal output paths outside the repository evidence root', async () => {
+  const repository = await mkdtemp(path.join(tmpdir(), 'claimgate-output-contract-'));
+  try {
+    await assert.rejects(
+      resolveOutputDirectory(repository, '/tmp/escaped-clean-clone-evidence'),
+      /must be relative/,
+    );
+    await assert.rejects(
+      resolveOutputDirectory(repository, '../../escaped-clean-clone-evidence'),
+      /must stay within/,
+    );
+    const allowed = await resolveOutputDirectory(repository, 'tmp/clean-clone-evidence/review');
+    assert.equal(allowed, path.join(repository, 'tmp/clean-clone-evidence/review'));
+  } finally {
+    await rm(repository, { recursive: true, force: true });
+  }
+});
+
+test('rejects symlink output traversal even when its lexical path is inside the evidence root', async () => {
+  if (process.platform === 'win32') return;
+  const repository = await mkdtemp(path.join(tmpdir(), 'claimgate-output-symlink-'));
+  const outside = await mkdtemp(path.join(tmpdir(), 'claimgate-output-outside-'));
+  try {
+    const evidenceRoot = path.join(repository, 'tmp/clean-clone-evidence');
+    await mkdir(evidenceRoot, { recursive: true });
+    const { symlink } = await import('node:fs/promises');
+    await symlink(outside, path.join(evidenceRoot, 'escape'));
+    await assert.rejects(
+      resolveOutputDirectory(repository, 'tmp/clean-clone-evidence/escape/report'),
+      /resolves outside/,
+    );
+  } finally {
+    await Promise.all([
+      rm(repository, { recursive: true, force: true }),
+      rm(outside, { recursive: true, force: true }),
+    ]);
+  }
+});
+
+test('rejects an evidence root symlink that resolves outside the repository', async () => {
+  if (process.platform === 'win32') return;
+  const repository = await mkdtemp(path.join(tmpdir(), 'claimgate-output-root-symlink-'));
+  const outside = await mkdtemp(path.join(tmpdir(), 'claimgate-output-root-outside-'));
+  try {
+    await mkdir(path.join(repository, 'tmp'), { recursive: true });
+    const { symlink } = await import('node:fs/promises');
+    await symlink(outside, path.join(repository, 'tmp/clean-clone-evidence'));
+    await assert.rejects(
+      resolveOutputDirectory(repository, 'tmp/clean-clone-evidence/report'),
+      /evidence root resolves outside/,
+    );
+  } finally {
+    await Promise.all([
+      rm(repository, { recursive: true, force: true }),
+      rm(outside, { recursive: true, force: true }),
+    ]);
+  }
+});
+
+test('recursively detects nested inherited node_modules while ignoring Git internals', async () => {
+  const clone = await mkdtemp(path.join(tmpdir(), 'claimgate-node-modules-scan-'));
+  try {
+    await Promise.all([
+      mkdir(path.join(clone, 'packages/a/node_modules'), { recursive: true }),
+      mkdir(path.join(clone, '.git/objects/node_modules'), { recursive: true }),
+    ]);
+    assert.deepEqual(await findNestedNodeModules(clone), ['packages/a/node_modules']);
+  } finally {
+    await rm(clone, { recursive: true, force: true });
+  }
+});
+
+test('hard-times-out a stubborn process group and escalates from SIGTERM to SIGKILL', async () => {
+  if (process.platform === 'win32') return;
+  const output = await mkdtemp(path.join(tmpdir(), 'claimgate-stubborn-child-'));
+  try {
+    const started = Date.now();
+    const results = await runCommandSequence({
+      commands: [{
+        id: 'stubborn',
+        command: process.execPath,
+        args: ['-e', "process.on('SIGTERM',()=>{}); setInterval(()=>{}, 1000)"],
+      }],
+      cwd: output,
+      outputDirectory: output,
+      environment: process.env,
+      deadlineAt: Date.now() + 350,
+      terminationGraceMs: 100,
+    });
+
+    assert.equal(results[0].exitCode, 124);
+    assert.equal(results[0].timedOut, true);
+    assert.deepEqual(results[0].terminationSignals, ['SIGTERM', 'SIGKILL']);
+    assert.ok(Date.now() - started < 1_500, 'hard deadline must not leave a hanging child');
+    assert.throws(() => process.kill(results[0].pid, 0), /ESRCH/);
+  } finally {
+    await rm(output, { recursive: true, force: true });
+  }
+});
+
+test('records injected failure, continues later commands, and keeps per-command remaining budgets', async () => {
+  const output = await mkdtemp(path.join(tmpdir(), 'claimgate-failure-policy-'));
+  const marker = path.join(output, 'continued.txt');
+  try {
+    const results = await runCommandSequence({
+      commands: [
+        { id: 'fail', command: process.execPath, args: ['-e', 'process.exit(7)'] },
+        { id: 'continue', command: process.execPath, args: ['-e', `require('node:fs').writeFileSync(${JSON.stringify(marker)}, 'yes')`] },
+      ],
+      cwd: output,
+      outputDirectory: output,
+      environment: process.env,
+      deadlineAt: Date.now() + 2_000,
+      terminationGraceMs: 100,
+    });
+
+    assert.deepEqual(results.map(({ exitCode }) => exitCode), [7, 0]);
+    assert.equal(await import('node:fs').then(({ readFileSync }) => readFileSync(marker, 'utf8')), 'yes');
+    assert.ok(results.every((result) => result.remainingBudgetMsAtStart > 0));
+    assert.ok(results[1].remainingBudgetMsAtStart <= results[0].remainingBudgetMsAtStart);
+  } finally {
+    await rm(output, { recursive: true, force: true });
+  }
 });
