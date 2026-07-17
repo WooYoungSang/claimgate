@@ -10,6 +10,8 @@
     "demo": "node scripts/swap-pack-demo",
     "lint": "node scripts/lint-boundaries.mjs && pnpm -r --sort --if-present lint",
     "test": "pnpm build && pnpm -r --sort --if-present test",
+    "test:geometry": "pnpm --filter @claimgate/example-civic-review-app build && node scripts/browser-geometry-audit.mjs",
+    "test:geometry:cleanup": "node scripts/browser-geometry-audit.mjs --cleanup-self-test",
     "typecheck": "pnpm -r --sort --if-present typecheck",
     "test/conformance": "pnpm --filter @claimgate/conformance test && pnpm --filter @claimgate/pack-civic-data test && pnpm --filter @claimgate/pack-health-data test && pnpm --filter @claimgate/pack-mofa-oda test",
     "test:e2e": "pnpm build && tsx scripts/handoff-smoke.ts",
