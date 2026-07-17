@@ -105,6 +105,50 @@ Fresh verification snapshot (2026-07-17 KST):
 - `pnpm test`: PASS, full build plus 82 tests across 21 test files.
 - `pnpm lint`: PASS, package-boundary lint plus workspace TypeScript lint.
 
+### Clean-clone reproducibility gate (2026-07-17 KST)
+
+`pnpm verify:clean-clone` creates an independent local Git clone, confirms that
+it does not inherit `node_modules`, and runs the acceptance commands with an
+offline frozen-lockfile install. It writes per-command logs plus JSON/Markdown
+evidence under the ignored `tmp/clean-clone-evidence/` directory and returns a
+non-zero exit code if a command fails or the 10-minute target is exceeded.
+
+The gate applies one 600-second hard deadline across clone setup and every
+command. Each child receives only the remaining budget. On POSIX, commands run
+in a detached process group; timeout or interruption sends `SIGTERM`, waits a
+bounded grace period, then escalates to `SIGKILL`. `SIGINT`/`SIGTERM` handlers
+abort the active group and the `finally` path removes the temporary clone.
+
+Additional fail-closed checks:
+
+- `--output-dir` must resolve inside `tmp/clean-clone-evidence/`; absolute,
+  parent traversal, and symlink escape paths are rejected before writing.
+- the entire clone is recursively scanned for nested `node_modules` before
+  install, excluding only Git internals;
+- a failed command remains visible with its original exit code and does not
+  hide later command results;
+- `pnpm test:clean-clone:self` exercises a stubborn child, `SIGTERM` →
+  `SIGKILL` escalation, signal cleanup, and temporary output removal.
+
+Measured isolated run on Node `v22.22.1` and pnpm `9.0.0`:
+
+| Command | Exit | Duration |
+|---|---:|---:|
+| `pnpm install --offline --frozen-lockfile` | 0 | 0.779s |
+| `pnpm build` | 0 | 5.590s |
+| `pnpm typecheck` | 0 | 3.939s |
+| `pnpm test/conformance` | 0 | 2.643s |
+| `pnpm demo` | 0 | 1.245s |
+| `pnpm test` | 0 | 8.734s |
+
+- Total clean-clone gate: **23.799s / 600s — PASS**.
+- Inherited `node_modules`: **no**.
+- Registry fetch during install: **disabled by `--offline`**; an incomplete
+  local pnpm store fails loud instead of falling back to the network.
+- The result proves local fixture-first reproducibility for the measured Git
+  snapshot. It does not prove remote registry availability, CI/CD, package
+  publication, live OpenAPI/LLM/OCR behavior, or production accuracy.
+
 Remaining FUTURE / No-Go boundaries:
 
 - live MOFA/KOICA OpenAPI or file download;
