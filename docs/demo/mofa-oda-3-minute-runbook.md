@@ -8,7 +8,7 @@
 
 1. Chrome/Chromium 계열 브라우저에서 `https://mofa.warvis.org`를 열고 데스크톱 폭(권장 1280px 이상), 확대 100%로 맞춘다.
 2. 첫 화면에 `ClaimGate · MOFA ODA prototype`, `Offline`, `Deterministic`, `Fixture-first`, `No live AI / API / OCR`이 보이는지 확인한다.
-3. 탭이 이미 열린 상태라면 새로고침 후 `처음부터`를 눌러 시작 오버레이로 돌아간다. 판정 기록, 선택 주장, Evidence Pack 미리보기가 모두 초기화되어야 한다.
+3. 탭이 이미 열린 상태라면 새로고침하여 시작 오버레이로 돌아간다. 자유 탐색 화면에서 전체 초기화가 필요할 때는 `처음부터`를 누른다. 판정 기록, 선택 주장, Evidence Pack 미리보기가 모두 초기화되어야 한다.
 4. 발표자는 다운로드 폴더 쓰기 권한을 확인한다. 다운로드가 차단돼도 `Evidence Pack 미리보기`까지만으로 핵심 검증은 가능하다.
 5. 공개 URL의 **페이지 전달**에는 네트워크가 필요하지만, 페이지가 로드된 뒤 검토 데이터와 판정 규칙은 live 공공데이터 API를 호출하지 않는 오프라인 fixture이다.
 
