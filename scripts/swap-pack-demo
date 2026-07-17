@@ -10,20 +10,25 @@ function run(pack) {
     process.stderr.write(result.stderr);
     process.exit(result.status ?? 1);
   }
-  return result.stdout.trim();
+  const storyStart = result.stdout.indexOf('ClaimGate demo:');
+  if (storyStart < 0) {
+    console.error(`Pack '${pack}' produced no formatted ClaimGate story.`);
+    process.exit(1);
+  }
+  return result.stdout.slice(storyStart).trim();
 }
 
-const civic = run('civic-data');
-const health = run('health-data');
+const packIds = ['civic-data', 'health-data', 'mofa-oda'];
+const outputs = packIds.map((packId) => [packId, run(packId)]);
 
-console.log('--- civic-data ---');
-console.log(civic);
-console.log('--- health-data ---');
-console.log(health);
+for (const [packId, output] of outputs) {
+  console.log(`--- ${packId} ---`);
+  console.log(output);
+}
 
-if (civic === health) {
-  console.error('Pack swap failed: outputs are identical.');
+if (new Set(outputs.map(([, output]) => output)).size !== outputs.length) {
+  console.error('Pack swap failed: at least two pack outputs are identical.');
   process.exit(1);
 }
 
-console.log('Pack swap demo changed behavior without core/UI changes.');
+console.log('Three-pack swap demo changed behavior without core/UI changes.');

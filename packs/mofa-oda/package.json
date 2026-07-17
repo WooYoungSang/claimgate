@@ -1,0 +1,35 @@
+{
+  "name": "@claimgate/pack-mofa-oda",
+  "version": "0.0.0",
+  "description": "Offline deterministic MOFA and ODA public-data domain pack for ClaimGate.",
+  "type": "module",
+  "license": "MIT",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@claimgate/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@claimgate/conformance": "workspace:*",
+    "tsup": "8.3.5",
+    "typescript": "5.7.2",
+    "vitest": "2.1.8"
+  }
+}

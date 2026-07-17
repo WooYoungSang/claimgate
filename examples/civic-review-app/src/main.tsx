@@ -1,6 +1,7 @@
 import { claimGateCoreInfo } from '@claimgate/core';
 import { civicDataPack } from '@claimgate/pack-civic-data';
 import { healthDataPack } from '@claimgate/pack-health-data';
+import { mofaOdaPack } from '@claimgate/pack-mofa-oda';
 import { ReviewShell } from '@claimgate/ui';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
@@ -13,7 +14,7 @@ interface DemoState {
   readonly selectPack: (id: string) => void;
 }
 
-const packs = [civicDataPack, healthDataPack] as const;
+const packs = [civicDataPack, healthDataPack, mofaOdaPack] as const;
 const useDemoStore = create<DemoState>((set) => ({
   selectedPackId: civicDataPack.id,
   selectPack: (id) => set({ selectedPackId: id })

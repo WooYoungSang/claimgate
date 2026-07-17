@@ -29,6 +29,7 @@ Run conformance through the workspace tests:
 pnpm --filter @claimgate/conformance test
 pnpm --filter @claimgate/pack-civic-data test
 pnpm --filter @claimgate/pack-health-data test
+pnpm --filter @claimgate/pack-mofa-oda test
 ```
 
 The kit checks metadata completeness, declared anchors/entities, fixture expectations, deterministic rule output, and rule traces.
@@ -39,4 +40,4 @@ The kit checks metadata completeness, declared anchors/entities, fixture expecta
 pnpm demo
 ```
 
-This runs `scripts/swap-pack-demo`, executing the same example app with `civic-data` and `health-data`. The outputs must differ, proving reuse through pack swap rather than core/UI edits.
+This runs `scripts/swap-pack-demo`, executing the same example app with `civic-data`, `health-data`, and `mofa-oda`. The three semantic story outputs must differ, proving reuse through pack swap rather than core/UI edits. The MOFA ODA pack remains an offline fixture pack: public-data URLs are provenance metadata, not live network integrations.

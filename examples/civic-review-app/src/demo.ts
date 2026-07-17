@@ -17,10 +17,12 @@ import {
 import type { DomainPack } from '@claimgate/core/domain-pack';
 import { civicDataPack } from '@claimgate/pack-civic-data';
 import { healthDataPack } from '@claimgate/pack-health-data';
+import { mofaOdaPack } from '@claimgate/pack-mofa-oda';
 
 const packs: Record<string, DomainPack> = {
   [civicDataPack.id]: civicDataPack,
-  [healthDataPack.id]: healthDataPack
+  [healthDataPack.id]: healthDataPack,
+  [mofaOdaPack.id]: mofaOdaPack
 };
 
 const fixedNow = () => '2026-07-08T00:00:00.000Z';
@@ -131,7 +133,7 @@ export function runDemo(packId: string): DemoSummary {
       `2. Source anchor grounds it: ${sourceAnchorId(fixture.claim.anchor)}`,
       `3. Deterministic rule trace: ${rule.id} => ${decision.level}/${decision.recommendedState}`,
       `4. Human reviewer decision: ${reviewed.state}`,
-      `5. Evidence Pack projects ${evidencePack.items.length} verified/corrected claim.`
+      `5. Evidence Pack projects ${evidencePack.items.length} verified/corrected claim into the report and graph.`
     ])
   };
 }

@@ -11,7 +11,7 @@
     "lint": "node scripts/lint-boundaries.mjs && pnpm -r --sort --if-present lint",
     "test": "pnpm build && pnpm -r --sort --if-present test",
     "typecheck": "pnpm -r --sort --if-present typecheck",
-    "test/conformance": "pnpm --filter @claimgate/conformance test && pnpm --filter @claimgate/pack-civic-data test && pnpm --filter @claimgate/pack-health-data test",
+    "test/conformance": "pnpm --filter @claimgate/conformance test && pnpm --filter @claimgate/pack-civic-data test && pnpm --filter @claimgate/pack-health-data test && pnpm --filter @claimgate/pack-mofa-oda test",
     "test:e2e": "pnpm build && tsx scripts/handoff-smoke.ts",
     "test:handoff": "pnpm test:e2e",
     "test:perf": "pnpm build && tsx scripts/framework-performance-eval.ts",

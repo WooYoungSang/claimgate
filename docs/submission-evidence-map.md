@@ -19,7 +19,8 @@ This file is the evidence index for the competition report in [`docs/competition
 | Evidence Pack First and verified/corrected-only projection. | `packages/core/src/evidence.ts`; `packages/core/src/projection-guards.ts`; `packages/core/src/projectors/report.ts`; `packages/core/src/projectors/graph.ts`; `packages/core/test/evidence-pack.test.ts`; `packages/core/test/projection-guards.test.ts`; `packages/core/test/projectors.test.ts` | `pnpm test -- --run packages/core/test/evidence-pack.test.ts packages/core/test/projection-guards.test.ts packages/core/test/projectors.test.ts` |
 | Reviewer terminal decisions are explicit and audited. | `packages/core/src/audit.ts`; `packages/core/src/verification.ts`; `packages/core/test/verification-state-machine.test.ts` | `pnpm test -- --run packages/core/test/verification-state-machine.test.ts` |
 | Core/pack/UI boundary: core is pure trust logic, packs own domain judgment, UI is controlled. | `docs/package-boundaries.md`; `packages/core/test/core-boundary.test.ts`; `packages/ui/test/ui-boundary.test.ts`; `packages/conformance/test/conformance.test.ts`; `packs/*/test/pack.test.ts` | `pnpm lint && pnpm test/conformance` |
-| Two domain packs demonstrate reuse through conformance and pack swap. | `packages/conformance/src/index.ts`; `packs/civic-data/src/index.ts`; `packs/health-data/src/index.ts`; `scripts/swap-pack-demo` | `pnpm test/conformance && pnpm demo` |
+| Three domain packs demonstrate reuse through conformance and pack swap. | `packages/conformance/src/index.ts`; `packs/civic-data/src/index.ts`; `packs/health-data/src/index.ts`; `packs/mofa-oda/src/index.ts`; `scripts/swap-pack-demo` | `pnpm test/conformance && pnpm demo` |
+| The MOFA ODA prototype uses offline deterministic fixtures for `외교부_국가별 안전정보`, `한국국제협력단_국가별 협력사업`, and `한국국제협력단_ODA 용어사전`. | `packs/mofa-oda/src/index.ts`; `packs/mofa-oda/test/pack.test.ts`; `examples/civic-review-app/src/demo.test.ts`; `docs/demo-script.md` | `pnpm --filter @claimgate/pack-mofa-oda test && pnpm demo` |
 | Trust adapter is mock context only and cannot replace anchors/risk/reviewer decisions. | `packages/core/src/trust-adapter.ts`; `packages/core/test/trust-adapter.test.ts`; `docs/opendid-trust-adapter.md` | `pnpm test -- --run packages/core/test/trust-adapter.test.ts` |
 | Offline deterministic handoff path exists. | `scripts/handoff-smoke.ts`; `examples/civic-review-app/src/demo.ts`; fixture/data files under `packs/*` and `examples/fixtures` | `pnpm test:e2e` |
 | Performance evaluation is for the framework pipeline only, not LLM quality. | `scripts/framework-performance-eval.ts` | `pnpm test:perf` |
@@ -44,6 +45,7 @@ Do not claim any of the following for v0:
 - ClaimGate automatically determines truth.
 - ClaimGate eliminates hallucinations.
 - A real LLM, OCR, PDF parser, Excel parser, server, database, auth layer, graph database, or real DID wallet/verifier is implemented.
+- The MOFA/KOICA public-data URLs are fetched live, or the fixture pack proves production factual accuracy.
 - The mock trust adapter verifies claims.
 - The synthetic performance run proves production latency for arbitrary documents or real LLM calls.
 - Green claims are ignored without sampling; green sampling is part of the review-cost accounting.

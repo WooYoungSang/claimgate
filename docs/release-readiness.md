@@ -75,4 +75,42 @@ A non-empty content audit is not automatically a vulnerability, but it is a **NO
 
 ## Current readiness note
 
-As of 2026-07-08 KST, this branch prepares readiness surfaces only. It intentionally does not publish, push, or change repository visibility.
+As of 2026-07-17 KST, this branch includes an offline deterministic `@claimgate/pack-mofa-oda` prototype and a civic/health/MOFA three-pack demo. It intentionally does not publish, push, change repository visibility, ratify a Bet, or submit to an external portal.
+
+## MOFA ODA July prototype readiness
+
+Implemented current evidence:
+
+- `packs/mofa-oda/src/index.ts`: DATA-001~003 provenance, three Source Anchors, and red/yellow/green deterministic rules.
+- `packs/mofa-oda/test/pack.test.ts`: stable fixture/source/rule outcomes and DomainPack conformance.
+- `package.json` `test/conformance`: conformance + civic + health + MOFA pack coverage.
+- `examples/civic-review-app` and `scripts/swap-pack-demo`: one core/UI contract with three distinct semantic stories.
+- `docs/demo-script.md`: MOFA reviewer walkthrough from Source Anchor to Evidence Pack/report/graph.
+
+Required readiness commands:
+
+```bash
+pnpm typecheck
+pnpm test/conformance
+pnpm demo
+pnpm test
+pnpm lint
+```
+
+Fresh verification snapshot (2026-07-17 KST):
+
+- `pnpm typecheck`: PASS across core, conformance, UI, three packs, and the example app.
+- `pnpm test/conformance`: PASS, 11 tests (conformance 4 + civic 2 + health 2 + MOFA ODA 3).
+- `pnpm demo`: PASS, three distinct civic/health/MOFA semantic stories.
+- `pnpm test`: PASS, full build plus 82 tests across 21 test files.
+- `pnpm lint`: PASS, package-boundary lint plus workspace TypeScript lint.
+
+Remaining FUTURE / No-Go boundaries:
+
+- live MOFA/KOICA OpenAPI or file download;
+- real LLM extraction or LLM-as-judge;
+- OCR or general PDF/Excel parsing;
+- server, DB, auth, multitenancy, or production graph database;
+- production factual accuracy, adoption, reviewer time-saving, or SLA claims.
+
+Human-only actions remain external submission, release/public visibility, protected Bet/HANDOFF transitions, and ratification. This document is evidence for review, not self-approval.

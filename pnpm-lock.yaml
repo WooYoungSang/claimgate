@@ -47,6 +47,9 @@ importers:
       '@claimgate/pack-health-data':
         specifier: workspace:*
         version: link:../../packs/health-data
+      '@claimgate/pack-mofa-oda':
+        specifier: workspace:*
+        version: link:../../packs/mofa-oda
       '@claimgate/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -154,6 +157,25 @@ importers:
         version: 2.1.8(@types/node@22.10.2)
 
   packs/health-data:
+    dependencies:
+      '@claimgate/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+    devDependencies:
+      '@claimgate/conformance':
+        specifier: workspace:*
+        version: link:../../packages/conformance
+      tsup:
+        specifier: 8.3.5
+        version: 8.3.5(postcss@8.5.16)(tsx@4.19.2)(typescript@5.7.2)
+      typescript:
+        specifier: 5.7.2
+        version: 5.7.2
+      vitest:
+        specifier: 2.1.8
+        version: 2.1.8(@types/node@22.10.2)
+
+  packs/mofa-oda:
     dependencies:
       '@claimgate/core':
         specifier: workspace:*

@@ -19,13 +19,13 @@ pnpm --filter @claimgate/example-civic-review-app dev -- --host 127.0.0.1
 # capture examples/civic-review-app at the printed local URL
 ```
 
-Capture the terminal output from `pnpm demo` as smoke evidence. The expected civic story includes:
+Capture the terminal output from `pnpm demo` as smoke evidence. It runs civic, health, and MOFA ODA packs through the same core/UI contract. The expected civic story includes:
 
 - `Story: Wrong AI claim → risk queue → reviewer correction → Evidence Pack`
 - `AI boundary: AI proposed the candidate; deterministic rules and a reviewer made the decision.`
 - `Evidence Pack items: 1`
 - `Graph nodes: 3, edges: 2`
-- `Pack swap demo changed behavior without core/UI changes.`
+- `Three-pack swap demo changed behavior without core/UI changes.`
 
 ## Three-minute talk track
 
@@ -78,7 +78,7 @@ Tie back to invariants:
 - Evidence Pack First
 - Verified/corrected-only projection
 
-### 2:40–3:00 — Pack swap proves reuse and explainability
+### 2:40–3:00 — Three-pack swap proves reuse and explainability
 
 Switch to the Health Data Pack. The same core and UI now tell a different domain story: a stale-period yellow queue becomes reviewer-verified evidence. The output changes because the pack changed, not because the core or UI hid domain judgment.
 
@@ -89,6 +89,21 @@ Expected health evidence:
 - Reviewer decision: `verified`
 - Report: `Health Statistic Review Summary`
 
+Switch once more to the MOFA ODA Public Data Pack. This story uses the offline `외교부_국가별 안전정보` fixture: an AI safety/stability statement conflicts with the anchored warning, the deterministic `mofa.country-safety-mismatch` trace sends it to red/conflict review, and a human correction becomes the only projectable evidence.
+
+Expected MOFA ODA evidence:
+
+- Pack: `MOFA ODA Public Data Pack`
+- Fixture: `mofa-country-safety-mismatch`
+- Source Anchor: `mofa-country-safety-information:dataset:...`
+- Rule trace: `mofa.country-safety-mismatch => red/conflict`
+- Reviewer decision: `corrected`
+- Evidence Pack items: `1`
+- Report: `MOFA ODA Claim Review Summary`
+- Graph: downstream projection of the reviewed Evidence Pack only
+
+The public-data URL is provenance metadata. The demo never calls the live OpenAPI; it evaluates a deterministic fixture bundled in `@claimgate/pack-mofa-oda`.
+
 Close with:
 
 “ClaimGate reduces fake work by making the review path visible: candidate, anchor, deterministic rule trace, reviewer decision, Evidence Pack, report, graph. The demo is deterministic and offline, so judges can rerun it and get the same story.”
@@ -98,12 +113,15 @@ Close with:
 - Do not say ClaimGate’s AI verifies truth.
 - Do not say the graph proves correctness by itself.
 - Do not imply real LLM extraction, OCR, server, database, auth, or online evidence exists in v0.
+- Do not imply the MOFA/KOICA public-data URLs are fetched live or that fixture behavior proves production accuracy.
 - Do not skip the reviewer decision; terminal decisions require a reviewer.
 
 ## Acceptance checklist
 
 - [x] Wrong civic claim flows through Risk Queue, correction, Evidence Pack, Report, and Graph.
 - [x] Pack swap changes behavior and report copy.
+- [x] Civic, health, and MOFA ODA packs all run through the same core/UI contract.
+- [x] MOFA ODA output names Source Anchor, deterministic rule trace, reviewer decision, Evidence Pack, report, and graph.
 - [x] AI boundary is explicit: curator only, never judge.
 - [x] Demo commands are offline and deterministic.
 - [x] Screenshot/smoke evidence path is documented.

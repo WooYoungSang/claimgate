@@ -35,6 +35,9 @@
       "@claimgate/pack-health-data": [
         "packs/health-data/src/index.ts"
       ],
+      "@claimgate/pack-mofa-oda": [
+        "packs/mofa-oda/src/index.ts"
+      ],
       "@claimgate/core/domain-pack": [
         "packages/core/src/domain-pack.ts"
       ],

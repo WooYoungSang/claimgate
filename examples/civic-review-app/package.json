@@ -16,6 +16,7 @@
     "@claimgate/core": "workspace:*",
     "@claimgate/pack-civic-data": "workspace:*",
     "@claimgate/pack-health-data": "workspace:*",
+    "@claimgate/pack-mofa-oda": "workspace:*",
     "@claimgate/ui": "workspace:*",
     "@vitejs/plugin-react": "4.3.4",
     "react": "18.3.1",
