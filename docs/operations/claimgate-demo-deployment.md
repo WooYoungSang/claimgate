@@ -75,7 +75,9 @@ pnpm deploy:static -- \
 
 스크립트는 artifact를 `releases/.staging-*`에 복사하고 재검증한 다음 불변 버전 디렉터리로 `rename`한다. 그 뒤 임시 상대 symlink를 `current`로 원자 교체한다. 기존 release 디렉터리는 덮어쓰지 않으며, 복사 실패 시 staging을 지워 같은 release ID로 안전하게 재시도할 수 있다.
 
-배포 중에는 release root의 `.deploy.lock`을 원자 획득한다. 동시에 실행된 배포는 `DEPLOYMENT_LOCKED`로 실패한다. 배포 후 성공 확정과 rollback 직전에는 `current`가 이번 배포 release인지 다시 비교하므로, 다른 주체가 활성 release를 바꾼 경우 각각 `CURRENT_CONFLICT`, `ROLLBACK_CONFLICT`로 실패하고 제3의 release를 덮어쓰지 않는다.
+배포 중에는 release root의 `.deploy.lock`을 원자 획득하고 `owner.json`에 무작위 token, PID, hostname, 생성 시각을 기록한다. 동시에 실행된 배포는 `DEPLOYMENT_LOCKED`로 실패한다. 배포 후 성공 확정과 rollback 직전에는 `current`가 이번 배포 release인지 다시 비교하므로, 다른 주체가 활성 release를 바꾼 경우 각각 `CURRENT_CONFLICT`, `ROLLBACK_CONFLICT`로 실패하고 제3의 release를 덮어쓰지 않는다.
+
+기본 stale 판정은 **같은 hostname**, **5분 이상 경과**, **기록된 PID가 존재하지 않음**을 모두 확인한 경우에만 가능하다. 이때 기존 lock을 고유 quarantine 경로로 원자 `rename`한 주체만 제거·재획득한다. PID가 살아 있거나, 다른 hostname이거나, metadata가 없거나 손상됐거나, 생존 여부 확인이 불확실하면 자동 삭제하지 않는다. `DEPLOYMENT_LOCKED` 출력의 owner를 운영자가 확인한 뒤에만 `.deploy.lock`을 별도 경로로 이동하여 복구한다. lock 디렉터리를 관측 즉시 `rm -rf`하는 절차는 금지한다.
 
 ### 결과 판정
 
@@ -90,6 +92,9 @@ pnpm deploy:static -- \
 
 ```bash
 pnpm probe:deployment
+
+# 운영 점검에서 더 짧은 전체 제한이 필요할 때(1~60000ms)
+node scripts/deploy/smoke.mjs --url https://mofa.warvis.org --timeout-ms 8000
 ```
 
 출력은 관측 시각과 `environment=public-read-only`를 포함한다. 검증 항목은 다음과 같다.
@@ -104,7 +109,9 @@ pnpm probe:deployment
 - JS/CSS asset이 올바른 `Content-Type`과 1년 immutable cache를 가지는지
 - `nosniff`, 정확한 `Referrer-Policy`, `X-Frame-Options`, `Permissions-Policy`, CSP가 있는지
 
-DNS, TLS, fetch와 본문 읽기는 개별 제한을 누적하지 않고 전체 probe 하나의 hard deadline을 공유한다. 의존 호출이 abort를 무시해도 보고서는 제한 시간 안에 실패로 닫힌다.
+DNS, TLS, fetch와 본문 읽기는 개별 제한을 누적하지 않고 전체 probe 하나의 hard deadline을 공유한다. 각 단계에는 남은 시간만 전달된다. deadline에서는 DNS resolver를 취소하고, TLS socket을 destroy하며, fetch에는 같은 `AbortSignal`을 전달한다. 의존 호출이나 다른 active handle이 abort를 무시해도 CLI는 JSON 출력 flush 후 명시적으로 종료하여 제한 시간 안에 실패로 닫힌다.
+
+root와 SPA fallback은 동일한 버전 asset뿐 아니라 공백 정규화된 전체 HTML SHA-256도 일치해야 한다. 두 응답 모두 `nosniff`, `strict-origin-when-cross-origin`, `DENY`, 최소 권한 `Permissions-Policy`, `default-src/style-src 'self'` CSP를 정확히 충족해야 한다. 진행률 UI는 inline style 없이 semantic `<progress value max>`와 외부 CSS만 사용한다.
 
 Cloudflare의 `server`, `cf-ray`, `cf-cache-status`는 관측값으로만 기록하고 통과 조건으로 가장하지 않는다.
 
@@ -123,12 +130,12 @@ Cloudflare의 `server`, `cf-ray`, `cf-cache-status`는 관측값으로만 기록
 
 ### 2026-07-17 공개 읽기 관측
 
-`2026-07-17T15:08:47.288Z`에 `pnpm probe:deployment`를 실행했다. HTTPS, DNS 4개 주소, TLS 1.3과 인증서 유효성, root/SPA `200 text/html`, 동일 shell asset(`/assets/index-VN1YndhQ.js`), asset `200 text/javascript`, Cloudflare edge는 통과했다. 다음 4개 조건은 실패했다.
+`2026-07-17T16:54:23.707Z`에 강화된 `pnpm probe:deployment`를 실행했다. HTTPS, DNS 4개 주소, TLS 1.3과 인증서 유효성, root/SPA `200 text/html`, 같은 origin, 동일 shell asset(`/assets/index-VN1YndhQ.js`)과 전체 shell digest, asset `200 text/javascript`, Cloudflare edge는 통과했다. 다음 4개 정책 조건은 실패했다.
 
 1. root 응답에 `Cache-Control`이 없다.
 2. SPA fallback 응답에 `Cache-Control`이 없다.
 3. asset cache가 `max-age=14400`이며 1년 immutable 정책이 아니다.
-4. 현재 공개 응답이 이 문서의 정확한 5종 보안 헤더 정책을 모두 충족하지 않는다.
+4. 현재 root와 SPA 공개 응답이 이 문서의 정확한 5종 보안 헤더 정책을 모두 충족하지 않는다.
 
 저장소의 `scripts/deploy/Caddyfile`에는 이를 교정하는 cache split과 보안 헤더 정책이 포함되어 있고 로컬 `caddy validate`를 통과했지만, 공개 노드에는 적용하지 않았다. 관측 시 `/srv/claimgate` release root가 없고 비대화형 `sudo` 권한도 없어 Caddy 교체/reload를 수행하지 않았다. DNS, Cloudflare 토큰, 인증서 또는 서비스 설정은 읽거나 변경하지 않았다. 운영자 적용·reload 증거가 생긴 뒤 `pnpm probe:deployment`를 다시 실행해야 Gate를 통과할 수 있다.
 
@@ -147,6 +154,13 @@ node --test --test-name-pattern="post-switch smoke failure" scripts/deploy/relea
 3. `pnpm probe:deployment`를 다시 실행한다.
 4. 실패 release 디렉터리는 즉시 삭제하지 않고 원인 분석 대상으로 격리한다.
 5. 공개 복구가 녹색이 아니면 Caddy/Cloudflare 운영자 Gate로 승격한다.
+
+프로세스 crash 뒤 lock이 남았다면 다음을 추가 확인한다.
+
+1. `owner.json`의 hostname이 현재 노드와 같은지 확인한다.
+2. 기록된 PID가 정말 존재하지 않는지 운영자가 확인한다.
+3. 생성 후 기본 5분 grace가 지났는지 확인한다.
+4. 자동 복구가 계속 차단되면 lock을 삭제하지 말고 고유 incident 경로로 `mv`한 뒤 증거를 보존한다.
 
 ## 8. 릴리스 증거 체크리스트
 

@@ -1,8 +1,12 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { spawn } from 'node:child_process';
+import { EventEmitter } from 'node:events';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import test from 'node:test';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 
-import { probePublicSite, resolveDnsAddresses, validateCaddyConfig } from './smoke.mjs';
+import { inspectTlsConnection, probePublicSite, resolveDnsAddresses, validateCaddyConfig } from './smoke.mjs';
 
 const shell = '<!doctype html><div id="root"></div><script type="module" src="/assets/app-abc123.js"></script>';
 const securityHeaders = {
@@ -10,7 +14,7 @@ const securityHeaders = {
   'referrer-policy': 'strict-origin-when-cross-origin',
   'x-frame-options': 'DENY',
   'permissions-policy': 'camera=(), microphone=(), geolocation=()',
-  'content-security-policy': "default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; form-action 'self'",
+  'content-security-policy': "default-src 'self'; style-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; form-action 'self'",
 };
 
 function response(body, { status = 200, headers = {}, url } = {}) {
@@ -69,12 +73,12 @@ test('HTTPS, DNS, TLS, app shell, SPA fallback and immutable asset contract all 
     { id: 'root-content-type' },
     { id: 'root-cache' },
     { id: 'root-shell' },
-    { id: 'root-security-headers' },
     { id: 'spa-final-url' },
     { id: 'spa-status' },
     { id: 'spa-content-type' },
     { id: 'spa-cache' },
     { id: 'spa-shell' },
+    { id: 'html-security-headers' },
     { id: 'spa-shell-identity' },
     { id: 'asset-final-url' },
     { id: 'asset-status' },
@@ -99,7 +103,7 @@ test('wrong SPA fallback, cache headers and asset content type fail loud', async
 
   const report = await probePublicSite('https://mofa.warvis.org', dependencies);
   assert.equal(report.ok, false);
-  for (const id of ['root-cache', 'root-security-headers', 'spa-status', 'spa-content-type', 'spa-cache', 'spa-shell', 'asset-content-type', 'asset-cache']) {
+  for (const id of ['root-cache', 'html-security-headers', 'spa-status', 'spa-content-type', 'spa-cache', 'spa-shell', 'asset-content-type', 'asset-cache']) {
     assert.equal(report.checks.find((check) => check.id === id)?.ok, false, `${id} must fail`);
   }
 });
@@ -161,6 +165,37 @@ test('SPA fallback must reference the exact same versioned shell asset as root',
   assert.equal(report.checks.find(({ id }) => id === 'spa-shell-identity').ok, false);
 });
 
+test('SPA fallback must match the normalized full root shell, not only its script asset', async () => {
+  const report = await probePublicSite('https://mofa.warvis.org', healthyDependencies({
+    fetchImpl: async (input) => {
+      const url = String(input);
+      if (url.includes('/assets/')) {
+        return response('console.log("ok")', { headers: { 'content-type': 'text/javascript', 'cache-control': 'public, max-age=31536000, immutable' }, url });
+      }
+      const body = url.includes('__claimgate_spa_probe__')
+        ? shell.replace('<div id="root">', '<main data-mutated="true"><div id="root">')
+        : shell;
+      return response(body, { headers: { 'content-type': 'text/html', 'cache-control': 'no-cache', ...securityHeaders }, url });
+    },
+  }));
+  assert.equal(report.checks.find(({ id }) => id === 'spa-shell-identity').ok, false);
+});
+
+test('SPA fallback independently requires the exact five security headers', async () => {
+  const report = await probePublicSite('https://mofa.warvis.org', healthyDependencies({
+    fetchImpl: async (input) => {
+      const url = String(input);
+      if (url.includes('/assets/')) {
+        return response('console.log("ok")', { headers: { 'content-type': 'text/javascript', 'cache-control': 'public, max-age=31536000, immutable' }, url });
+      }
+      const headers = { 'content-type': 'text/html', 'cache-control': 'no-cache', ...securityHeaders };
+      if (url.includes('__claimgate_spa_probe__')) delete headers['content-security-policy'];
+      return response(shell, { headers, url });
+    },
+  }));
+  assert.equal(report.checks.find(({ id }) => id === 'html-security-headers').ok, false);
+});
+
 test('DNS and the complete probe have one hard deadline even for non-cooperative dependencies', async () => {
   const started = Date.now();
   const observed = await Promise.race([
@@ -197,7 +232,7 @@ test('security header policy is exact and fails closed on weak or missing values
       });
     },
   }));
-  assert.equal(report.checks.find(({ id }) => id === 'root-security-headers').ok, false);
+  assert.equal(report.checks.find(({ id }) => id === 'html-security-headers').ok, false);
 });
 
 test('plain HTTP is rejected before any network probe runs', async () => {
@@ -213,12 +248,119 @@ test('plain HTTP is rejected before any network probe runs', async () => {
 });
 
 test('DNS probe uses normal address lookup instead of unsupported ANY queries', async () => {
-  const addresses = await resolveDnsAddresses('mofa.warvis.org', async (hostname, options) => {
-    assert.equal(hostname, 'mofa.warvis.org');
-    assert.deepEqual(options, { all: true, verbatim: true });
-    return [{ address: '203.0.113.10', family: 4 }, { address: '2001:db8::10', family: 6 }];
-  });
+  const calls = [];
+  const resolver = {
+    resolve4: async (hostname) => { calls.push(['A', hostname]); return ['203.0.113.10']; },
+    resolve6: async (hostname) => { calls.push(['AAAA', hostname]); return ['2001:db8::10']; },
+    cancel: () => {},
+  };
+  const addresses = await resolveDnsAddresses('mofa.warvis.org', { resolver });
+  assert.deepEqual(calls, [['A', 'mofa.warvis.org'], ['AAAA', 'mofa.warvis.org']]);
   assert.deepEqual(addresses, ['2001:db8::10', '203.0.113.10']);
+});
+
+test('DNS resolver cancellation is propagated through the shared abort signal', async () => {
+  const controller = new AbortController();
+  let cancelled = false;
+  const rejects = [];
+  const pending = () => new Promise((_, reject) => rejects.push(reject));
+  const resolver = {
+    resolve4: pending,
+    resolve6: pending,
+    cancel: () => {
+      cancelled = true;
+      for (const reject of rejects) reject(new Error('cancelled'));
+    },
+  };
+  const result = resolveDnsAddresses('mofa.warvis.org', { resolver, signal: controller.signal });
+  controller.abort(new Error('deadline'));
+  await assert.rejects(result);
+  assert.equal(cancelled, true);
+});
+
+test('TLS abort destroys the in-flight socket and rejects immediately', async () => {
+  const controller = new AbortController();
+  const socket = new EventEmitter();
+  let destroyed = false;
+  socket.destroy = () => { destroyed = true; };
+  socket.end = () => {};
+  socket.getPeerCertificate = () => ({});
+  socket.getProtocol = () => null;
+  const pending = inspectTlsConnection('mofa.warvis.org', {
+    signal: controller.signal,
+    timeoutMs: 5_000,
+    connect: () => socket,
+  });
+  controller.abort(new Error('deadline'));
+  await assert.rejects(pending, /deadline/);
+  assert.equal(destroyed, true);
+});
+
+test('fetch receives the shared abort signal and later stages receive only remaining budget', async () => {
+  let fetchAborted = false;
+  let dnsBudget;
+  let tlsBudget;
+  const report = await probePublicSite('https://mofa.warvis.org', healthyDependencies({
+    timeoutMs: 50,
+    dnsResolve: async (_hostname, options) => {
+      dnsBudget = options.timeoutMs;
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      return ['203.0.113.10'];
+    },
+    tlsInspect: async (_hostname, options) => {
+      tlsBudget = options.timeoutMs;
+      return { authorized: true, protocol: 'TLSv1.3', validTo: 'Jul 31 23:59:59 2026 GMT' };
+    },
+    fetchImpl: async (_input, options) => new Promise((_, reject) => {
+      options.signal.addEventListener('abort', () => {
+        fetchAborted = true;
+        reject(options.signal.reason);
+      }, { once: true });
+    }),
+  }));
+  assert.equal(report.ok, false);
+  assert.equal(fetchAborted, true);
+  assert.ok(dnsBudget <= 50 && dnsBudget > 0);
+  assert.ok(tlsBudget < dnsBudget && tlsBudget > 0);
+});
+
+test('actual smoke CLI exits within its hard deadline despite a non-cooperative active handle', async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'claimgate-smoke-cli-'));
+  const preload = path.join(root, 'preload.mjs');
+  await writeFile(preload, `
+    globalThis.fetch = async () => new Promise(() => {});
+    setInterval(() => {}, 1000);
+  `);
+  const started = Date.now();
+  const child = spawn(process.execPath, ['--import', preload, new URL('./smoke.mjs', import.meta.url).pathname, '--url', 'https://localhost:9', '--timeout-ms', '80'], {
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  const output = [];
+  child.stdout.on('data', (chunk) => output.push(chunk));
+  const watchdog = setTimeout(() => child.kill('SIGKILL'), 800);
+  try {
+    const [code, signal] = await new Promise((resolve) => child.once('exit', (exitCode, exitSignal) => resolve([exitCode, exitSignal])));
+    assert.equal(signal, null, 'CLI required external SIGKILL');
+    assert.equal(code, 1);
+    assert.ok(Date.now() - started < 600, `CLI wall clock exceeded: ${Date.now() - started}ms`);
+    assert.match(Buffer.concat(output).toString('utf8'), /"status":\s*"FAIL"/);
+  } finally {
+    clearTimeout(watchdog);
+    if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL');
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('UI progress is semantic and contains no CSP-blocked inline style', async () => {
+  const [main, styles] = await Promise.all([
+    readFile(new URL('../../examples/civic-review-app/src/main.tsx', import.meta.url), 'utf8'),
+    readFile(new URL('../../examples/civic-review-app/src/styles.css', import.meta.url), 'utf8'),
+  ]);
+  assert.doesNotMatch(main, /style=\{\{/);
+  assert.match(main, /<progress[\s\S]*?value=\{reviewedCount\}[\s\S]*?max=\{queue\.length\}/);
+  assert.match(styles, /progress\.progress-track/);
+  assert.match(styles, /::-webkit-progress-value/);
+  assert.match(styles, /::-moz-progress-bar/);
 });
 
 test('repository Caddy contract has host, SPA fallback, cache split and no credential plugin', async () => {
@@ -233,6 +375,7 @@ test('repository Caddy contract has host, SPA fallback, cache split and no crede
     [config.replace('Referrer-Policy "strict-origin-when-cross-origin"', 'Referrer-Policy "unsafe-url"'), 'referrer policy'],
     [config.replace('X-Frame-Options "DENY"', 'X-Frame-Options "SAMEORIGIN"'), 'frame policy'],
     [config.replace('Permissions-Policy "camera=(), microphone=(), geolocation=()"', 'Permissions-Policy "camera=(*)"'), 'permissions policy'],
+    [config.replace("style-src 'self';", "style-src 'unsafe-inline';"), 'CSP style policy'],
     [config.replace(/\n\s*Content-Security-Policy[^\n]*/, ''), 'content security policy'],
     [`${config}\ntls { dns cloudflare {env.CLOUDFLARE_API_TOKEN} }`, 'credential-free TLS'],
   ];

@@ -1,12 +1,16 @@
 #!/usr/bin/env node
 
-import { cp, lstat, mkdir, opendir, readlink, realpath, rename, rm, symlink } from 'node:fs/promises';
+import { randomUUID } from 'node:crypto';
+import { cp, lstat, mkdir, opendir, readFile, readlink, realpath, rename, rm, symlink, writeFile } from 'node:fs/promises';
+import { hostname as localHostname } from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const RELEASE_ID = /^[A-Za-z0-9](?:[A-Za-z0-9._-]{0,63})$/;
-const SENSITIVE_COMPONENT = /^(?:\.env(?:\..*)?|\.npmrc|\.netrc|credentials(?:\..*)?|service[-_.]?account(?:\..*)?|id_(?:rsa|dsa|ed25519)(?:\..*)?|secrets?|.*(?:[._-](?:secret|token))(?:[._-].*)?|.*\.(?:crt|pem|key|p12|pfx|kdbx|age|gpg))$/i;
+const SENSITIVE_COMPONENT = /^(?:\.env(?:\..*)?|\.npmrc|\.netrc|credentials(?:\..*)?|service[-_.]?account(?:\..*)?|id_(?:rsa|dsa|ecdsa|ed25519)(?:\..*)?|secrets?|.*(?:[._-](?:secret|token))(?:[._-].*)?|.*\.(?:cer|crt|der|pem|key|p7b|p7c|p12|pfx|jks|kdbx|age|gpg))$/i;
+const LOCK_METADATA_FILE = 'owner.json';
+const DEFAULT_LOCK_STALE_AFTER_MS = 5 * 60 * 1_000;
 
 export class DeploymentError extends Error {
   constructor(code, message, details = {}) {
@@ -53,17 +57,109 @@ async function initializeReleaseRoot(releaseRoot) {
   return { root, releases };
 }
 
-async function acquireDeploymentLock(root) {
+function defaultProcessAlive(pid) {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (error) {
+    if (error.code === 'ESRCH') return false;
+    return null;
+  }
+}
+
+async function readLockMetadata(lock) {
+  try {
+    const metadata = JSON.parse(await readFile(path.join(lock, LOCK_METADATA_FILE), 'utf8'));
+    if (
+      metadata?.version !== 1
+      || typeof metadata.token !== 'string'
+      || typeof metadata.owner !== 'string'
+      || !Number.isInteger(metadata.pid)
+      || metadata.pid <= 0
+      || typeof metadata.hostname !== 'string'
+      || !Number.isFinite(Date.parse(metadata.createdAt))
+    ) return null;
+    return metadata;
+  } catch {
+    return null;
+  }
+}
+
+function lockedError(metadata) {
+  return new DeploymentError('DEPLOYMENT_LOCKED', 'Another deployment is already active or the lock cannot be safely classified', {
+    owner: metadata ? {
+      pid: metadata.pid,
+      identity: metadata.owner,
+      hostname: metadata.hostname,
+      createdAt: metadata.createdAt,
+    } : null,
+    recovery: 'operator must verify the recorded owner is absent before moving or removing .deploy.lock',
+  });
+}
+
+async function acquireDeploymentLock(root, options = {}, recoveryAttempted = false) {
   const lock = path.join(root, '.deploy.lock');
+  const now = options.now ?? Date.now;
+  const hostname = options.hostname ?? localHostname();
+  const pid = options.pid ?? process.pid;
+  const requestedStaleAfterMs = options.staleAfterMs ?? DEFAULT_LOCK_STALE_AFTER_MS;
+  const staleAfterMs = Number.isFinite(requestedStaleAfterMs) && requestedStaleAfterMs >= 0
+    ? requestedStaleAfterMs
+    : DEFAULT_LOCK_STALE_AFTER_MS;
+  const isProcessAlive = options.isProcessAlive ?? defaultProcessAlive;
+  const token = randomUUID();
   try {
     await mkdir(lock);
   } catch (error) {
     if (error.code === 'EEXIST') {
-      throw new DeploymentError('DEPLOYMENT_LOCKED', 'Another deployment is already active');
+      const metadata = await readLockMetadata(lock);
+      if (recoveryAttempted || !metadata || metadata.hostname !== hostname) throw lockedError(metadata);
+      const ageMs = now() - Date.parse(metadata.createdAt);
+      const ownerAlive = isProcessAlive(metadata.pid);
+      if (!Number.isFinite(ageMs) || ageMs < staleAfterMs || ownerAlive !== false) throw lockedError(metadata);
+
+      const quarantine = path.join(root, `.deploy.lock.stale-${metadata.token}-${randomUUID()}`);
+      try {
+        await rename(lock, quarantine);
+      } catch (renameError) {
+        if (renameError.code === 'ENOENT') return acquireDeploymentLock(root, options, true);
+        throw lockedError(metadata);
+      }
+      const quarantinedMetadata = await readLockMetadata(quarantine);
+      if (quarantinedMetadata?.token !== metadata.token) {
+        try {
+          await rename(quarantine, lock);
+        } catch {
+          // Preserve the unexpected quarantine and any new active lock for operator inspection.
+        }
+        throw lockedError(quarantinedMetadata);
+      }
+      await rm(quarantine, { recursive: true, force: true });
+      return acquireDeploymentLock(root, options, true);
     }
     throw error;
   }
-  return async () => rm(lock, { recursive: true, force: true });
+  const metadata = Object.freeze({
+    version: 1,
+    token,
+    owner: options.owner ?? `${hostname}:${pid}`,
+    pid,
+    hostname,
+    createdAt: new Date(now()).toISOString(),
+  });
+  try {
+    await writeFile(path.join(lock, LOCK_METADATA_FILE), `${JSON.stringify(metadata)}\n`, { flag: 'wx', mode: 0o600 });
+  } catch (error) {
+    await rm(lock, { recursive: true, force: true });
+    throw error;
+  }
+  return async () => {
+    const current = await readLockMetadata(lock);
+    if (current?.token !== token) {
+      throw new DeploymentError('LOCK_OWNERSHIP_LOST', 'Deployment lock ownership changed before release');
+    }
+    await rm(lock, { recursive: true, force: true });
+  };
 }
 
 async function inspectArtifact(directory, root = directory) {
@@ -209,14 +305,14 @@ async function stageRelease({ artifact, releases, releaseId, copyArtifact }) {
   }
 }
 
-export async function deployRelease({ artifactPath, releaseRoot, releaseId, smoke, copyArtifact = cp }) {
+export async function deployRelease({ artifactPath, releaseRoot, releaseId, smoke, copyArtifact = cp, lockOptions }) {
   if (!RELEASE_ID.test(releaseId) || releaseId === '.' || releaseId === '..') {
     throw new DeploymentError('INVALID_RELEASE_ID', 'Release ID must be a bounded path-safe identifier');
   }
 
   const artifact = await validateArtifact(artifactPath);
   const { root, releases } = await initializeReleaseRoot(releaseRoot);
-  const releaseLock = await acquireDeploymentLock(root);
+  const releaseLock = await acquireDeploymentLock(root, lockOptions);
   try {
     const previousRelease = await readActiveRelease(root);
     const nextRelease = await stageRelease({ artifact, releases, releaseId, copyArtifact });

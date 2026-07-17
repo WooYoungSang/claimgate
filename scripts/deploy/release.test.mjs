@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, readdir, readlink, rm, symlink, writeFile } from 'node:fs/promises';
+import { spawn } from 'node:child_process';
+import { mkdir, mkdtemp, readdir, readFile, readlink, rm, symlink, writeFile } from 'node:fs/promises';
 import test from 'node:test';
-import { tmpdir } from 'node:os';
+import { hostname, tmpdir } from 'node:os';
 import path from 'node:path';
 
 import { DeploymentError, deployRelease, readActiveRelease, validateArtifact } from './release.mjs';
@@ -300,8 +301,8 @@ test('success is refused if current no longer points to the deployment own relea
 
 test('credential guard rejects common credential, service-account, SSH and certificate paths', async () => {
   const names = [
-    'credentials.json', 'service-account.json', '.npmrc', '.netrc', 'id_rsa', 'id_dsa', 'id_ed25519',
-    'origin.crt', 'origin.pem', 'client.p12', 'client.pfx', 'private.key',
+    'credentials.json', 'service-account.json', '.npmrc', '.netrc', 'id_rsa', 'id_dsa', 'id_ed25519', 'id_ecdsa',
+    'origin.crt', 'origin.cer', 'origin.der', 'chain.p7b', 'client.p12', 'client.pfx', 'keystore.jks', 'private.key',
   ];
   for (const name of names) {
     const fx = await fixture();
@@ -315,5 +316,87 @@ test('credential guard rejects common credential, service-account, SSH and certi
     } finally {
       await rm(fx.root, { recursive: true, force: true });
     }
+  }
+});
+
+test('active and malformed deployment locks stay blocked with explicit operator recovery detail', async () => {
+  for (const metadata of [
+    { version: 1, token: 'active-owner', owner: 'active-test-owner', pid: process.pid, hostname: hostname(), createdAt: '2020-01-01T00:00:00.000Z' },
+    { malformed: true },
+  ]) {
+    const fx = await fixture();
+    try {
+      const lock = path.join(fx.releaseRoot, '.deploy.lock');
+      await mkdir(lock, { recursive: true });
+      await writeFile(path.join(lock, 'owner.json'), JSON.stringify(metadata));
+      await assert.rejects(
+        deployRelease({
+          artifactPath: fx.artifact,
+          releaseRoot: fx.releaseRoot,
+          releaseId: 'v2',
+          lockOptions: { staleAfterMs: 0 },
+        }),
+        (error) => {
+          assert.ok(error instanceof DeploymentError);
+          assert.equal(error.code, 'DEPLOYMENT_LOCKED');
+          assert.match(error.details.recovery, /operator/i);
+          return true;
+        },
+      );
+      assert.deepEqual(JSON.parse(await readFile(path.join(lock, 'owner.json'), 'utf8')), metadata);
+    } finally {
+      await rm(fx.root, { recursive: true, force: true });
+    }
+  }
+});
+
+test('a lock from a crashed local deployment is conservatively recovered after its owner is dead', async () => {
+  const fx = await fixture();
+  const ready = path.join(fx.root, 'child-ready');
+  const moduleUrl = new URL('./release.mjs', import.meta.url).href;
+  const childSource = `
+    import { writeFile } from 'node:fs/promises';
+    import { deployRelease } from ${JSON.stringify(moduleUrl)};
+    await deployRelease({
+      artifactPath: ${JSON.stringify(fx.artifact)},
+      releaseRoot: ${JSON.stringify(fx.releaseRoot)},
+      releaseId: 'crashed-v2',
+      smoke: async ({ phase }) => {
+        if (phase === 'after') {
+          await writeFile(${JSON.stringify(ready)}, 'ready');
+          setInterval(() => {}, 1000);
+          await new Promise(() => {});
+        }
+        return { ok: true };
+      },
+    });
+  `;
+  const child = spawn(process.execPath, ['--input-type=module', '--eval', childSource], { stdio: 'ignore' });
+  try {
+    const deadline = Date.now() + 2_000;
+    while (Date.now() < deadline) {
+      try {
+        await readFile(ready);
+        break;
+      } catch {
+        await new Promise((resolve) => setTimeout(resolve, 20));
+      }
+    }
+    await readFile(ready);
+    const exited = new Promise((resolve) => child.once('exit', resolve));
+    child.kill('SIGKILL');
+    await exited;
+
+    const result = await deployRelease({
+      artifactPath: fx.artifact,
+      releaseRoot: fx.releaseRoot,
+      releaseId: 'recovered-v3',
+      lockOptions: { staleAfterMs: 0 },
+    });
+    assert.equal(result.releaseId, 'recovered-v3');
+    assert.equal(await readActiveRelease(fx.releaseRoot), path.join(fx.releaseRoot, 'releases', 'recovered-v3'));
+  } finally {
+    if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL');
+    await rm(fx.root, { recursive: true, force: true });
   }
 });

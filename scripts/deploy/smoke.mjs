@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
-import { lookup } from 'node:dns/promises';
+import { createHash } from 'node:crypto';
+import { Resolver } from 'node:dns/promises';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
@@ -16,7 +17,7 @@ const EXPECTED_SECURITY_HEADERS = Object.freeze({
   'referrer-policy': 'strict-origin-when-cross-origin',
   'x-frame-options': 'DENY',
   'permissions-policy': 'camera=(), microphone=(), geolocation=()',
-  'content-security-policy': "default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; form-action 'self'",
+  'content-security-policy': "default-src 'self'; style-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; form-action 'self'",
 });
 
 function normalizeDnsRecords(records) {
@@ -26,16 +27,63 @@ function normalizeDnsRecords(records) {
   }))].sort();
 }
 
-export async function resolveDnsAddresses(hostname, lookupImpl = lookup) {
-  return normalizeDnsRecords(await lookupImpl(hostname, { all: true, verbatim: true }));
+export async function resolveDnsAddresses(hostname, options = {}) {
+  const resolver = options.resolver ?? new Resolver();
+  const signal = options.signal;
+  const cancel = () => {
+    try {
+      resolver.cancel();
+    } catch {
+      // Resolver cancellation is best-effort; the shared deadline still fails closed.
+    }
+  };
+  if (signal?.aborted) {
+    cancel();
+    throw signal.reason ?? new Error('DNS probe aborted');
+  }
+  signal?.addEventListener('abort', cancel, { once: true });
+  try {
+    const results = await Promise.allSettled([
+      resolver.resolve4(hostname),
+      resolver.resolve6(hostname),
+    ]);
+    if (signal?.aborted) throw signal.reason ?? new Error('DNS probe aborted');
+    const records = results.flatMap((result) => result.status === 'fulfilled' ? result.value : []);
+    if (records.length === 0 && results.every((result) => result.status === 'rejected')) {
+      throw new Error('DNS A and AAAA resolution failed');
+    }
+    return normalizeDnsRecords(records);
+  } finally {
+    signal?.removeEventListener('abort', cancel);
+  }
 }
 
-async function defaultTlsInspect(hostname, port = 443, timeoutMs = 8_000) {
+export async function inspectTlsConnection(hostname, { port = 443, timeoutMs = 8_000, signal, connect = tls.connect } = {}) {
   return new Promise((resolve, reject) => {
-    const socket = tls.connect({ host: hostname, port, servername: hostname, rejectUnauthorized: true });
-    const timer = setTimeout(() => socket.destroy(new Error('TLS probe timeout')), timeoutMs);
-    socket.once('secureConnect', () => {
+    const socket = connect({ host: hostname, port, servername: hostname, rejectUnauthorized: true });
+    let settled = false;
+    const cleanup = () => {
       clearTimeout(timer);
+      signal?.removeEventListener('abort', abort);
+    };
+    const fail = (error) => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      socket.destroy();
+      reject(error);
+    };
+    const abort = () => fail(signal?.reason ?? new Error('TLS probe aborted'));
+    const timer = setTimeout(() => fail(new Error('TLS probe timeout')), timeoutMs);
+    if (signal?.aborted) {
+      abort();
+      return;
+    }
+    signal?.addEventListener('abort', abort, { once: true });
+    socket.once('secureConnect', () => {
+      if (settled) return;
+      settled = true;
+      cleanup();
       const certificate = socket.getPeerCertificate();
       const result = {
         authorized: socket.authorized,
@@ -45,10 +93,7 @@ async function defaultTlsInspect(hostname, port = 443, timeoutMs = 8_000) {
       socket.end();
       resolve(result);
     });
-    socket.once('error', (error) => {
-      clearTimeout(timer);
-      reject(error);
-    });
+    socket.once('error', fail);
   });
 }
 
@@ -56,15 +101,19 @@ function remainingTime(deadlineAt) {
   return Math.max(0, deadlineAt - Date.now());
 }
 
-async function withDeadline(operation, deadlineAt) {
+async function withDeadline(operation, deadlineAt, controller) {
   const remaining = remainingTime(deadlineAt);
-  if (remaining === 0) throw new Error('Public probe deadline exceeded');
+  if (remaining === 0 || controller.signal.aborted) throw controller.signal.reason ?? new Error('Public probe deadline exceeded');
   let timer;
   try {
     return await Promise.race([
       Promise.resolve().then(operation),
       new Promise((_, reject) => {
-        timer = setTimeout(() => reject(new Error('Public probe deadline exceeded')), remaining);
+        timer = setTimeout(() => {
+          const error = new Error('Public probe deadline exceeded');
+          controller.abort(error);
+          reject(error);
+        }, remaining);
       }),
     ]);
   } finally {
@@ -72,10 +121,11 @@ async function withDeadline(operation, deadlineAt) {
   }
 }
 
-async function safeFetch(fetchImpl, url, deadlineAt) {
+async function safeFetch(fetchImpl, url, deadlineAt, controller) {
   return withDeadline(
-    () => fetchImpl(url, { redirect: 'follow', signal: AbortSignal.timeout(Math.max(1, remainingTime(deadlineAt))) }),
+    () => fetchImpl(url, { redirect: 'follow', signal: controller.signal }),
     deadlineAt,
+    controller,
   );
 }
 
@@ -132,6 +182,11 @@ function shellAssetIdentity(assetPath, origin) {
   }
 }
 
+function normalizedShellDigest(body) {
+  const normalized = body.replace(/\s+/g, ' ').trim();
+  return normalized ? createHash('sha256').update(normalized).digest('hex') : null;
+}
+
 export async function probePublicSite(input, dependencies = {}) {
   const checks = [];
   const add = (id, ok, detail) => checks.push(Object.freeze({ id, ok: Boolean(ok), detail }));
@@ -151,99 +206,124 @@ export async function probePublicSite(input, dependencies = {}) {
 
   const timeoutMs = dependencies.timeoutMs ?? 8_000;
   const dnsResolve = dependencies.dnsResolve ?? resolveDnsAddresses;
-  const tlsInspect = dependencies.tlsInspect ?? ((hostname) => defaultTlsInspect(hostname, Number(url.port || 443), timeoutMs));
+  const tlsInspect = dependencies.tlsInspect ?? inspectTlsConnection;
   const fetchImpl = dependencies.fetchImpl ?? globalThis.fetch;
   const now = (dependencies.now ?? (() => new Date()))();
   const deadlineAt = Date.now() + timeoutMs;
+  const controller = new AbortController();
+  const deadlineTimer = setTimeout(() => controller.abort(new Error('Public probe deadline exceeded')), timeoutMs);
 
-  let addresses = [];
   try {
-    addresses = normalizeDnsRecords(await withDeadline(() => dnsResolve(url.hostname), deadlineAt));
-  } catch {
-    addresses = [];
-  }
-  add('dns', addresses.length > 0, addresses.length > 0 ? `${addresses.length} address record(s)` : 'DNS resolution failed');
-
-  let tlsResult = null;
-  try {
-    tlsResult = await withDeadline(() => tlsInspect(url.hostname), deadlineAt);
-  } catch {
-    tlsResult = null;
-  }
-  add('tls', tlsIsHealthy(tlsResult, now), tlsResult ? `${tlsResult.protocol ?? 'unknown'}; certificate expiry present` : 'TLS handshake failed');
-
-  let rootResponse = null;
-  let rootBody = '';
-  try {
-    rootResponse = await safeFetch(fetchImpl, url, deadlineAt);
-    rootBody = await withDeadline(() => rootResponse.text(), deadlineAt);
-  } catch {
-    rootResponse = null;
-  }
-  const rootType = header(rootResponse, 'content-type');
-  const rootCache = header(rootResponse, 'cache-control');
-  const shellFound = APP_SHELL.test(rootBody);
-  const assetPath = rootBody.match(SCRIPT_ASSET)?.[1] ?? null;
-  const rootFinalUrlOk = finalUrlIsExpected(rootResponse, url.origin);
-  add('root-final-url', rootFinalUrlOk, rootResponse?.url || 'root final URL missing');
-  add('root-status', rootResponse?.status === 200, rootResponse ? `HTTP ${rootResponse.status}` : 'root fetch failed');
-  add('root-content-type', /^text\/html\b/i.test(rootType), rootType || 'missing content-type');
-  add('root-cache', noCache(rootCache), rootCache || 'missing cache-control');
-  add('root-shell', shellFound && Boolean(assetPath), shellFound && assetPath ? 'app shell and script asset found' : 'app shell or script asset missing');
-  add('root-security-headers', securityHeadersAreExact(rootResponse), 'exact nosniff, referrer, frame, permissions and CSP policy required');
-
-  const spaUrl = new URL('/__claimgate_spa_probe__', url);
-  let spaResponse = null;
-  let spaBody = '';
-  try {
-    spaResponse = await safeFetch(fetchImpl, spaUrl, deadlineAt);
-    spaBody = await withDeadline(() => spaResponse.text(), deadlineAt);
-  } catch {
-    spaResponse = null;
-  }
-  const spaType = header(spaResponse, 'content-type');
-  const spaCache = header(spaResponse, 'cache-control');
-  const spaAssetPath = spaBody.match(SCRIPT_ASSET)?.[1] ?? null;
-  add('spa-final-url', finalUrlIsExpected(spaResponse, url.origin), spaResponse?.url || 'SPA final URL missing');
-  add('spa-status', spaResponse?.status === 200, spaResponse ? `HTTP ${spaResponse.status}` : 'SPA fallback fetch failed');
-  add('spa-content-type', /^text\/html\b/i.test(spaType), spaType || 'missing content-type');
-  add('spa-cache', noCache(spaCache), spaCache || 'missing cache-control');
-  add('spa-shell', APP_SHELL.test(spaBody), APP_SHELL.test(spaBody) ? 'app shell found' : 'app shell missing');
-  const rootAssetIdentity = shellAssetIdentity(assetPath, url.origin);
-  const spaAssetIdentity = shellAssetIdentity(spaAssetPath, url.origin);
-  add('spa-shell-identity', Boolean(rootAssetIdentity) && spaAssetIdentity === rootAssetIdentity, spaAssetIdentity ?? 'SPA script asset missing or cross-origin');
-
-  let assetResponse = null;
-  if (assetPath) {
+    let addresses = [];
     try {
-      const assetUrl = new URL(assetPath, url);
-      if (assetUrl.origin === url.origin) assetResponse = await safeFetch(fetchImpl, assetUrl, deadlineAt);
+      addresses = normalizeDnsRecords(await withDeadline(
+        () => dnsResolve(url.hostname, { signal: controller.signal, timeoutMs: remainingTime(deadlineAt) }),
+        deadlineAt,
+        controller,
+      ));
     } catch {
-      assetResponse = null;
+      addresses = [];
     }
-  }
-  const assetType = header(assetResponse, 'content-type');
-  const assetCache = header(assetResponse, 'cache-control');
-  add('asset-final-url', finalUrlIsExpected(assetResponse, url.origin), assetResponse?.url || 'asset final URL missing');
-  add('asset-status', assetResponse?.status === 200, assetResponse ? `HTTP ${assetResponse.status}` : 'same-origin asset fetch failed');
-  add('asset-content-type', Boolean(assetPath) && contentTypeMatches(assetPath, assetType), assetType || 'missing content-type');
-  add('asset-cache', immutableCache(assetCache), assetCache || 'missing cache-control');
+    add('dns', addresses.length > 0, addresses.length > 0 ? `${addresses.length} address record(s)` : 'DNS resolution failed');
 
-  const failureCount = checks.filter(({ ok }) => !ok).length;
-  return Object.freeze({
-    ok: failureCount === 0,
-    url: url.href,
-    checks: Object.freeze(checks),
-    failureCount,
-    assetPath,
-    dns: Object.freeze({ addresses: Object.freeze(addresses) }),
-    tls: tlsResult ? Object.freeze({ ...tlsResult }) : null,
-    edge: Object.freeze({
-      server: header(rootResponse, 'server') || null,
-      cfRayPresent: Boolean(header(rootResponse, 'cf-ray')),
-      cfCacheStatus: header(rootResponse, 'cf-cache-status') || null,
-    }),
-  });
+    let tlsResult = null;
+    try {
+      tlsResult = await withDeadline(
+        () => tlsInspect(url.hostname, { signal: controller.signal, timeoutMs: remainingTime(deadlineAt), port: Number(url.port || 443) }),
+        deadlineAt,
+        controller,
+      );
+    } catch {
+      tlsResult = null;
+    }
+    add('tls', tlsIsHealthy(tlsResult, now), tlsResult ? `${tlsResult.protocol ?? 'unknown'}; certificate expiry present` : 'TLS handshake failed');
+
+    let rootResponse = null;
+    let rootBody = '';
+    try {
+      rootResponse = await safeFetch(fetchImpl, url, deadlineAt, controller);
+      rootBody = await withDeadline(() => rootResponse.text(), deadlineAt, controller);
+    } catch {
+      rootResponse = null;
+    }
+    const rootType = header(rootResponse, 'content-type');
+    const rootCache = header(rootResponse, 'cache-control');
+    const shellFound = APP_SHELL.test(rootBody);
+    const assetPath = rootBody.match(SCRIPT_ASSET)?.[1] ?? null;
+    const rootFinalUrlOk = finalUrlIsExpected(rootResponse, url.origin);
+    add('root-final-url', rootFinalUrlOk, rootResponse?.url || 'root final URL missing');
+    add('root-status', rootResponse?.status === 200, rootResponse ? `HTTP ${rootResponse.status}` : 'root fetch failed');
+    add('root-content-type', /^text\/html\b/i.test(rootType), rootType || 'missing content-type');
+    add('root-cache', noCache(rootCache), rootCache || 'missing cache-control');
+    add('root-shell', shellFound && Boolean(assetPath), shellFound && assetPath ? 'app shell and script asset found' : 'app shell or script asset missing');
+
+    const spaUrl = new URL('/__claimgate_spa_probe__', url);
+    let spaResponse = null;
+    let spaBody = '';
+    try {
+      spaResponse = await safeFetch(fetchImpl, spaUrl, deadlineAt, controller);
+      spaBody = await withDeadline(() => spaResponse.text(), deadlineAt, controller);
+    } catch {
+      spaResponse = null;
+    }
+    const spaType = header(spaResponse, 'content-type');
+    const spaCache = header(spaResponse, 'cache-control');
+    const spaAssetPath = spaBody.match(SCRIPT_ASSET)?.[1] ?? null;
+    add('spa-final-url', finalUrlIsExpected(spaResponse, url.origin), spaResponse?.url || 'SPA final URL missing');
+    add('spa-status', spaResponse?.status === 200, spaResponse ? `HTTP ${spaResponse.status}` : 'SPA fallback fetch failed');
+    add('spa-content-type', /^text\/html\b/i.test(spaType), spaType || 'missing content-type');
+    add('spa-cache', noCache(spaCache), spaCache || 'missing cache-control');
+    add('spa-shell', APP_SHELL.test(spaBody), APP_SHELL.test(spaBody) ? 'app shell found' : 'app shell missing');
+    add(
+      'html-security-headers',
+      securityHeadersAreExact(rootResponse) && securityHeadersAreExact(spaResponse),
+      'root and SPA require exact nosniff, referrer, frame, permissions and CSP policy',
+    );
+    const rootAssetIdentity = shellAssetIdentity(assetPath, url.origin);
+    const spaAssetIdentity = shellAssetIdentity(spaAssetPath, url.origin);
+    const rootShellDigest = normalizedShellDigest(rootBody);
+    const spaShellDigest = normalizedShellDigest(spaBody);
+    add(
+      'spa-shell-identity',
+      Boolean(rootAssetIdentity) && spaAssetIdentity === rootAssetIdentity && Boolean(rootShellDigest) && spaShellDigest === rootShellDigest,
+      spaShellDigest ?? 'SPA shell missing',
+    );
+
+    let assetResponse = null;
+    if (assetPath) {
+      try {
+        const assetUrl = new URL(assetPath, url);
+        if (assetUrl.origin === url.origin) assetResponse = await safeFetch(fetchImpl, assetUrl, deadlineAt, controller);
+      } catch {
+        assetResponse = null;
+      }
+    }
+    const assetType = header(assetResponse, 'content-type');
+    const assetCache = header(assetResponse, 'cache-control');
+    add('asset-final-url', finalUrlIsExpected(assetResponse, url.origin), assetResponse?.url || 'asset final URL missing');
+    add('asset-status', assetResponse?.status === 200, assetResponse ? `HTTP ${assetResponse.status}` : 'same-origin asset fetch failed');
+    add('asset-content-type', Boolean(assetPath) && contentTypeMatches(assetPath, assetType), assetType || 'missing content-type');
+    add('asset-cache', immutableCache(assetCache), assetCache || 'missing cache-control');
+
+    const failureCount = checks.filter(({ ok }) => !ok).length;
+    return Object.freeze({
+      ok: failureCount === 0,
+      url: url.href,
+      checks: Object.freeze(checks),
+      failureCount,
+      assetPath,
+      dns: Object.freeze({ addresses: Object.freeze(addresses) }),
+      tls: tlsResult ? Object.freeze({ ...tlsResult }) : null,
+      edge: Object.freeze({
+        server: header(rootResponse, 'server') || null,
+        cfRayPresent: Boolean(header(rootResponse, 'cf-ray')),
+        cfCacheStatus: header(rootResponse, 'cf-cache-status') || null,
+      }),
+    });
+  } finally {
+    clearTimeout(deadlineTimer);
+    if (!controller.signal.aborted) controller.abort(new Error('Public probe completed'));
+  }
 }
 
 export function validateCaddyConfig(config) {
@@ -261,7 +341,7 @@ export function validateCaddyConfig(config) {
   requireMatch(/Referrer-Policy\s+"strict-origin-when-cross-origin"/i, 'exact referrer policy is missing');
   requireMatch(/X-Frame-Options\s+"DENY"/i, 'exact frame policy is missing');
   requireMatch(/Permissions-Policy\s+"camera=\(\), microphone=\(\), geolocation=\(\)"/i, 'exact permissions policy is missing');
-  requireMatch(/Content-Security-Policy\s+"default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; form-action 'self'"/i, 'exact content security policy is missing');
+  requireMatch(/Content-Security-Policy\s+"default-src 'self'; style-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; form-action 'self'"/i, 'exact content security policy is missing');
   if (/(?:CLOUDFLARE|CF)_?(?:API_?)?TOKEN|dns\s+cloudflare/i.test(config)) {
     failures.push('credential-free TLS boundary was violated');
   }
@@ -269,14 +349,18 @@ export function validateCaddyConfig(config) {
 }
 
 function parseArgs(argv) {
-  const options = { configOnly: false, configPath: defaultConfigPath, url: null };
+  const options = { configOnly: false, configPath: defaultConfigPath, url: null, timeoutMs: 8_000 };
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index];
     if (argument === '--config-only') options.configOnly = true;
-    else if (argument === '--url' || argument === '--config') {
+    else if (argument === '--url' || argument === '--config' || argument === '--timeout-ms') {
       const value = argv[++index];
       if (!value || value.startsWith('--')) throw new Error(`${argument} requires a value`);
-      options[argument === '--url' ? 'url' : 'configPath'] = value;
+      if (argument === '--timeout-ms') {
+        const timeoutMs = Number(value);
+        if (!Number.isInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 60_000) throw new Error('--timeout-ms must be an integer from 1 to 60000');
+        options.timeoutMs = timeoutMs;
+      } else options[argument === '--url' ? 'url' : 'configPath'] = value;
     } else throw new Error(`Unknown argument: ${argument}`);
   }
   if (!options.configOnly && !options.url) throw new Error('Use --url <https-url> or --config-only');
@@ -289,10 +373,9 @@ async function main() {
   const configResult = validateCaddyConfig(config);
   if (options.configOnly) {
     process.stdout.write(`${JSON.stringify({ status: configResult.ok ? 'PASS' : 'FAIL', config: configResult })}\n`);
-    if (!configResult.ok) process.exitCode = 1;
-    return;
+    return configResult.ok ? 0 : 1;
   }
-  const probe = await probePublicSite(options.url);
+  const probe = await probePublicSite(options.url, { timeoutMs: options.timeoutMs });
   const envelope = {
     status: configResult.ok && probe.ok ? 'PASS' : 'FAIL',
     observedAt: new Date().toISOString(),
@@ -301,12 +384,23 @@ async function main() {
     probe,
   };
   process.stdout.write(`${JSON.stringify(envelope, null, 2)}\n`);
-  if (envelope.status !== 'PASS') process.exitCode = 1;
+  return envelope.status === 'PASS' ? 0 : 1;
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === modulePath) {
-  main().catch(() => {
-    process.stderr.write(`${JSON.stringify({ status: 'FAIL', code: 'PUBLIC_PROBE_ERROR' })}\n`);
-    process.exitCode = 1;
-  });
+  const exitAfterFlush = (code, stream) => {
+    const failSafe = setTimeout(() => process.exit(code), 100);
+    failSafe.unref();
+    stream.write('', () => {
+      clearTimeout(failSafe);
+      process.exit(code);
+    });
+  };
+  main().then(
+    (code) => exitAfterFlush(code, process.stdout),
+    () => {
+      process.stderr.write(`${JSON.stringify({ status: 'FAIL', code: 'PUBLIC_PROBE_ERROR' })}\n`);
+      exitAfterFlush(1, process.stderr);
+    },
+  );
 }
