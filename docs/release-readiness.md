@@ -105,6 +105,33 @@ Fresh verification snapshot (2026-07-17 KST):
 - `pnpm test`: PASS, full build plus 82 tests across 21 test files.
 - `pnpm lint`: PASS, package-boundary lint plus workspace TypeScript lint.
 
+### Clean-clone reproducibility gate (2026-07-17 KST)
+
+`pnpm verify:clean-clone` creates an independent local Git clone, confirms that
+it does not inherit `node_modules`, and runs the acceptance commands with an
+offline frozen-lockfile install. It writes per-command logs plus JSON/Markdown
+evidence under the ignored `tmp/clean-clone-evidence/` directory and returns a
+non-zero exit code if a command fails or the 10-minute target is exceeded.
+
+Measured isolated run on Node `v22.22.1` and pnpm `9.0.0`:
+
+| Command | Exit | Duration |
+|---|---:|---:|
+| `pnpm install --offline --frozen-lockfile` | 0 | 0.779s |
+| `pnpm build` | 0 | 5.590s |
+| `pnpm typecheck` | 0 | 3.939s |
+| `pnpm test/conformance` | 0 | 2.643s |
+| `pnpm demo` | 0 | 1.245s |
+| `pnpm test` | 0 | 8.734s |
+
+- Total clean-clone gate: **23.799s / 600s — PASS**.
+- Inherited `node_modules`: **no**.
+- Registry fetch during install: **disabled by `--offline`**; an incomplete
+  local pnpm store fails loud instead of falling back to the network.
+- The result proves local fixture-first reproducibility for the measured Git
+  snapshot. It does not prove remote registry availability, CI/CD, package
+  publication, live OpenAPI/LLM/OCR behavior, or production accuracy.
+
 Remaining FUTURE / No-Go boundaries:
 
 - live MOFA/KOICA OpenAPI or file download;
