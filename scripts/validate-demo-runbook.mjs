@@ -211,12 +211,14 @@ export function validateDemoRunbook({ runbook, sources }) {
 
   const guidedSteps = extractGuidedDemoSteps(sources.guided);
   check(guidedSteps.length === guidedStepContracts.length, `가이드 단계 수가 달라졌습니다: ${guidedSteps.length}`);
-  for (const expected of guidedStepContracts) {
-    const actual = guidedSteps.find((step) => step.id === expected.id);
-    check(Boolean(actual), `가이드 단계를 찾지 못했습니다: ${expected.id}`);
-    check(actual?.order === expected.order, `${expected.id} order는 ${expected.order}이어야 합니다: ${actual?.order ?? 'missing'}`);
-    check(actual?.target === expected.target, `${expected.id} target은 ${expected.target}이어야 합니다: ${actual?.target ?? 'missing'}`);
-  }
+  guidedStepContracts.forEach((expected, index) => {
+    const actual = guidedSteps[index];
+    const position = `가이드 ${index + 1}번째`;
+    check(Boolean(actual), `${position} 단계를 찾지 못했습니다: ${expected.id}`);
+    check(actual?.id === expected.id, `${position} id는 ${expected.id}여야 합니다: ${actual?.id ?? 'missing'}`);
+    check(actual?.order === expected.order, `${position} ${expected.id} order는 ${expected.order}이어야 합니다: ${actual?.order ?? 'missing'}`);
+    check(actual?.target === expected.target, `${position} ${expected.id} target은 ${expected.target}이어야 합니다: ${actual?.target ?? 'missing'}`);
+  });
 
   for (const alias of staleAliases) {
     check(!hasBacktickLiteral(runbook, alias), `현재 UI에 없는 이전 조작명이 남았습니다: ${alias}`);
