@@ -9,7 +9,7 @@
     "build": "pnpm -r --sort --if-present build",
     "demo": "node scripts/swap-pack-demo",
     "lint": "node scripts/lint-boundaries.mjs && pnpm -r --sort --if-present lint",
-    "test": "pnpm build && pnpm -r --sort --if-present test && pnpm test:runbook && pnpm test:clean-clone:contract && pnpm test:clean-clone:self && pnpm test:deployment",
+    "test": "pnpm build && pnpm -r --sort --if-present test && pnpm test:runbook && pnpm test:clean-clone:contract && pnpm test:clean-clone:self && pnpm test:deployment && pnpm test:submission-evidence",
     "test:runbook": "node --test scripts/validate-demo-runbook.test.mjs && node scripts/validate-demo-runbook.mjs",
     "test:clean-clone:contract": "node --test scripts/verify-clean-clone.test.mjs",
     "test:clean-clone:self": "node scripts/verify-clean-clone.mjs --self-test",
@@ -27,7 +27,8 @@
     "test:perf": "pnpm build && tsx scripts/framework-performance-eval.ts",
     "eval:framework": "pnpm lint && pnpm typecheck && pnpm test && pnpm demo && pnpm test/conformance && pnpm test:e2e && pnpm test:perf",
     "test:submission-control-plane": "node scripts/validate-submission-control-plane.mjs",
-    "test:simulation-qa": "node scripts/run-simulation-qa.mjs"
+    "test:simulation-qa": "node scripts/run-simulation-qa.mjs",
+    "test:submission-evidence": "node --test scripts/validate-mofa-submission-evidence.test.mjs && node scripts/validate-mofa-submission-evidence.mjs"
   },
   "keywords": [
     "claimgate",
