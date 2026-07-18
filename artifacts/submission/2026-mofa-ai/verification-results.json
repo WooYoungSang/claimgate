@@ -1,0 +1,154 @@
+{
+  "schemaVersion": 1,
+  "artifactId": "claimgate-mofa-verification-results-20260718",
+  "generatedAt": "2026-07-18T00:29:44.402Z",
+  "sourceCommit": "0b8d0eb45c37bfadaf17962eea6419240e6ff26f",
+  "resultCount": 7,
+  "records": [
+    {
+      "id": "result-runbook",
+      "commandId": "cmd-runbook",
+      "command": "pnpm test:runbook",
+      "observedExit": 0,
+      "observedAt": "2026-07-18T00:27:55.000Z",
+      "commitRef": "0b8d0eb45c37bfadaf17962eea6419240e6ff26f",
+      "output": {
+        "status": "PASS",
+        "tests": 18,
+        "screenCopyChecks": 24,
+        "decisionButtons": 3,
+        "guideTargets": 4,
+        "steps": 6,
+        "rehearsalsRequired": 2
+      },
+      "outputDigest": "c9995f25bd7d97a088926f62b01224779495709230de5eeb41c6d0d32b991836"
+    },
+    {
+      "id": "result-judge-flow",
+      "commandId": "cmd-judge-flow",
+      "command": "pnpm test:judge-flow",
+      "observedExit": 0,
+      "observedAt": "2026-07-18T00:28:12.000Z",
+      "commitRef": "0b8d0eb45c37bfadaf17962eea6419240e6ff26f",
+      "output": {
+        "status": "PASS",
+        "packs": [
+          "civic-data",
+          "health-data",
+          "mofa-oda"
+        ],
+        "decisions": [
+          "rejected",
+          "corrected",
+          "verified"
+        ],
+        "resetPaths": 5,
+        "checks": 399,
+        "failureCount": 0
+      },
+      "outputDigest": "d7a6f2c026d480e3d56ec53bc6766dd9bbccc5cfd121455fa8b4cf5214330687"
+    },
+    {
+      "id": "result-geometry",
+      "commandId": "cmd-geometry",
+      "command": "pnpm test:geometry",
+      "observedExit": 0,
+      "observedAt": "2026-07-18T00:28:26.000Z",
+      "commitRef": "0b8d0eb45c37bfadaf17962eea6419240e6ff26f",
+      "output": {
+        "status": "PASS",
+        "packs": [
+          "civic-data",
+          "health-data",
+          "mofa-oda"
+        ],
+        "viewports": [
+          320,
+          420,
+          820,
+          1180,
+          1440,
+          1920
+        ],
+        "measurements": 48,
+        "checks": 3733,
+        "failureCount": 0
+      },
+      "outputDigest": "3b0af8a27ded42dc6d72755aeb1afb9384fe0c9a7774fb2b161426ca9a58d805"
+    },
+    {
+      "id": "result-clean-clone-self",
+      "commandId": "cmd-clean-clone",
+      "command": "pnpm test:clean-clone:self",
+      "observedExit": 0,
+      "observedAt": "2026-07-18T00:28:55.000Z",
+      "commitRef": "0b8d0eb45c37bfadaf17962eea6419240e6ff26f",
+      "output": {
+        "status": "PASS",
+        "deadline": true,
+        "processGroupEscalation": true,
+        "signalCleanup": true,
+        "injectedFailureCleanup": true
+      },
+      "outputDigest": "6cd43a6bb6295ea889e48148a69d68671e9f56474536692ead06ed88f5295176"
+    },
+    {
+      "id": "result-conformance",
+      "commandId": "cmd-conformance",
+      "command": "pnpm test/conformance",
+      "observedExit": 0,
+      "observedAt": "2026-07-18T00:27:58.000Z",
+      "commitRef": "0b8d0eb45c37bfadaf17962eea6419240e6ff26f",
+      "output": {
+        "status": "PASS",
+        "tests": {
+          "conformance": 4,
+          "civic": 2,
+          "health": 2,
+          "mofaOda": 8
+        }
+      },
+      "outputDigest": "43bb9c900b841f4945f5316b60bfee3be41dd9700560c172944b4a9135653e6d"
+    },
+    {
+      "id": "result-demo",
+      "commandId": "cmd-demo",
+      "command": "pnpm demo",
+      "observedExit": 0,
+      "observedAt": "2026-07-18T00:27:59.000Z",
+      "commitRef": "0b8d0eb45c37bfadaf17962eea6419240e6ff26f",
+      "output": {
+        "status": "PASS",
+        "packs": [
+          "civic-data",
+          "health-data",
+          "mofa-oda"
+        ],
+        "packSwapBehaviorDifferent": true,
+        "mode": "offline-deterministic-fixture-first"
+      },
+      "outputDigest": "58b60a0aa7b0600ee1bd10cd7c714bb165fc1415167dccc80d7b6000458f8376"
+    },
+    {
+      "id": "result-public-probe",
+      "commandId": "cmd-public-probe",
+      "command": "pnpm probe:deployment",
+      "observedExit": 1,
+      "observedAt": "2026-07-18T00:19:24.117Z",
+      "commitRef": "0b8d0eb45c37bfadaf17962eea6419240e6ff26f",
+      "output": {
+        "status": "FAIL",
+        "environment": "public-read-only",
+        "failureCount": 5,
+        "failureIds": [
+          "root-cache",
+          "spa-cache",
+          "html-security-headers",
+          "js-asset-cache",
+          "css-asset-cache"
+        ]
+      },
+      "outputDigest": "d6cf3a1e7c80ce51367762ee03f1d4ecafed353b35031c532491521665d29808"
+    }
+  ]
+}

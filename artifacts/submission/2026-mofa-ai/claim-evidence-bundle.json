@@ -1,0 +1,321 @@
+{
+  "schemaVersion": 1,
+  "bundleId": "claimgate-mofa-oda-submission-evidence-20260718",
+  "generatedAt": "2026-07-18T00:19:24.117Z",
+  "baselineCommit": "890d427e7bdd296113fbbf7b40480b45f1c757ee",
+  "scope": {
+    "offline": true,
+    "deterministic": true,
+    "fixtureFirst": true,
+    "externalSubmission": "operator-only-pending",
+    "video": "storyboard-only-pending",
+    "deployment": "pending-five-failures"
+  },
+  "requiredNoGo": [
+    "live-openapi",
+    "real-llm",
+    "ocr",
+    "server",
+    "database",
+    "authentication",
+    "production-accuracy",
+    "external-submission-without-operator"
+  ],
+  "commands": [
+    {
+      "id": "cmd-runbook",
+      "command": "pnpm test:runbook",
+      "expectedExit": 0,
+      "commitRef": "0b8d0eb45c37bfadaf17962eea6419240e6ff26f",
+      "resultRef": "result-runbook",
+      "observedExit": 0,
+      "observedAt": "2026-07-18T00:27:55.000Z",
+      "outputDigest": "c9995f25bd7d97a088926f62b01224779495709230de5eeb41c6d0d32b991836"
+    },
+    {
+      "id": "cmd-judge-flow",
+      "command": "pnpm test:judge-flow",
+      "expectedExit": 0,
+      "commitRef": "0b8d0eb45c37bfadaf17962eea6419240e6ff26f",
+      "resultRef": "result-judge-flow",
+      "observedExit": 0,
+      "observedAt": "2026-07-18T00:28:12.000Z",
+      "outputDigest": "d7a6f2c026d480e3d56ec53bc6766dd9bbccc5cfd121455fa8b4cf5214330687"
+    },
+    {
+      "id": "cmd-geometry",
+      "command": "pnpm test:geometry",
+      "expectedExit": 0,
+      "commitRef": "0b8d0eb45c37bfadaf17962eea6419240e6ff26f",
+      "resultRef": "result-geometry",
+      "observedExit": 0,
+      "observedAt": "2026-07-18T00:28:26.000Z",
+      "outputDigest": "3b0af8a27ded42dc6d72755aeb1afb9384fe0c9a7774fb2b161426ca9a58d805"
+    },
+    {
+      "id": "cmd-clean-clone",
+      "command": "pnpm test:clean-clone:self",
+      "expectedExit": 0,
+      "commitRef": "0b8d0eb45c37bfadaf17962eea6419240e6ff26f",
+      "resultRef": "result-clean-clone-self",
+      "observedExit": 0,
+      "observedAt": "2026-07-18T00:28:55.000Z",
+      "outputDigest": "6cd43a6bb6295ea889e48148a69d68671e9f56474536692ead06ed88f5295176"
+    },
+    {
+      "id": "cmd-conformance",
+      "command": "pnpm test/conformance",
+      "expectedExit": 0,
+      "commitRef": "0b8d0eb45c37bfadaf17962eea6419240e6ff26f",
+      "resultRef": "result-conformance",
+      "observedExit": 0,
+      "observedAt": "2026-07-18T00:27:58.000Z",
+      "outputDigest": "43bb9c900b841f4945f5316b60bfee3be41dd9700560c172944b4a9135653e6d"
+    },
+    {
+      "id": "cmd-demo",
+      "command": "pnpm demo",
+      "expectedExit": 0,
+      "commitRef": "0b8d0eb45c37bfadaf17962eea6419240e6ff26f",
+      "resultRef": "result-demo",
+      "observedExit": 0,
+      "observedAt": "2026-07-18T00:27:59.000Z",
+      "outputDigest": "58b60a0aa7b0600ee1bd10cd7c714bb165fc1415167dccc80d7b6000458f8376"
+    },
+    {
+      "id": "cmd-public-probe",
+      "command": "pnpm probe:deployment",
+      "expectedExit": 1,
+      "commitRef": "0b8d0eb45c37bfadaf17962eea6419240e6ff26f",
+      "resultRef": "result-public-probe",
+      "observedExit": 1,
+      "observedAt": "2026-07-18T00:19:24.117Z",
+      "outputDigest": "d6cf3a1e7c80ce51367762ee03f1d4ecafed353b35031c532491521665d29808"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "evidence-runbook",
+      "path": "docs/demo/mofa-oda-3-minute-runbook.md",
+      "sha256": "73c83e9eac28099d040ee4436332ded70d6ac257744459ed9e1aebb6287bb9d7",
+      "commitRef": "890d427e7bdd296113fbbf7b40480b45f1c757ee"
+    },
+    {
+      "id": "evidence-storyboard",
+      "path": "docs/demo/mofa-oda-submission-video-storyboard.md",
+      "sha256": "8eb48bc733f776bcfe3933ecc9ee90bd2e8ffca2f2c873ea5e3dd13cb10efb35",
+      "commitRef": "c830bf3bdfb3c837c88da0cb7a64f01e291ad4ff"
+    },
+    {
+      "id": "evidence-claim-matrix",
+      "path": "docs/submission/2026-mofa-ai/claim-evidence-matrix.md",
+      "sha256": "c7652de9662602597511e73b8a2674246904c1bbc07b636ce2ea3c4b14f165f5",
+      "commitRef": "890d427e7bdd296113fbbf7b40480b45f1c757ee"
+    },
+    {
+      "id": "evidence-browser-audit",
+      "path": "scripts/browser-geometry-audit.mjs",
+      "sha256": "73abe3087c83087283e80bb54eb1320afdb736a73e4b4c99c63862c5b5bfad5b",
+      "commitRef": "890d427e7bdd296113fbbf7b40480b45f1c757ee"
+    },
+    {
+      "id": "evidence-deployment-probe",
+      "path": "scripts/deploy/smoke.mjs",
+      "sha256": "7d626b8ee7c87a5d2b45cf10b4b84412dd5fa16f50ffc94b33acf1a5a1b54fdb",
+      "commitRef": "890d427e7bdd296113fbbf7b40480b45f1c757ee"
+    },
+    {
+      "id": "evidence-clean-clone",
+      "path": "scripts/verify-clean-clone.mjs",
+      "sha256": "87a44398e3c19c4c1e25c974a1be52dda20e666848b4d3b2a336f351af9caaa9",
+      "commitRef": "890d427e7bdd296113fbbf7b40480b45f1c757ee"
+    },
+    {
+      "id": "evidence-verification-results",
+      "path": "artifacts/submission/2026-mofa-ai/verification-results.json",
+      "sha256": "7b2fc61e6ae75dfa86ee34016328e4c92c6a3a449196db308da944913e2f7b5e",
+      "commitRef": "2b3208cc18b6c995540e47434db1a3893041a985"
+    }
+  ],
+  "claims": [
+    {
+      "id": "claim-offline-boundary",
+      "statement": "현재 시제품은 offline / deterministic / fixture-first이다.",
+      "status": "verified",
+      "commandRefs": [
+        "cmd-conformance",
+        "cmd-demo"
+      ],
+      "commitRefs": [
+        "890d427e7bdd296113fbbf7b40480b45f1c757ee",
+        "0b8d0eb45c37bfadaf17962eea6419240e6ff26f"
+      ],
+      "evidenceRefs": [
+        "evidence-claim-matrix",
+        "evidence-runbook",
+        "evidence-verification-results"
+      ]
+    },
+    {
+      "id": "claim-three-pack-judge-flow",
+      "statement": "civic, health, mofa-oda 세 팩의 사람 판정 흐름을 결정론적으로 검증한다.",
+      "status": "verified",
+      "commandRefs": [
+        "cmd-judge-flow"
+      ],
+      "commitRefs": [
+        "890d427e7bdd296113fbbf7b40480b45f1c757ee",
+        "0b8d0eb45c37bfadaf17962eea6419240e6ff26f"
+      ],
+      "evidenceRefs": [
+        "evidence-browser-audit",
+        "evidence-verification-results"
+      ]
+    },
+    {
+      "id": "claim-browser-geometry",
+      "statement": "브라우저 geometry 계약은 저장소 기준 환경에서 회귀 검증된다.",
+      "status": "verified",
+      "commandRefs": [
+        "cmd-geometry"
+      ],
+      "commitRefs": [
+        "890d427e7bdd296113fbbf7b40480b45f1c757ee",
+        "0b8d0eb45c37bfadaf17962eea6419240e6ff26f"
+      ],
+      "evidenceRefs": [
+        "evidence-browser-audit",
+        "evidence-verification-results"
+      ]
+    },
+    {
+      "id": "claim-runbook",
+      "statement": "MOFA 3분 런북의 화면 문구와 180초 구조를 검증한다.",
+      "status": "verified",
+      "commandRefs": [
+        "cmd-runbook"
+      ],
+      "commitRefs": [
+        "890d427e7bdd296113fbbf7b40480b45f1c757ee",
+        "c830bf3bdfb3c837c88da0cb7a64f01e291ad4ff",
+        "0b8d0eb45c37bfadaf17962eea6419240e6ff26f"
+      ],
+      "evidenceRefs": [
+        "evidence-runbook",
+        "evidence-storyboard",
+        "evidence-verification-results"
+      ]
+    },
+    {
+      "id": "claim-clean-clone",
+      "statement": "clean-clone 재현 절차는 검증 명령으로 추적된다.",
+      "status": "verified",
+      "commandRefs": [
+        "cmd-clean-clone"
+      ],
+      "commitRefs": [
+        "890d427e7bdd296113fbbf7b40480b45f1c757ee",
+        "0b8d0eb45c37bfadaf17962eea6419240e6ff26f"
+      ],
+      "evidenceRefs": [
+        "evidence-clean-clone",
+        "evidence-verification-results"
+      ]
+    },
+    {
+      "id": "claim-public-deployment",
+      "statement": "공개 배포 hardening은 운영 node에 아직 적용되지 않아 검증 보류다.",
+      "status": "pending",
+      "commandRefs": [
+        "cmd-public-probe"
+      ],
+      "commitRefs": [
+        "890d427e7bdd296113fbbf7b40480b45f1c757ee",
+        "0b8d0eb45c37bfadaf17962eea6419240e6ff26f"
+      ],
+      "evidenceRefs": [
+        "evidence-deployment-probe",
+        "evidence-verification-results"
+      ],
+      "observedFailureCount": 5,
+      "observedFailureIds": [
+        "root-cache",
+        "spa-cache",
+        "html-security-headers",
+        "js-asset-cache",
+        "css-asset-cache"
+      ]
+    },
+    {
+      "id": "claim-three-minute-video",
+      "statement": "3분 제출 영상의 촬영·리허설·업로드는 운영자 작업으로 남아 있다.",
+      "status": "pending",
+      "commandRefs": [],
+      "commitRefs": [
+        "c830bf3bdfb3c837c88da0cb7a64f01e291ad4ff"
+      ],
+      "evidenceRefs": [
+        "evidence-storyboard"
+      ],
+      "evidenceSlots": [
+        "video:shot-01:pending",
+        "video:shot-02:pending",
+        "video:shot-03:pending",
+        "video:shot-04:pending",
+        "video:shot-05:pending",
+        "video:shot-06:pending",
+        "video:rehearsal-1:pending",
+        "video:rehearsal-2:pending"
+      ]
+    },
+    {
+      "id": "claim-future-boundaries",
+      "statement": "live OpenAPI, real LLM, OCR, 서버·DB·auth, production accuracy는 FUTURE / No-Go다.",
+      "status": "future",
+      "commandRefs": [],
+      "commitRefs": [
+        "890d427e7bdd296113fbbf7b40480b45f1c757ee"
+      ],
+      "evidenceRefs": [
+        "evidence-claim-matrix",
+        "evidence-runbook"
+      ]
+    }
+  ],
+  "video": {
+    "storyboardPath": "docs/demo/mofa-oda-submission-video-storyboard.md",
+    "plannedDurationSeconds": 180,
+    "allowedDurationSeconds": {
+      "min": 165,
+      "max": 195
+    },
+    "shotIds": [
+      "SHOT-01",
+      "SHOT-02",
+      "SHOT-03",
+      "SHOT-04",
+      "SHOT-05",
+      "SHOT-06"
+    ],
+    "actualRecording": "pending",
+    "rehearsalsCompleted": 0
+  },
+  "deployment": {
+    "url": "https://mofa.warvis.org",
+    "status": "pending",
+    "probeObservedAt": "2026-07-18T00:19:24.117Z",
+    "failureCount": 5,
+    "failureIds": [
+      "root-cache",
+      "spa-cache",
+      "html-security-headers",
+      "js-asset-cache",
+      "css-asset-cache"
+    ]
+  },
+  "results": {
+    "path": "artifacts/submission/2026-mofa-ai/verification-results.json",
+    "commitRef": "2b3208cc18b6c995540e47434db1a3893041a985",
+    "sha256": "7b2fc61e6ae75dfa86ee34016328e4c92c6a3a449196db308da944913e2f7b5e"
+  }
+}
