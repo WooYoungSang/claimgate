@@ -12,6 +12,7 @@ const modulePath = fileURLToPath(import.meta.url);
 const defaultConfigPath = path.join(path.dirname(modulePath), 'Caddyfile');
 const APP_SHELL = /\bid=["']root["']/i;
 const SCRIPT_ASSET = /<script\b[^>]*\bsrc=["']([^"']+\.(?:m?js)(?:\?[^"']*)?)["'][^>]*>/i;
+const LINK_TAG = /<link\b[^>]*>/gi;
 const EXPECTED_SECURITY_HEADERS = Object.freeze({
   'x-content-type-options': 'nosniff',
   'referrer-policy': 'strict-origin-when-cross-origin',
@@ -134,7 +135,18 @@ function header(response, name) {
 }
 
 function noCache(value) {
-  return /(?:^|,)\s*(?:no-cache|no-store|must-revalidate|max-age=0)(?:\s*(?:,|$)|=)/i.test(value);
+  const directives = value.toLowerCase().split(',').map((directive) => directive.trim()).filter(Boolean);
+  let explicitlyUncacheable = false;
+  for (const directive of directives) {
+    if (directive === 'no-cache' || directive === 'no-store') explicitlyUncacheable = true;
+    const age = directive.match(/^(s-maxage|max-age)\s*=\s*(.+)$/);
+    if (!age) continue;
+    if (!/^\d+$/.test(age[2])) return false;
+    const seconds = Number(age[2]);
+    if (seconds > 0 || !Number.isSafeInteger(seconds)) return false;
+    if (age[1] === 'max-age' && seconds === 0) explicitlyUncacheable = true;
+  }
+  return explicitlyUncacheable;
 }
 
 function immutableCache(value) {
@@ -180,6 +192,49 @@ function shellAssetIdentity(assetPath, origin) {
   } catch {
     return null;
   }
+}
+
+function attributeValue(tag, name) {
+  return tag.match(new RegExp(`\\b${name}\\s*=\\s*["']([^"']+)["']`, 'i'))?.[1] ?? null;
+}
+
+function stylesheetAssetPath(body) {
+  for (const tag of body.match(LINK_TAG) ?? []) {
+    const rel = attributeValue(tag, 'rel');
+    const href = attributeValue(tag, 'href');
+    if (rel?.toLowerCase().split(/\s+/).includes('stylesheet') && href && /\.css(?:\?[^"']*)?$/i.test(href)) return href;
+  }
+  return null;
+}
+
+async function inspectAsset({ kind, discoveredPath, origin, fetchImpl, deadlineAt, controller, add }) {
+  const path = shellAssetIdentity(discoveredPath, origin);
+  let response = null;
+  if (path) {
+    try {
+      response = await safeFetch(fetchImpl, new URL(path, origin), deadlineAt, controller);
+    } catch {
+      response = null;
+    }
+  }
+  const contentType = header(response, 'content-type');
+  const cacheControl = header(response, 'cache-control');
+  const checks = [
+    [`${kind}-asset-final-url`, finalUrlIsExpected(response, origin), response?.url || `${kind} asset final URL missing`],
+    [`${kind}-asset-status`, response?.status === 200, response ? `HTTP ${response.status}` : `same-origin ${kind} asset fetch failed`],
+    [`${kind}-asset-content-type`, Boolean(path) && contentTypeMatches(path, contentType), contentType || 'missing content-type'],
+    [`${kind}-asset-cache`, immutableCache(cacheControl), cacheControl || 'missing cache-control'],
+  ];
+  for (const [id, ok, detail] of checks) add(id, ok, detail);
+  return Object.freeze({
+    path,
+    discoveredPath: discoveredPath ?? null,
+    finalUrl: response?.url || null,
+    status: response?.status ?? null,
+    contentType: contentType || null,
+    cacheControl: cacheControl || null,
+    ok: checks.every(([, ok]) => ok),
+  });
 }
 
 function normalizedShellDigest(body) {
@@ -250,6 +305,7 @@ export async function probePublicSite(input, dependencies = {}) {
     const rootCache = header(rootResponse, 'cache-control');
     const shellFound = APP_SHELL.test(rootBody);
     const assetPath = rootBody.match(SCRIPT_ASSET)?.[1] ?? null;
+    const stylesheetPath = stylesheetAssetPath(rootBody);
     const rootFinalUrlOk = finalUrlIsExpected(rootResponse, url.origin);
     add('root-final-url', rootFinalUrlOk, rootResponse?.url || 'root final URL missing');
     add('root-status', rootResponse?.status === 200, rootResponse ? `HTTP ${rootResponse.status}` : 'root fetch failed');
@@ -289,21 +345,24 @@ export async function probePublicSite(input, dependencies = {}) {
       spaShellDigest ?? 'SPA shell missing',
     );
 
-    let assetResponse = null;
-    if (assetPath) {
-      try {
-        const assetUrl = new URL(assetPath, url);
-        if (assetUrl.origin === url.origin) assetResponse = await safeFetch(fetchImpl, assetUrl, deadlineAt, controller);
-      } catch {
-        assetResponse = null;
-      }
-    }
-    const assetType = header(assetResponse, 'content-type');
-    const assetCache = header(assetResponse, 'cache-control');
-    add('asset-final-url', finalUrlIsExpected(assetResponse, url.origin), assetResponse?.url || 'asset final URL missing');
-    add('asset-status', assetResponse?.status === 200, assetResponse ? `HTTP ${assetResponse.status}` : 'same-origin asset fetch failed');
-    add('asset-content-type', Boolean(assetPath) && contentTypeMatches(assetPath, assetType), assetType || 'missing content-type');
-    add('asset-cache', immutableCache(assetCache), assetCache || 'missing cache-control');
+    const javascriptAsset = await inspectAsset({
+      kind: 'js',
+      discoveredPath: assetPath,
+      origin: url.origin,
+      fetchImpl,
+      deadlineAt,
+      controller,
+      add,
+    });
+    const stylesheetAsset = await inspectAsset({
+      kind: 'css',
+      discoveredPath: stylesheetPath,
+      origin: url.origin,
+      fetchImpl,
+      deadlineAt,
+      controller,
+      add,
+    });
 
     const failureCount = checks.filter(({ ok }) => !ok).length;
     return Object.freeze({
@@ -312,6 +371,7 @@ export async function probePublicSite(input, dependencies = {}) {
       checks: Object.freeze(checks),
       failureCount,
       assetPath,
+      assets: Object.freeze({ javascript: javascriptAsset, stylesheet: stylesheetAsset }),
       dns: Object.freeze({ addresses: Object.freeze(addresses) }),
       tls: tlsResult ? Object.freeze({ ...tlsResult }) : null,
       edge: Object.freeze({

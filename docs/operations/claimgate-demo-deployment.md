@@ -105,13 +105,13 @@ node scripts/deploy/smoke.mjs --url https://mofa.warvis.org --timeout-ms 8000
 - `/`이 `200 text/html`이고 앱 셸과 module asset을 포함하는지
 - root, SPA fallback, asset의 최종 redirect URL이 HTTPS이고 `mofa.warvis.org` 원본을 유지하는지
 - 존재하지 않는 `__claimgate_spa_probe__` 경로가 같은 앱 셸과 동일한 버전 asset 경로/hash로 fallback되는지
-- HTML/fallback이 no-cache인지
-- JS/CSS asset이 올바른 `Content-Type`과 1년 immutable cache를 가지는지
+- HTML/fallback이 `no-cache`, `no-store`, 명시적 `max-age=0` 중 하나를 사용하고 양수 `max-age`/`s-maxage`를 포함하지 않는지
+- 앱 셸의 same-origin module JS와 `<link rel="stylesheet">` CSS를 각각 요청하여 최종 HTTPS/origin, `200`, 올바른 `Content-Type`, 1년 immutable cache를 가지는지
 - `nosniff`, 정확한 `Referrer-Policy`, `X-Frame-Options`, `Permissions-Policy`, CSP가 있는지
 
 DNS, TLS, fetch와 본문 읽기는 개별 제한을 누적하지 않고 전체 probe 하나의 hard deadline을 공유한다. 각 단계에는 남은 시간만 전달된다. deadline에서는 DNS resolver를 취소하고, TLS socket을 destroy하며, fetch에는 같은 `AbortSignal`을 전달한다. 의존 호출이나 다른 active handle이 abort를 무시해도 CLI는 JSON 출력 flush 후 명시적으로 종료하여 제한 시간 안에 실패로 닫힌다.
 
-root와 SPA fallback은 동일한 버전 asset뿐 아니라 공백 정규화된 전체 HTML SHA-256도 일치해야 한다. 두 응답 모두 `nosniff`, `strict-origin-when-cross-origin`, `DENY`, 최소 권한 `Permissions-Policy`, `default-src/style-src 'self'` CSP를 정확히 충족해야 한다. 진행률 UI는 inline style 없이 semantic `<progress value max>`와 외부 CSS만 사용한다.
+root와 SPA fallback은 동일한 버전 asset뿐 아니라 공백 정규화된 전체 HTML SHA-256도 일치해야 한다. 두 응답 모두 `nosniff`, `strict-origin-when-cross-origin`, `DENY`, 최소 권한 `Permissions-Policy`, `default-src/style-src 'self'` CSP를 정확히 충족해야 한다. 출력의 `probe.assets.javascript`와 `probe.assets.stylesheet`는 발견 경로, 최종 URL, 상태, content type, cache policy와 종합 통과 여부를 분리해 기록한다. 진행률 UI는 inline style 없이 semantic `<progress value max>`와 외부 CSS만 사용한다.
 
 Cloudflare의 `server`, `cf-ray`, `cf-cache-status`는 관측값으로만 기록하고 통과 조건으로 가장하지 않는다.
 
@@ -128,14 +128,15 @@ Cloudflare의 `server`, `cf-ray`, `cf-cache-status`는 관측값으로만 기록
 
 토큰 값, Zone ID 전체 값, 원본 IP가 비밀로 분류된 환경 정보는 증거에 복사하지 않는다.
 
-### 2026-07-17 공개 읽기 관측
+### 2026-07-18 공개 읽기 관측
 
-`2026-07-17T16:54:23.707Z`에 강화된 `pnpm probe:deployment`를 실행했다. HTTPS, DNS 4개 주소, TLS 1.3과 인증서 유효성, root/SPA `200 text/html`, 같은 origin, 동일 shell asset(`/assets/index-VN1YndhQ.js`)과 전체 shell digest, asset `200 text/javascript`, Cloudflare edge는 통과했다. 다음 4개 정책 조건은 실패했다.
+`2026-07-18T00:06:12.756Z`에 강화된 `pnpm probe:deployment`를 실행했다. HTTPS, DNS 4개 주소, TLS 1.3과 인증서 유효성, root/SPA `200 text/html`, 같은 origin, 동일 shell asset과 전체 shell digest, JS(`/assets/index-VN1YndhQ.js`) `200 text/javascript`, CSS(`/assets/index-BiL39LEl.css`) `200 text/css`, Cloudflare edge는 통과했다. 다음 5개 정책 조건은 실패했다.
 
 1. root 응답에 `Cache-Control`이 없다.
 2. SPA fallback 응답에 `Cache-Control`이 없다.
-3. asset cache가 `max-age=14400`이며 1년 immutable 정책이 아니다.
-4. 현재 root와 SPA 공개 응답이 이 문서의 정확한 5종 보안 헤더 정책을 모두 충족하지 않는다.
+3. 현재 root와 SPA 공개 응답이 이 문서의 정확한 5종 보안 헤더 정책을 모두 충족하지 않는다.
+4. JS asset cache가 `max-age=14400`이며 1년 immutable 정책이 아니다.
+5. CSS asset cache도 `max-age=14400`이며 1년 immutable 정책이 아니다.
 
 저장소의 `scripts/deploy/Caddyfile`에는 이를 교정하는 cache split과 보안 헤더 정책이 포함되어 있고 로컬 `caddy validate`를 통과했지만, 공개 노드에는 적용하지 않았다. 관측 시 `/srv/claimgate` release root가 없고 비대화형 `sudo` 권한도 없어 Caddy 교체/reload를 수행하지 않았다. DNS, Cloudflare 토큰, 인증서 또는 서비스 설정은 읽거나 변경하지 않았다. 운영자 적용·reload 증거가 생긴 뒤 `pnpm probe:deployment`를 다시 실행해야 Gate를 통과할 수 있다.
 

@@ -8,7 +8,7 @@ import path from 'node:path';
 
 import { inspectTlsConnection, probePublicSite, resolveDnsAddresses, validateCaddyConfig } from './smoke.mjs';
 
-const shell = '<!doctype html><div id="root"></div><script type="module" src="/assets/app-abc123.js"></script>';
+const shell = '<!doctype html><link rel="stylesheet" href="/assets/app-abc123.css"><div id="root"></div><script type="module" src="/assets/app-abc123.js"></script>';
 const securityHeaders = {
   'x-content-type-options': 'nosniff',
   'referrer-policy': 'strict-origin-when-cross-origin',
@@ -26,7 +26,17 @@ function response(body, { status = 200, headers = {}, url } = {}) {
 function healthyDependencies(overrides = {}) {
   const fetchImpl = async (input) => {
     const url = String(input);
-    if (url.includes('/assets/')) {
+    if (url.endsWith('.css')) {
+      return response('body { color: #123; }', {
+        headers: {
+          'content-type': 'text/css; charset=utf-8',
+          'cache-control': 'public, max-age=31536000, immutable',
+          'x-content-type-options': 'nosniff',
+        },
+        url,
+      });
+    }
+    if (url.endsWith('.js')) {
       return response('console.log("ok")', {
         headers: {
           'content-type': 'text/javascript; charset=utf-8',
@@ -60,6 +70,10 @@ test('HTTPS, DNS, TLS, app shell, SPA fallback and immutable asset contract all 
   assert.equal(report.ok, true);
   assert.equal(report.failureCount, 0);
   assert.equal(report.assetPath, '/assets/app-abc123.js');
+  assert.equal(report.assets.javascript.path, '/assets/app-abc123.js');
+  assert.equal(report.assets.javascript.ok, true);
+  assert.equal(report.assets.stylesheet.path, '/assets/app-abc123.css');
+  assert.equal(report.assets.stylesheet.ok, true);
   assert.deepEqual(report.dns.addresses, ['2001:db8::10', '203.0.113.10']);
   assert.ok(report.checks.every(({ ok }) => ok));
   assert.deepEqual(report.checks.map(({ id }) => ({
@@ -80,12 +94,95 @@ test('HTTPS, DNS, TLS, app shell, SPA fallback and immutable asset contract all 
     { id: 'spa-shell' },
     { id: 'html-security-headers' },
     { id: 'spa-shell-identity' },
-    { id: 'asset-final-url' },
-    { id: 'asset-status' },
-    { id: 'asset-content-type' },
-    { id: 'asset-cache' },
+    { id: 'js-asset-final-url' },
+    { id: 'js-asset-status' },
+    { id: 'js-asset-content-type' },
+    { id: 'js-asset-cache' },
+    { id: 'css-asset-final-url' },
+    { id: 'css-asset-status' },
+    { id: 'css-asset-content-type' },
+    { id: 'css-asset-cache' },
   ]);
 });
+
+for (const cacheControl of ['public, max-age=86400, must-revalidate', 'public, s-maxage=86400, must-revalidate']) {
+  test(`HTML cache rejects positive age policy: ${cacheControl}`, async () => {
+    const report = await probePublicSite('https://mofa.warvis.org', healthyDependencies({
+      fetchImpl: async (input) => {
+        const url = String(input);
+        if (url.endsWith('.css')) {
+          return response('body{}', { headers: { 'content-type': 'text/css', 'cache-control': 'public, max-age=31536000, immutable' }, url });
+        }
+        if (url.endsWith('.js')) {
+          return response('console.log("ok")', { headers: { 'content-type': 'text/javascript', 'cache-control': 'public, max-age=31536000, immutable' }, url });
+        }
+        return response(shell, { headers: { 'content-type': 'text/html', 'cache-control': cacheControl, ...securityHeaders }, url });
+      },
+    }));
+
+    assert.equal(report.checks.find(({ id }) => id === 'root-cache').ok, false);
+    assert.equal(report.checks.find(({ id }) => id === 'spa-cache').ok, false);
+  });
+}
+
+test('HTML cache accepts only explicit no-cache, no-store or max-age=0 policies', async () => {
+  for (const cacheControl of ['no-cache', 'no-store', 'public, max-age=0, must-revalidate']) {
+    const report = await probePublicSite('https://mofa.warvis.org', healthyDependencies({
+      fetchImpl: async (input) => {
+        const url = String(input);
+        if (url.endsWith('.css')) return response('body{}', { headers: { 'content-type': 'text/css', 'cache-control': 'public, max-age=31536000, immutable' }, url });
+        if (url.endsWith('.js')) return response('console.log("ok")', { headers: { 'content-type': 'text/javascript', 'cache-control': 'public, max-age=31536000, immutable' }, url });
+        return response(shell, { headers: { 'content-type': 'text/html', 'cache-control': cacheControl, ...securityHeaders }, url });
+      },
+    }));
+    assert.equal(report.checks.find(({ id }) => id === 'root-cache').ok, true, cacheControl);
+    assert.equal(report.checks.find(({ id }) => id === 'spa-cache').ok, true, cacheControl);
+  }
+});
+
+for (const mutation of [
+  {
+    label: '404',
+    response: (url) => response('missing', { status: 404, headers: { 'content-type': 'text/css', 'cache-control': 'public, max-age=31536000, immutable' }, url }),
+    failedChecks: ['css-asset-status'],
+  },
+  {
+    label: 'wrong content type',
+    response: (url) => response('<html>wrong</html>', { headers: { 'content-type': 'text/html', 'cache-control': 'public, max-age=31536000, immutable' }, url }),
+    failedChecks: ['css-asset-content-type'],
+  },
+  {
+    label: 'non-immutable cache',
+    response: (url) => response('body{}', { headers: { 'content-type': 'text/css', 'cache-control': 'public, max-age=60' }, url }),
+    failedChecks: ['css-asset-cache'],
+  },
+  {
+    label: 'cross-origin href',
+    shell: shell.replace('/assets/app-abc123.css', 'https://assets.invalid/app-abc123.css'),
+    failedChecks: ['css-asset-final-url', 'css-asset-status', 'css-asset-content-type', 'css-asset-cache'],
+  },
+]) {
+  test(`stylesheet asset ${mutation.label} fails closed and is explicit in the report`, async () => {
+    const mutatedShell = mutation.shell ?? shell;
+    const report = await probePublicSite('https://mofa.warvis.org', healthyDependencies({
+      fetchImpl: async (input) => {
+        const url = String(input);
+        if (url.endsWith('.css')) return mutation.response(url);
+        if (url.endsWith('.js')) {
+          return response('console.log("ok")', { headers: { 'content-type': 'text/javascript', 'cache-control': 'public, max-age=31536000, immutable' }, url });
+        }
+        return response(mutatedShell, { headers: { 'content-type': 'text/html', 'cache-control': 'no-cache', ...securityHeaders }, url });
+      },
+    }));
+
+    assert.equal(report.ok, false);
+    assert.equal(report.assets.stylesheet.path, mutation.shell ? null : '/assets/app-abc123.css');
+    assert.equal(report.assets.stylesheet.ok, false);
+    for (const id of mutation.failedChecks) {
+      assert.equal(report.checks.find((check) => check.id === id)?.ok, false, `${id} must fail`);
+    }
+  });
+}
 
 test('wrong SPA fallback, cache headers and asset content type fail loud', async () => {
   const dependencies = healthyDependencies({
@@ -103,7 +200,7 @@ test('wrong SPA fallback, cache headers and asset content type fail loud', async
 
   const report = await probePublicSite('https://mofa.warvis.org', dependencies);
   assert.equal(report.ok, false);
-  for (const id of ['root-cache', 'html-security-headers', 'spa-status', 'spa-content-type', 'spa-cache', 'spa-shell', 'asset-content-type', 'asset-cache']) {
+  for (const id of ['root-cache', 'html-security-headers', 'spa-status', 'spa-content-type', 'spa-cache', 'spa-shell', 'js-asset-content-type', 'js-asset-cache', 'css-asset-content-type', 'css-asset-cache']) {
     assert.equal(report.checks.find((check) => check.id === id)?.ok, false, `${id} must fail`);
   }
 });
@@ -142,7 +239,7 @@ test('followed redirects must preserve HTTPS and the expected origin for every r
     },
   }));
 
-  for (const id of ['root-final-url', 'spa-final-url', 'asset-final-url']) {
+  for (const id of ['root-final-url', 'spa-final-url', 'js-asset-final-url', 'css-asset-final-url']) {
     assert.equal(report.checks.find((check) => check.id === id)?.ok, false, `${id} must fail`);
   }
 });
