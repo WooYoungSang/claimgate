@@ -9,16 +9,23 @@ import { spawnSync } from "node:child_process";
 export const DEFAULT_BUNDLE_PATH =
   "artifacts/submission/2026-mofa-ai/claim-evidence-bundle.json";
 
-const REQUIRED_CLAIMS = [
-  "claim-offline-boundary",
-  "claim-three-pack-judge-flow",
-  "claim-browser-geometry",
-  "claim-runbook",
-  "claim-clean-clone",
-  "claim-public-deployment",
-  "claim-three-minute-video",
-  "claim-future-boundaries",
-];
+const BASELINE_COMMIT = "890d427e7bdd296113fbbf7b40480b45f1c757ee";
+const STORYBOARD_COMMIT = "c830bf3bdfb3c837c88da0cb7a64f01e291ad4ff";
+const OBSERVED_COMMIT = "0b8d0eb45c37bfadaf17962eea6419240e6ff26f";
+const RESULTS_COMMIT = "2b3208cc18b6c995540e47434db1a3893041a985";
+const RESULTS_PATH =
+  "artifacts/submission/2026-mofa-ai/verification-results.json";
+const RESULTS_SHA =
+  "7b2fc61e6ae75dfa86ee34016328e4c92c6a3a449196db308da944913e2f7b5e";
+
+const SCOPE = {
+  offline: true,
+  deterministic: true,
+  fixtureFirst: true,
+  externalSubmission: "operator-only-pending",
+  video: "storyboard-only-pending",
+  deployment: "pending-five-failures",
+};
 
 const REQUIRED_NO_GO = [
   "live-openapi",
@@ -31,7 +38,7 @@ const REQUIRED_NO_GO = [
   "external-submission-without-operator",
 ];
 
-const REQUIRED_DEPLOYMENT_FAILURES = [
+const DEPLOYMENT_FAILURES = [
   "root-cache",
   "spa-cache",
   "html-security-headers",
@@ -39,7 +46,7 @@ const REQUIRED_DEPLOYMENT_FAILURES = [
   "css-asset-cache",
 ];
 
-const REQUIRED_VIDEO_SLOTS = [
+const VIDEO_SLOTS = [
   "video:shot-01:pending",
   "video:shot-02:pending",
   "video:shot-03:pending",
@@ -50,40 +57,165 @@ const REQUIRED_VIDEO_SLOTS = [
   "video:rehearsal-2:pending",
 ];
 
-const REQUIRED_COMMANDS = new Map([
-  ["cmd-runbook", ["pnpm test:runbook", 0]],
-  ["cmd-judge-flow", ["pnpm test:judge-flow", 0]],
-  ["cmd-geometry", ["pnpm test:geometry", 0]],
-  ["cmd-clean-clone", ["pnpm verify:clean-clone", 0]],
-  ["cmd-conformance", ["pnpm test/conformance", 0]],
-  ["cmd-demo", ["pnpm demo", 0]],
-  ["cmd-public-probe", ["pnpm probe:deployment", 1]],
-]);
+const SHOT_IDS = [
+  "SHOT-01",
+  "SHOT-02",
+  "SHOT-03",
+  "SHOT-04",
+  "SHOT-05",
+  "SHOT-06",
+];
+
+const COMMANDS = {
+  "cmd-runbook": ["pnpm test:runbook", 0, "result-runbook"],
+  "cmd-judge-flow": ["pnpm test:judge-flow", 0, "result-judge-flow"],
+  "cmd-geometry": ["pnpm test:geometry", 0, "result-geometry"],
+  "cmd-clean-clone": [
+    "pnpm test:clean-clone:self",
+    0,
+    "result-clean-clone-self",
+  ],
+  "cmd-conformance": ["pnpm test/conformance", 0, "result-conformance"],
+  "cmd-demo": ["pnpm demo", 0, "result-demo"],
+  "cmd-public-probe": ["pnpm probe:deployment", 1, "result-public-probe"],
+};
+
+const EVIDENCE = {
+  "evidence-runbook": {
+    path: "docs/demo/mofa-oda-3-minute-runbook.md",
+    sha256: "73c83e9eac28099d040ee4436332ded70d6ac257744459ed9e1aebb6287bb9d7",
+    commitRef: BASELINE_COMMIT,
+  },
+  "evidence-storyboard": {
+    path: "docs/demo/mofa-oda-submission-video-storyboard.md",
+    sha256: "8eb48bc733f776bcfe3933ecc9ee90bd2e8ffca2f2c873ea5e3dd13cb10efb35",
+    commitRef: STORYBOARD_COMMIT,
+  },
+  "evidence-claim-matrix": {
+    path: "docs/submission/2026-mofa-ai/claim-evidence-matrix.md",
+    sha256: "c7652de9662602597511e73b8a2674246904c1bbc07b636ce2ea3c4b14f165f5",
+    commitRef: BASELINE_COMMIT,
+  },
+  "evidence-browser-audit": {
+    path: "scripts/browser-geometry-audit.mjs",
+    sha256: "73abe3087c83087283e80bb54eb1320afdb736a73e4b4c99c63862c5b5bfad5b",
+    commitRef: BASELINE_COMMIT,
+  },
+  "evidence-deployment-probe": {
+    path: "scripts/deploy/smoke.mjs",
+    sha256: "7d626b8ee7c87a5d2b45cf10b4b84412dd5fa16f50ffc94b33acf1a5a1b54fdb",
+    commitRef: BASELINE_COMMIT,
+  },
+  "evidence-clean-clone": {
+    path: "scripts/verify-clean-clone.mjs",
+    sha256: "87a44398e3c19c4c1e25c974a1be52dda20e666848b4d3b2a336f351af9caaa9",
+    commitRef: BASELINE_COMMIT,
+  },
+  "evidence-verification-results": {
+    path: RESULTS_PATH,
+    sha256: RESULTS_SHA,
+    commitRef: RESULTS_COMMIT,
+  },
+};
+
+const CLAIMS = {
+  "claim-offline-boundary": {
+    statement: "현재 시제품은 offline / deterministic / fixture-first이다.",
+    status: "verified",
+    commandRefs: ["cmd-conformance", "cmd-demo"],
+    commitRefs: [BASELINE_COMMIT, OBSERVED_COMMIT],
+    evidenceRefs: [
+      "evidence-claim-matrix",
+      "evidence-runbook",
+      "evidence-verification-results",
+    ],
+  },
+  "claim-three-pack-judge-flow": {
+    statement:
+      "civic, health, mofa-oda 세 팩의 사람 판정 흐름을 결정론적으로 검증한다.",
+    status: "verified",
+    commandRefs: ["cmd-judge-flow"],
+    commitRefs: [BASELINE_COMMIT, OBSERVED_COMMIT],
+    evidenceRefs: [
+      "evidence-browser-audit",
+      "evidence-verification-results",
+    ],
+  },
+  "claim-browser-geometry": {
+    statement:
+      "브라우저 geometry 계약은 저장소 기준 환경에서 회귀 검증된다.",
+    status: "verified",
+    commandRefs: ["cmd-geometry"],
+    commitRefs: [BASELINE_COMMIT, OBSERVED_COMMIT],
+    evidenceRefs: [
+      "evidence-browser-audit",
+      "evidence-verification-results",
+    ],
+  },
+  "claim-runbook": {
+    statement: "MOFA 3분 런북의 화면 문구와 180초 구조를 검증한다.",
+    status: "verified",
+    commandRefs: ["cmd-runbook"],
+    commitRefs: [BASELINE_COMMIT, STORYBOARD_COMMIT, OBSERVED_COMMIT],
+    evidenceRefs: [
+      "evidence-runbook",
+      "evidence-storyboard",
+      "evidence-verification-results",
+    ],
+  },
+  "claim-clean-clone": {
+    statement: "clean-clone 재현 절차는 검증 명령으로 추적된다.",
+    status: "verified",
+    commandRefs: ["cmd-clean-clone"],
+    commitRefs: [BASELINE_COMMIT, OBSERVED_COMMIT],
+    evidenceRefs: [
+      "evidence-clean-clone",
+      "evidence-verification-results",
+    ],
+  },
+  "claim-public-deployment": {
+    statement:
+      "공개 배포 hardening은 운영 node에 아직 적용되지 않아 검증 보류다.",
+    status: "pending",
+    commandRefs: ["cmd-public-probe"],
+    commitRefs: [BASELINE_COMMIT, OBSERVED_COMMIT],
+    evidenceRefs: [
+      "evidence-deployment-probe",
+      "evidence-verification-results",
+    ],
+    observedFailureCount: 5,
+    observedFailureIds: DEPLOYMENT_FAILURES,
+  },
+  "claim-three-minute-video": {
+    statement:
+      "3분 제출 영상의 촬영·리허설·업로드는 운영자 작업으로 남아 있다.",
+    status: "pending",
+    commandRefs: [],
+    commitRefs: [STORYBOARD_COMMIT],
+    evidenceRefs: ["evidence-storyboard"],
+    evidenceSlots: VIDEO_SLOTS,
+  },
+  "claim-future-boundaries": {
+    statement:
+      "live OpenAPI, real LLM, OCR, 서버·DB·auth, production accuracy는 FUTURE / No-Go다.",
+    status: "future",
+    commandRefs: [],
+    commitRefs: [BASELINE_COMMIT],
+    evidenceRefs: ["evidence-claim-matrix", "evidence-runbook"],
+  },
+};
 
 const SHA256 = /^[a-f0-9]{64}$/u;
 const COMMIT = /^[a-f0-9]{40}$/u;
+const ISO_TIME =
+  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3,6})?Z$/u;
 
-const sha256 = (content) =>
+const digest = (content) =>
   createHash("sha256").update(content).digest("hex");
-
-const uniqueIds = (items, label, errors) => {
-  const ids = new Set();
-  for (const item of items ?? []) {
-    if (!item || typeof item.id !== "string" || item.id.length === 0) {
-      errors.push(`${label} entry requires id`);
-      continue;
-    }
-    if (ids.has(item.id)) {
-      errors.push(`duplicate ${label} id: ${item.id}`);
-    }
-    ids.add(item.id);
-  }
-  return ids;
-};
-
-const exactSet = (actual, expected) =>
-  actual.length === expected.length &&
-  [...actual].sort().every((item, index) => item === [...expected].sort()[index]);
+const same = (actual, expected) =>
+  JSON.stringify(actual) === JSON.stringify(expected);
+const exactKeys = (actual, expected) =>
+  same(Object.keys(actual ?? {}).sort(), [...expected].sort());
 
 const git = (args, cwd) =>
   spawnSync("git", args, {
@@ -92,39 +224,194 @@ const git = (args, cwd) =>
     stdio: ["ignore", "pipe", "pipe"],
   });
 
-const commitResolves = (commit, cwd) => {
-  if (!COMMIT.test(commit ?? "")) return false;
-  return git(["cat-file", "-e", `${commit}^{commit}`], cwd).status === 0;
+const commitResolves = (commit, cwd) =>
+  COMMIT.test(commit ?? "") &&
+  git(["cat-file", "-e", commit + "^{commit}"], cwd).status === 0;
+
+const commitIsHeadAncestor = (commit, cwd) =>
+  commitResolves(commit, cwd) &&
+  git(["merge-base", "--is-ancestor", commit, "HEAD"], cwd).status === 0;
+
+const gitShow = (commit, path, cwd) => {
+  const result = git(["show", commit + ":" + path], cwd);
+  return result.status === 0 ? result.stdout : null;
 };
 
-const readAnchoredEvidence = async (evidence, bundle, rootDir, errors) => {
-  const target = resolve(rootDir, evidence.path ?? "");
-  const rel = relative(rootDir, target);
-  if (
-    typeof evidence.path !== "string" ||
-    evidence.path.length === 0 ||
-    isAbsolute(evidence.path) ||
-    rel.startsWith("..")
-  ) {
-    errors.push(`unsafe evidence path: ${evidence.id ?? "<unknown>"}`);
-    return null;
+const assertCommit = (commit, label, rootDir, errors) => {
+  if (!commitResolves(commit, rootDir)) {
+    errors.push("commit does not resolve: " + commit);
+  } else if (!commitIsHeadAncestor(commit, rootDir)) {
+    errors.push(
+      "commit is not an ancestor of HEAD: " + label + " (" + commit + ")",
+    );
+  }
+};
+
+export const parseStoryboardContract = (markdown) => {
+  const errors = [];
+  const shots = [];
+  const rowPattern =
+    /^\| (SHOT-\d{2}) \| [^|]+ \| (\d+)초 \|[^|]+\|[^|]+\| \x60([^\x60]+)\x60 \|$/u;
+
+  for (const line of markdown.split(/\r?\n/u)) {
+    const match = line.match(rowPattern);
+    if (match) {
+      shots.push({
+        id: match[1],
+        durationSeconds: Number(match[2]),
+        evidenceSlot: match[3],
+      });
+    }
   }
 
-  // Files that existed at baselineCommit are read from that immutable Git
-  // object, not from the possibly dirty working tree. Newly created bundle
-  // evidence (the storyboard) is read from the workspace.
-  const baselineObject = git(
-    ["show", `${bundle.baselineCommit}:${evidence.path}`],
-    rootDir,
-  );
-  if (baselineObject.status === 0) return baselineObject.stdout;
+  const slotMatches = [
+    ...markdown.matchAll(
+      /\x60(video:(?:shot-\d{2}|rehearsal-[12]):pending)\x60/gu,
+    ),
+  ].map((match) => match[1]);
+  const slots = [...new Set(slotMatches)];
 
+  if (!same(shots.map((shot) => shot.id), SHOT_IDS)) {
+    errors.push("storyboard must contain SHOT-01 through SHOT-06 in order");
+  }
+  if (shots.reduce((sum, shot) => sum + shot.durationSeconds, 0) !== 180) {
+    errors.push("storyboard duration must total 180 seconds");
+  }
+  if (!same(
+    shots.map((shot) => shot.evidenceSlot),
+    VIDEO_SLOTS.slice(0, 6),
+  )) {
+    errors.push("storyboard shot evidence slots mismatch");
+  }
+  if (!same(slots.sort(), [...VIDEO_SLOTS].sort())) {
+    errors.push("storyboard must contain exactly eight pending evidence slots");
+  }
+
+  for (const phrase of [
+    "**총 길이:** 180초(3분)",
+    "= **180초**",
+    "offline / deterministic / fixture-first",
+    "live OpenAPI",
+    "real LLM",
+    "OCR",
+    "서버·DB·auth",
+    "production accuracy",
+    "**보류(pending)**",
+    "failureCount 5",
+    "root-cache",
+    "spa-cache",
+    "html-security-headers",
+    "js-asset-cache",
+    "css-asset-cache",
+    "실제 영상 촬영/업로드/외부 제출은 미실시",
+    "three-minute-video-verified",
+    "**pending**",
+  ]) {
+    if (!markdown.includes(phrase)) {
+      errors.push("storyboard missing contract phrase: " + phrase);
+    }
+  }
+
+  return {
+    ok: errors.length === 0,
+    errors,
+    shots,
+    evidenceSlots: slots.sort(),
+    plannedDurationSeconds: shots.reduce(
+      (sum, shot) => sum + shot.durationSeconds,
+      0,
+    ),
+  };
+};
+
+const validateResults = (bundle, rootDir, errors) => {
+  const binding = bundle?.results;
+  if (!binding || typeof binding !== "object") {
+    errors.push("results artifact binding is required");
+    return null;
+  }
+  const expectedBinding = {
+    path: RESULTS_PATH,
+    commitRef: RESULTS_COMMIT,
+    sha256: RESULTS_SHA,
+  };
+  if (!same(binding, expectedBinding)) {
+    errors.push("verification results binding mismatch");
+  }
+  assertCommit(binding.commitRef, "verification results", rootDir, errors);
+  const content = gitShow(binding.commitRef, binding.path, rootDir);
+  if (!content) {
+    errors.push("verification results Git object is missing");
+    return null;
+  }
+  if (digest(content) !== binding.sha256) {
+    errors.push("verification results checksum mismatch");
+  }
+
+  let artifact;
   try {
-    return await readFile(target);
+    artifact = JSON.parse(content.toString("utf8"));
   } catch {
-    errors.push(`evidence path missing: ${evidence.id} (${evidence.path})`);
+    errors.push("verification results JSON is invalid");
     return null;
   }
+  if (
+    artifact.schemaVersion !== 1 ||
+    artifact.resultCount !== Object.keys(COMMANDS).length ||
+    artifact.sourceCommit !== OBSERVED_COMMIT ||
+    !Array.isArray(artifact.records)
+  ) {
+    errors.push("verification results schema mismatch");
+    return artifact;
+  }
+
+  const resultIds = new Set();
+  const commandIds = new Set();
+  for (const record of artifact.records) {
+    if (resultIds.has(record.id)) {
+      errors.push("duplicate result id: " + record.id);
+    }
+    if (commandIds.has(record.commandId)) {
+      errors.push("duplicate result command: " + record.commandId);
+    }
+    resultIds.add(record.id);
+    commandIds.add(record.commandId);
+
+    const command = COMMANDS[record.commandId];
+    if (
+      !command ||
+      record.command !== command[0] ||
+      record.observedExit !== command[1] ||
+      record.id !== command[2] ||
+      record.commitRef !== OBSERVED_COMMIT
+    ) {
+      errors.push("verification result mapping mismatch: " + record.commandId);
+    }
+    if (!ISO_TIME.test(record.observedAt ?? "")) {
+      errors.push(
+        "verification result observedAt invalid: " + record.commandId,
+      );
+    }
+    if (
+      !SHA256.test(record.outputDigest ?? "") ||
+      digest(JSON.stringify(record.output)) !== record.outputDigest
+    ) {
+      errors.push(
+        "verification result output digest mismatch: " + record.commandId,
+      );
+    }
+    assertCommit(
+      record.commitRef,
+      "verification result " + record.commandId,
+      rootDir,
+      errors,
+    );
+  }
+
+  if (!same([...commandIds].sort(), Object.keys(COMMANDS).sort())) {
+    errors.push("verification results command inventory mismatch");
+  }
+  return artifact;
 };
 
 export const validateEvidenceBundle = async (
@@ -134,164 +421,257 @@ export const validateEvidenceBundle = async (
   const errors = [];
 
   if (bundle?.schemaVersion !== 1) errors.push("schemaVersion must be 1");
-  if (!COMMIT.test(bundle?.baselineCommit ?? "")) {
-    errors.push("baselineCommit must be a full 40-character SHA");
-  } else if (!commitResolves(bundle.baselineCommit, rootDir)) {
-    errors.push(`commit does not resolve: ${bundle.baselineCommit}`);
+  if (bundle?.baselineCommit !== BASELINE_COMMIT) {
+    errors.push("baselineCommit mismatch");
+  }
+  assertCommit(bundle?.baselineCommit, "baseline", rootDir, errors);
+
+  if (!same(bundle?.scope, SCOPE)) {
+    errors.push("scope keys must exactly match the allowed scope contract");
+  }
+  if (!same(bundle?.requiredNoGo, REQUIRED_NO_GO)) {
+    for (const boundary of REQUIRED_NO_GO) {
+      if (!(bundle?.requiredNoGo ?? []).includes(boundary)) {
+        errors.push("missing required No-Go: " + boundary);
+      }
+    }
+    errors.push("No-Go inventory or order mismatch");
   }
 
-  const noGo = Array.isArray(bundle?.requiredNoGo) ? bundle.requiredNoGo : [];
-  for (const boundary of REQUIRED_NO_GO) {
-    if (!noGo.includes(boundary)) {
-      errors.push(`missing required No-Go: ${boundary}`);
-    }
-  }
+  const results = validateResults(bundle, rootDir, errors);
+  const records = new Map(
+    (results?.records ?? []).map((item) => [item.id, item]),
+  );
 
   const commands = Array.isArray(bundle?.commands) ? bundle.commands : [];
-  const evidence = Array.isArray(bundle?.evidence) ? bundle.evidence : [];
-  const claims = Array.isArray(bundle?.claims) ? bundle.claims : [];
-  const commandIds = uniqueIds(commands, "command", errors);
-  const evidenceIds = uniqueIds(evidence, "evidence", errors);
-  const claimIds = uniqueIds(claims, "claim", errors);
-
-  for (const required of REQUIRED_CLAIMS) {
-    if (!claimIds.has(required)) errors.push(`missing required claim: ${required}`);
+  if (!same(commands.map((command) => command.id), Object.keys(COMMANDS))) {
+    errors.push("command inventory must exactly match");
   }
-
   for (const command of commands) {
-    if (typeof command.command !== "string" || command.command.length === 0) {
-      errors.push(`command ${command.id} requires an executable command`);
+    if (!exactKeys(command, [
+      "id",
+      "command",
+      "expectedExit",
+      "commitRef",
+      "resultRef",
+      "observedExit",
+      "observedAt",
+      "outputDigest",
+    ])) {
+      errors.push("command schema mismatch: " + command.id);
     }
-    if (![0, 1].includes(command.expectedExit)) {
-      errors.push(`command ${command.id} expectedExit must be 0 or 1`);
-    }
-    const expected = REQUIRED_COMMANDS.get(command.id);
-    if (!expected) {
-      errors.push(`unexpected command id: ${command.id}`);
-    } else if (
+    const expected = COMMANDS[command.id];
+    const record = records.get(command.resultRef);
+    if (
+      !expected ||
       command.command !== expected[0] ||
-      command.expectedExit !== expected[1]
+      command.expectedExit !== expected[1] ||
+      command.resultRef !== expected[2] ||
+      command.commitRef !== OBSERVED_COMMIT
     ) {
-      errors.push(`command snapshot mismatch: ${command.id}`);
+      errors.push("command snapshot mismatch: " + command.id);
     }
-    if (!commitResolves(command.commitRef, rootDir)) {
-      errors.push(`commit does not resolve: ${command.commitRef}`);
+    if (
+      !record ||
+      command.observedExit !== record.observedExit ||
+      command.observedAt !== record.observedAt ||
+      command.outputDigest !== record.outputDigest ||
+      command.commitRef !== record.commitRef
+    ) {
+      errors.push("command observed result mismatch: " + command.id);
     }
+    assertCommit(command.commitRef, "command " + command.id, rootDir, errors);
   }
+
+  const evidence = Array.isArray(bundle?.evidence) ? bundle.evidence : [];
+  if (!same(evidence.map((item) => item.id), Object.keys(EVIDENCE))) {
+    errors.push("evidence inventory must exactly match");
+  }
+  const evidenceIds = new Set();
+  let storyboard = null;
 
   for (const item of evidence) {
-    if (!SHA256.test(item.sha256 ?? "")) {
-      errors.push(`evidence ${item.id} requires a full sha256`);
+    evidenceIds.add(item.id);
+    if (!exactKeys(item, ["id", "path", "sha256", "commitRef"])) {
+      errors.push(item.id + " requires commitRef and exact evidence schema");
+    }
+    if (!item.commitRef) errors.push(item.id + " requires commitRef");
+    const expected = EVIDENCE[item.id];
+    if (!expected || !same(
+      {
+        path: item.path,
+        sha256: item.sha256,
+        commitRef: item.commitRef,
+      },
+      expected,
+    )) {
+      errors.push("evidence mapping mismatch: " + item.id);
+    }
+
+    if (
+      typeof item.path !== "string" ||
+      isAbsolute(item.path) ||
+      relative(rootDir, resolve(rootDir, item.path)).startsWith("..")
+    ) {
+      errors.push("unsafe evidence path: " + item.id);
       continue;
     }
-    const content = await readAnchoredEvidence(item, bundle, rootDir, errors);
-    if (content && sha256(content) !== item.sha256) {
-      errors.push(`checksum mismatch: ${item.id}`);
+    assertCommit(item.commitRef, "evidence " + item.id, rootDir, errors);
+    const content = gitShow(item.commitRef, item.path, rootDir);
+    if (!content) {
+      errors.push("git evidence path missing: " + item.id);
+      continue;
+    }
+    if (!SHA256.test(item.sha256 ?? "") || digest(content) !== item.sha256) {
+      errors.push("checksum mismatch: " + item.id);
+    }
+    if (item.id === "evidence-storyboard") {
+      storyboard = parseStoryboardContract(content.toString("utf8"));
+      errors.push(...storyboard.errors);
+    }
+  }
+
+  const claims = Array.isArray(bundle?.claims) ? bundle.claims : [];
+  if (
+    claims.length !== Object.keys(CLAIMS).length ||
+    !same(claims.map((claim) => claim.id), Object.keys(CLAIMS))
+  ) {
+    errors.push("claim inventory must exactly match");
+  }
+  for (const requiredId of Object.keys(CLAIMS)) {
+    if (!claims.some((claim) => claim.id === requiredId)) {
+      errors.push("missing required claim: " + requiredId);
     }
   }
 
   for (const claim of claims) {
-    const commandRefs = Array.isArray(claim.commandRefs) ? claim.commandRefs : [];
-    const commitRefs = Array.isArray(claim.commitRefs) ? claim.commitRefs : [];
-    const evidenceRefs = Array.isArray(claim.evidenceRefs) ? claim.evidenceRefs : [];
-
+    const expected = CLAIMS[claim.id];
+    const allowedKeys = [
+      "id",
+      "statement",
+      "status",
+      "commandRefs",
+      "commitRefs",
+      "evidenceRefs",
+      ...(claim.id === "claim-public-deployment"
+        ? ["observedFailureCount", "observedFailureIds"]
+        : []),
+      ...(claim.id === "claim-three-minute-video"
+        ? ["evidenceSlots"]
+        : []),
+    ];
+    if (!exactKeys(claim, allowedKeys)) {
+      errors.push("claim schema mismatch: " + claim.id);
+    }
+    if (!expected) continue;
+    if (claim.statement !== expected.statement) {
+      errors.push("statement mismatch: " + claim.id);
+    }
+    if (claim.status !== expected.status) {
+      errors.push("status mismatch: " + claim.id);
+    }
     if (claim.status === "verified") {
-      if (commandRefs.length === 0) {
-        errors.push(`verified claim ${claim.id} requires commandRefs`);
+      if ((claim.commandRefs ?? []).length === 0) {
+        errors.push("verified claim " + claim.id + " requires commandRefs");
       }
-      if (commitRefs.length === 0) {
-        errors.push(`verified claim ${claim.id} requires commitRefs`);
+      if ((claim.commitRefs ?? []).length === 0) {
+        errors.push("verified claim " + claim.id + " requires commitRefs");
       }
-      if (evidenceRefs.length === 0) {
-        errors.push(`verified claim ${claim.id} requires evidenceRefs`);
+      if ((claim.evidenceRefs ?? []).length === 0) {
+        errors.push("verified claim " + claim.id + " requires evidenceRefs");
       }
     }
-
-    for (const ref of commandRefs) {
-      if (!commandIds.has(ref)) {
-        errors.push(`unknown command ref ${ref} in ${claim.id}`);
+    if (
+      !same(claim.commandRefs, expected.commandRefs) ||
+      !same(claim.commitRefs, expected.commitRefs) ||
+      !same(claim.evidenceRefs, expected.evidenceRefs)
+    ) {
+      errors.push("reference mapping mismatch: " + claim.id);
+    }
+    if (
+      claim.id === "claim-public-deployment" &&
+      (claim.observedFailureCount !== 5 ||
+        !same(claim.observedFailureIds, DEPLOYMENT_FAILURES))
+    ) {
+      errors.push("claim-public-deployment failure snapshot mismatch");
+    }
+    if (
+      claim.id === "claim-three-minute-video" &&
+      !same(claim.evidenceSlots, VIDEO_SLOTS)
+    ) {
+      errors.push(
+        "video evidence slots must exactly match six shots and two rehearsals",
+      );
+    }
+    for (const commit of claim.commitRefs ?? []) {
+      assertCommit(commit, "claim " + claim.id, rootDir, errors);
+    }
+    for (const ref of claim.evidenceRefs ?? []) {
+      if (!evidenceIds.has(ref)) {
+        errors.push("unknown evidence ref " + ref + " in " + claim.id);
+      }
+    }
+    for (const ref of claim.commandRefs ?? []) {
+      const command = commands.find((item) => item.id === ref);
+      if (!command) {
+        errors.push("unknown command ref " + ref + " in " + claim.id);
       } else if (
         claim.status === "verified" &&
-        commands.find((command) => command.id === ref)?.expectedExit !== 0
+        command.observedExit !== 0
       ) {
-        errors.push(`verified claim ${claim.id} references failing command ${ref}`);
+        errors.push(
+          "verified claim " + claim.id +
+            " references failing command " + ref,
+        );
       }
     }
-    for (const ref of evidenceRefs) {
-      if (!evidenceIds.has(ref)) errors.push(`unknown evidence ref ${ref} in ${claim.id}`);
-    }
-    for (const ref of commitRefs) {
-      if (!commitResolves(ref, rootDir)) errors.push(`commit does not resolve: ${ref}`);
-    }
   }
 
-  const deploymentClaim = claims.find(
-    (claim) => claim.id === "claim-public-deployment",
-  );
-  if (bundle?.deployment?.status !== "pending") {
-    errors.push("deployment status must remain pending while recorded failures exist");
+  if (
+    bundle?.deployment?.status !== "pending" ||
+    bundle?.deployment?.failureCount !== 5 ||
+    !same(bundle?.deployment?.failureIds, DEPLOYMENT_FAILURES)
+  ) {
+    errors.push(
+      "deployment status must remain pending with exact five failures",
+    );
   }
-  if (deploymentClaim?.status !== "pending") {
+  if (
+    claims.find((claim) => claim.id === "claim-public-deployment")?.status !==
+    "pending"
+  ) {
     errors.push("claim-public-deployment must remain pending");
   }
-  if (bundle?.deployment?.failureCount !== 5) {
-    errors.push("deployment failureCount must remain 5 for this observed snapshot");
+  if (
+    bundle?.video?.actualRecording !== "pending" ||
+    bundle?.video?.rehearsalsCompleted !== 0
+  ) {
+    errors.push(
+      "actual recording must remain pending until operator evidence exists",
+    );
   }
   if (
-    !exactSet(
-      bundle?.deployment?.failureIds ?? [],
-      REQUIRED_DEPLOYMENT_FAILURES,
-    )
+    claims.find((claim) => claim.id === "claim-three-minute-video")?.status !==
+    "pending"
   ) {
-    errors.push("deployment failureIds do not match the observed five failures");
-  }
-  if (
-    deploymentClaim?.observedFailureCount !== 5 ||
-    !exactSet(
-      deploymentClaim?.observedFailureIds ?? [],
-      REQUIRED_DEPLOYMENT_FAILURES,
-    )
-  ) {
-    errors.push("claim-public-deployment failure snapshot is stale or incomplete");
-  }
-
-  const videoClaim = claims.find(
-    (claim) => claim.id === "claim-three-minute-video",
-  );
-  if (videoClaim?.status !== "pending") {
     errors.push("claim-three-minute-video must remain pending");
   }
-  if (bundle?.video?.actualRecording !== "pending") {
-    errors.push("actual recording must remain pending until operator evidence exists");
+  if (
+    bundle?.video?.plannedDurationSeconds !== 180 ||
+    bundle?.video?.allowedDurationSeconds?.min !== 165 ||
+    bundle?.video?.allowedDurationSeconds?.max !== 195 ||
+    !same(bundle?.video?.shotIds, SHOT_IDS)
+  ) {
+    errors.push(
+      "planned duration must be within 165-195 seconds and equal 180",
+    );
   }
-  if (bundle?.video?.rehearsalsCompleted !== 0) {
-    errors.push("rehearsalsCompleted must remain 0 until measured evidence exists");
-  }
-  const duration = bundle?.video?.plannedDurationSeconds;
-  const min = bundle?.video?.allowedDurationSeconds?.min;
-  const max = bundle?.video?.allowedDurationSeconds?.max;
-  if (min !== 165 || max !== 195 || duration < min || duration > max) {
-    errors.push("planned duration must be within 165-195 seconds");
-  }
-  if (!exactSet(bundle?.video?.shotIds ?? [], [
-    "SHOT-01",
-    "SHOT-02",
-    "SHOT-03",
-    "SHOT-04",
-    "SHOT-05",
-    "SHOT-06",
-  ])) {
-    errors.push("video shotIds must exactly match SHOT-01 through SHOT-06");
-  }
-  if (!exactSet(videoClaim?.evidenceSlots ?? [], REQUIRED_VIDEO_SLOTS)) {
-    errors.push("video evidence slots must exactly match six shots and two rehearsals");
-  }
-
-  const futureClaim = claims.find(
-    (claim) => claim.id === "claim-future-boundaries",
-  );
-  if (futureClaim?.status !== "future") {
-    errors.push("claim-future-boundaries must remain future");
+  if (
+    storyboard &&
+    storyboard.plannedDurationSeconds !==
+      bundle.video.plannedDurationSeconds
+  ) {
+    errors.push("storyboard duration mismatch");
   }
 
   const counts = claims.reduce(
@@ -303,6 +683,15 @@ export const validateEvidenceBundle = async (
     },
     { verifiedCount: 0, pendingCount: 0, futureCount: 0 },
   );
+  if (!same(counts, {
+    verifiedCount: 5,
+    pendingCount: 2,
+    futureCount: 1,
+  })) {
+    errors.push(
+      "claim status counts must exactly equal 5 verified, 2 pending, 1 future",
+    );
+  }
 
   return {
     ok: errors.length === 0,
@@ -312,10 +701,13 @@ export const validateEvidenceBundle = async (
       ...counts,
       evidenceCount: evidence.length,
       commandCount: commands.length,
-      plannedDurationSeconds: duration,
+      plannedDurationSeconds:
+        bundle?.video?.plannedDurationSeconds ?? null,
       deploymentStatus: bundle?.deployment?.status ?? null,
-      deploymentFailureCount: bundle?.deployment?.failureCount ?? null,
+      deploymentFailureCount:
+        bundle?.deployment?.failureCount ?? null,
       baselineCommit: bundle?.baselineCommit ?? null,
+      resultsCommit: bundle?.results?.commitRef ?? null,
     },
   };
 };
@@ -337,7 +729,7 @@ if (isMain) {
   try {
     const result = await validateEvidenceBundleFile(bundlePath);
     process.stdout.write(
-      `${JSON.stringify(
+      JSON.stringify(
         {
           status: result.ok ? "PASS" : "FAIL",
           bundlePath,
@@ -345,20 +737,22 @@ if (isMain) {
         },
         null,
         2,
-      )}\n`,
+      ) + "\n",
     );
     if (!result.ok) process.exitCode = 1;
   } catch (error) {
     process.stderr.write(
-      `${JSON.stringify(
+      JSON.stringify(
         {
           status: "FAIL",
           bundlePath,
-          errors: [error instanceof Error ? error.message : String(error)],
+          errors: [
+            error instanceof Error ? error.message : String(error),
+          ],
         },
         null,
         2,
-      )}\n`,
+      ) + "\n",
     );
     process.exitCode = 1;
   }
