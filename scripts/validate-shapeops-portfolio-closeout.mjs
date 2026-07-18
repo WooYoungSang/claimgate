@@ -515,11 +515,17 @@ export const validatePortfolioCloseout = async (
   }
 
   const protectedDiff = git(
-    ["diff", "--name-only", BASE_COMMIT, "--", PROTECTED_PREFIX],
+    [
+      "diff",
+      "--name-only",
+      `${BASE_COMMIT}..${mainRef}`,
+      "--",
+      PROTECTED_PREFIX,
+    ],
     root,
   );
   if (protectedDiff.status !== 0 || protectedDiff.stdout.trim() !== "") {
-    errors.push("protected submission path diff must remain zero");
+    errors.push("protected submission path committed range must remain zero");
   }
 
   const summary = errors.length === 0

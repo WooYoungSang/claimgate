@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
-import { readFile, symlink, unlink } from "node:fs/promises";
+import { appendFile, mkdtemp, readFile, rm, symlink, unlink } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { spawnSync } from "node:child_process";
 import test from "node:test";
 
 import {
@@ -16,6 +19,29 @@ const loadRunbook = () =>
 
 const BASELINE_MAIN_REF = "ff7973cb7e54040998ad468bbda8017de74f9df6";
 const REPOSITORY_ROOT_COMMIT = "b17d3800363eb38c494ac32e9dced0dcbedd057a";
+const PROTECTED_FIXTURE =
+  "docs/submission/2026-mofa-ai/claim-evidence-matrix.md";
+
+const runGit = (args, cwd) => {
+  const result = spawnSync("git", args, { cwd, encoding: "utf8" });
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  return result.stdout.trim();
+};
+
+const withTemporaryClone = async (callback) => {
+  const source = process.cwd();
+  const sourceHead = runGit(["rev-parse", "HEAD"], source);
+  const temporaryRoot = await mkdtemp(join(tmpdir(), "claimgate-portfolio-range-"));
+  const repository = join(temporaryRoot, "repository");
+  try {
+    runGit(["clone", "--shared", "--no-checkout", source, repository], source);
+    runGit(["checkout", "--detach", sourceHead], repository);
+    runGit(["branch", "-f", "main", sourceHead], repository);
+    await callback(repository);
+  } finally {
+    await rm(temporaryRoot, { recursive: true, force: true });
+  }
+};
 
 const mutate = async (callback, options = {}) => {
   const portfolio = await loadPortfolio();
@@ -105,6 +131,41 @@ test("canonical packet stays green when main advances to the branch HEAD", async
     mainRef: "HEAD",
   });
   assert.equal(result.ok, true, result.errors.join("\n"));
+});
+
+test("uncommitted protected user edits do not fail committed-range ownership", async () => {
+  await withTemporaryClone(async (repository) => {
+    await appendFile(join(repository, PROTECTED_FIXTURE), "\nlocal operator draft\n");
+    const portfolio = JSON.parse(
+      await readFile(join(repository, DEFAULT_PORTFOLIO_PATH), "utf8"),
+    );
+    const result = await validatePortfolioCloseout(portfolio, {
+      rootDir: repository,
+      mainRef: "main",
+    });
+    assert.equal(result.ok, true, result.errors.join("\n"));
+  });
+});
+
+test("committed protected changes inside the Bet range fail ownership", async () => {
+  await withTemporaryClone(async (repository) => {
+    await appendFile(join(repository, PROTECTED_FIXTURE), "\ncommitted forbidden edit\n");
+    runGit(["add", PROTECTED_FIXTURE], repository);
+    runGit([
+      "-c", "user.name=ClaimGate Test", "-c", "user.email=test@claimgate.invalid",
+      "commit", "-m", "test: commit protected path",
+    ], repository);
+    runGit(["branch", "-f", "main", "HEAD"], repository);
+    const portfolio = JSON.parse(
+      await readFile(join(repository, DEFAULT_PORTFOLIO_PATH), "utf8"),
+    );
+    const result = await validatePortfolioCloseout(portfolio, {
+      rootDir: repository,
+      mainRef: "main",
+    });
+    assert.equal(result.ok, false);
+    assert.match(result.errors.join("\n"), /committed range must remain zero/);
+  });
 });
 
 test("public deployment must preserve the exact five failures", async () => {
