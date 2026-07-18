@@ -14,11 +14,15 @@ const loadPortfolio = async () =>
 const loadRunbook = () =>
   readFile("docs/demo/shapeops-portfolio-closeout-runbook.md", "utf8");
 
-const mutate = async (callback) => {
+const BASELINE_MAIN_REF = "ff7973cb7e54040998ad468bbda8017de74f9df6";
+const REPOSITORY_ROOT_COMMIT = "b17d3800363eb38c494ac32e9dced0dcbedd057a";
+
+const mutate = async (callback, options = {}) => {
   const portfolio = await loadPortfolio();
   callback(portfolio);
   return validatePortfolioCloseout(portfolio, {
     runbookText: await loadRunbook(),
+    ...options,
   });
 };
 
@@ -71,14 +75,36 @@ test("merge identity and ancestry are immutable", async () => {
 });
 
 test("a branch-only commit cannot substitute for a merge on main", async () => {
-  const result = await mutate((portfolio) => {
-    portfolio.bets[0].mergeCommit =
-      "536e1cd2907a67870fd8580ea013f57652c87c75";
-    portfolio.bets[0].mergeSubject =
-      "docs: reconcile ClaimGate ShapeOps portfolio";
+  const result = await mutate(
+    (portfolio) => {
+      portfolio.bets[0].mergeCommit =
+        "536e1cd2907a67870fd8580ea013f57652c87c75";
+      portfolio.bets[0].mergeSubject =
+        "docs: reconcile ClaimGate ShapeOps portfolio";
+    },
+    { mainRef: BASELINE_MAIN_REF },
+  );
+  assert.equal(result.ok, false);
+  assert.match(result.errors.join("\n"), /not an ancestor of main reference/);
+});
+
+test("main ancestry uses the injected immutable reference", async () => {
+  const portfolio = await loadPortfolio();
+  const result = await validatePortfolioCloseout(portfolio, {
+    runbookText: await loadRunbook(),
+    mainRef: REPOSITORY_ROOT_COMMIT,
   });
   assert.equal(result.ok, false);
-  assert.match(result.errors.join("\n"), /not an ancestor of main/);
+  assert.match(result.errors.join("\n"), /not an ancestor of main reference/);
+});
+
+test("canonical packet stays green when main advances to the branch HEAD", async () => {
+  const portfolio = await loadPortfolio();
+  const result = await validatePortfolioCloseout(portfolio, {
+    runbookText: await loadRunbook(),
+    mainRef: "HEAD",
+  });
+  assert.equal(result.ok, true, result.errors.join("\n"));
 });
 
 test("public deployment must preserve the exact five failures", async () => {

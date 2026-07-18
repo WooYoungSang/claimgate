@@ -208,9 +208,9 @@ const resolvesAsCommit = (commit, cwd) =>
   /^[a-f0-9]{40}$/u.test(commit ?? "") &&
   git(["cat-file", "-e", `${commit}^{commit}`], cwd).status === 0;
 
-const isMainAncestor = (commit, cwd) =>
+const isRefAncestor = (commit, cwd, ref) =>
   resolvesAsCommit(commit, cwd) &&
-  git(["merge-base", "--is-ancestor", commit, "main"], cwd).status === 0;
+  git(["merge-base", "--is-ancestor", commit, ref], cwd).status === 0;
 
 const evidencePath = (ref) => {
   const fragmentAt = ref.indexOf("#");
@@ -259,9 +259,9 @@ const validateContainedPath = (errors, root, ref) => {
   return normalized;
 };
 
-const validateGitAnchor = async (errors, root, path) => {
+const validateGitAnchor = async (errors, root, path, mainRef) => {
   const commit = EVIDENCE_ANCHORS.get(path);
-  if (!commit || !isMainAncestor(commit, root)) {
+  if (!commit || !isRefAncestor(commit, root, mainRef)) {
     errors.push(`immutable evidence anchor is not on main: ${path}`);
     return;
   }
@@ -298,6 +298,7 @@ export const validatePortfolioCloseout = async (
     rootDir = process.cwd(),
     runbookText,
     packageJson,
+    mainRef = "main",
   } = {},
 ) => {
   const errors = [];
@@ -361,8 +362,8 @@ export const validatePortfolioCloseout = async (
     }
     if (!resolvesAsCommit(bet.mergeCommit, root)) {
       errors.push(`${id} merge commit does not resolve`);
-    } else if (!isMainAncestor(bet.mergeCommit, root)) {
-      errors.push(`${id} merge commit is not an ancestor of main`);
+    } else if (!isRefAncestor(bet.mergeCommit, root, mainRef)) {
+      errors.push(`${id} merge commit is not an ancestor of main reference ${mainRef}`);
     }
     if (bet.mergeCommit !== commit || mergeInfo(bet.mergeCommit, root) !== subject) {
       errors.push(`${id} merge subject mismatch`);
@@ -380,7 +381,7 @@ export const validatePortfolioCloseout = async (
       const path = validateContainedPath(errors, root, ref);
       if (path && EVIDENCE_ANCHORS.has(path) && !anchoredPaths.has(path)) {
         anchoredPaths.add(path);
-        await validateGitAnchor(errors, root, path);
+        await validateGitAnchor(errors, root, path, mainRef);
       } else if (path && !EVIDENCE_ANCHORS.has(path)) {
         errors.push(`immutable Git object/path anchor missing: ${path}`);
       }
