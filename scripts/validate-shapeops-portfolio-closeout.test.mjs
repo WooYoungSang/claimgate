@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, symlink, unlink } from "node:fs/promises";
 import test from "node:test";
 
 import {
@@ -68,6 +68,17 @@ test("merge identity and ancestry are immutable", async () => {
   assert.equal(result.ok, false);
   assert.match(result.errors.join("\n"), /merge commit does not resolve/);
   assert.match(result.errors.join("\n"), /merge subject mismatch/);
+});
+
+test("a branch-only commit cannot substitute for a merge on main", async () => {
+  const result = await mutate((portfolio) => {
+    portfolio.bets[0].mergeCommit =
+      "536e1cd2907a67870fd8580ea013f57652c87c75";
+    portfolio.bets[0].mergeSubject =
+      "docs: reconcile ClaimGate ShapeOps portfolio";
+  });
+  assert.equal(result.ok, false);
+  assert.match(result.errors.join("\n"), /not an ancestor of main/);
 });
 
 test("public deployment must preserve the exact five failures", async () => {
@@ -164,4 +175,93 @@ test("default package gate is present once and remains non-recursive", async () 
   });
   assert.equal(result.ok, false);
   assert.match(result.errors.join("\n"), /portfolio test script must be exact and non-recursive/);
+});
+
+test("unknown and conflicting completion fields fail exact schemas", async () => {
+  const result = await mutate((portfolio) => {
+    portfolio.productionReady = true;
+    portfolio.source.implementedFeatures = ["live-openapi", "real-llm"];
+    portfolio.summary.selfApproved = true;
+    portfolio.bets[0].shipped = true;
+    portfolio.bets[0].verifiedSignals.push("production-ready");
+    portfolio.bets.find((bet) => bet.publicDeployment).publicDeployment.ratified = true;
+    portfolio.bets.find((bet) => bet.video).video.actualVideoUrl =
+      "https://example.invalid/fake.mp4";
+    portfolio.operatorWork[0].completed = true;
+  });
+  assert.equal(result.ok, false);
+  assert.match(result.errors.join("\n"), /exact schema|exact packet/);
+});
+
+test("evidence references are exact and cannot swap to absolute paths", async () => {
+  let result = await mutate((portfolio) => {
+    portfolio.bets[0].evidenceRefs[0] = "/etc/passwd";
+  });
+  assert.equal(result.ok, false);
+  assert.match(result.errors.join("\n"), /relative repository path|evidence mapping/);
+
+  result = await mutate((portfolio) => {
+    const first = portfolio.bets[0];
+    const second = portfolio.bets[1];
+    [first.evidenceRefs, second.evidenceRefs] = [
+      second.evidenceRefs,
+      first.evidenceRefs,
+    ];
+  });
+  assert.equal(result.ok, false);
+  assert.match(result.errors.join("\n"), /evidence mapping/);
+});
+
+test("dot-segment protected paths and repository escapes fail closed", async () => {
+  let result = await mutate((portfolio) => {
+    portfolio.bets[0].evidenceRefs[0] =
+      "./docs/submission/2026-mofa-ai/claim-evidence-matrix.md";
+  });
+  assert.equal(result.ok, false);
+  assert.match(result.errors.join("\n"), /protected submission path|evidence mapping/);
+
+  result = await mutate((portfolio) => {
+    portfolio.bets[0].evidenceRefs[0] = "../warvis-claimgate/package.json";
+  });
+  assert.equal(result.ok, false);
+  assert.match(result.errors.join("\n"), /repository escape|evidence mapping/);
+});
+
+test("symlink escapes and evidence fragment substitutions fail closed", async () => {
+  const link = `artifacts/portfolio/.portfolio-evidence-escape-${process.pid}`;
+  await symlink("/etc/passwd", link);
+  try {
+    let result = await mutate((portfolio) => {
+      portfolio.bets[0].evidenceRefs[0] = link;
+    });
+    assert.equal(result.ok, false);
+    assert.match(result.errors.join("\n"), /repository escape/);
+
+    result = await mutate((portfolio) => {
+      portfolio.bets[0].evidenceRefs[1] =
+        "artifacts/submission/2026-mofa-ai/verification-results.json#result-judge-flow";
+    });
+    assert.equal(result.ok, false);
+    assert.match(result.errors.join("\n"), /evidence mapping/);
+  } finally {
+    await unlink(link);
+  }
+});
+
+test("runbook contradictions fail even when all original truth lines remain", async () => {
+  const portfolio = await loadPortfolio();
+  const runbook = `${await loadRunbook()}\n\nproduction Caddy 적용 완료. 공개 probe exit 0. 실제 영상 촬영·업로드 완료. 두 번의 리허설 실측 완료. 모든 Bet ship/ratify 완료. live OpenAPI와 real LLM 구현 완료.\n`;
+  const result = await validatePortfolioCloseout(portfolio, { runbookText: runbook });
+  assert.equal(result.ok, false);
+  assert.match(result.errors.join("\n"), /runbook immutable digest mismatch/);
+});
+
+test("Bet-specific exact values reject nextGate and evidence overclaims", async () => {
+  const result = await mutate((portfolio) => {
+    portfolio.bets[0].nextGate = "already-shipped";
+    portfolio.bets[1].outstanding = [];
+    portfolio.bets[2].verifiedSignals = ["production-accuracy-verified"];
+  });
+  assert.equal(result.ok, false);
+  assert.match(result.errors.join("\n"), /exact packet|exact values/);
 });
