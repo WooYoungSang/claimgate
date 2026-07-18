@@ -66,6 +66,21 @@ const SHOT_IDS = [
   "SHOT-06",
 ];
 
+const EXACT_VIDEO_STATUS_LINE =
+  "> **상태:** 촬영 계획 검증 완료 · 실제 영상 촬영/업로드/외부 제출은 미실시";
+const EXACT_PRODUCT_BOUNDARY_LINE =
+  "> **제품 경계:** offline / deterministic / fixture-first 시제품이다. live OpenAPI, real LLM, OCR, 서버·DB·auth, production accuracy는 FUTURE / No-Go다. 공개 URL의 현재 배포 점검은 실패 5건으로 **보류(pending)** 상태이며 성공으로 제시하지 않는다.";
+const EXACT_DEPLOYMENT_OBSERVATION_LINE =
+  "2026-07-18 UTC 기준 `pnpm probe:deployment`은 exit 1, failureCount 5였다.";
+const EXACT_DEPLOYMENT_CONCLUSION_LINE =
+  "따라서 공개 URL은 페이지 확인 참고값일 뿐 최종 배포 PASS 증거가 아니다. 촬영은 로컬 대체 경로로 재현하며, 공개 환경이 수정되면 같은 명령을 다시 실행해 별도 evidence로 남긴다.";
+const EXACT_REHEARSAL_CHECK_LINE =
+  "- [ ] 독립 리허설 2회가 각각 165–195초이고 예상 상태가 100% 일치";
+const EXACT_OPERATOR_UPLOAD_LINE =
+  "- [ ] 외부 업로드/제출은 운영자가 별도 승인하고 수행";
+const EXACT_VIDEO_PENDING_LINE =
+  "이 체크리스트가 미완료인 동안 `three-minute-video-verified`는 **pending**이다.";
+
 const COMMANDS = {
   "cmd-runbook": ["pnpm test:runbook", 0, "result-runbook"],
   "cmd-judge-flow": ["pnpm test:judge-flow", 0, "result-judge-flow"],
@@ -251,16 +266,36 @@ export const parseStoryboardContract = (markdown) => {
   const errors = [];
   const shots = [];
   const rowPattern =
-    /^\| (SHOT-\d{2}) \| [^|]+ \| (\d+)초 \|[^|]+\|[^|]+\| \x60([^\x60]+)\x60 \|$/u;
+    /^\| (SHOT-\d{2}) \| (\d{2}:\d{2})–(\d{2}:\d{2}) \| (\d+)초 \|[^|]+\|[^|]+\| \x60([^\x60]+)\x60 \|$/u;
+
+  const parseTimestamp = (value) => {
+    const match = /^(\d{2}):(\d{2})$/u.exec(value);
+    if (!match || Number(match[2]) >= 60) return null;
+    return Number(match[1]) * 60 + Number(match[2]);
+  };
 
   for (const line of markdown.split(/\r?\n/u)) {
     const match = line.match(rowPattern);
     if (match) {
       shots.push({
         id: match[1],
-        durationSeconds: Number(match[2]),
-        evidenceSlot: match[3],
+        start: match[2],
+        end: match[3],
+        startSeconds: parseTimestamp(match[2]),
+        endSeconds: parseTimestamp(match[3]),
+        durationSeconds: Number(match[4]),
+        evidenceSlot: match[5],
       });
+    }
+  }
+
+  const evidenceRows = [];
+  const evidenceRowPattern =
+    /^\| \x60(video:(?:shot-\d{2}|rehearsal-[12]):pending)\x60 \| [^|]+ \| ([^|]+) \| [^|]+ \|$/u;
+  for (const line of markdown.split(/\r?\n/u)) {
+    const match = line.match(evidenceRowPattern);
+    if (match) {
+      evidenceRows.push({ id: match[1], status: match[2].trim() });
     }
   }
 
@@ -277,6 +312,30 @@ export const parseStoryboardContract = (markdown) => {
   if (shots.reduce((sum, shot) => sum + shot.durationSeconds, 0) !== 180) {
     errors.push("storyboard duration must total 180 seconds");
   }
+  if (shots[0]?.start !== "00:00") {
+    errors.push("SHOT-01 must start at 00:00");
+  }
+  for (const [index, shot] of shots.entries()) {
+    if (shot.startSeconds === null || shot.endSeconds === null) {
+      errors.push(shot.id + " has an invalid HH:MM range");
+      continue;
+    }
+    if (shot.endSeconds - shot.startSeconds !== shot.durationSeconds) {
+      errors.push(
+        shot.id + " range length must equal declared duration " +
+          shot.durationSeconds + " seconds",
+      );
+    }
+    const previous = shots[index - 1];
+    if (previous && shot.startSeconds !== previous.endSeconds) {
+      errors.push(
+        shot.id + " must start at previous end " + previous.end,
+      );
+    }
+  }
+  if (shots.at(-1)?.end !== "03:00") {
+    errors.push("SHOT-06 must end at 03:00");
+  }
   if (!same(
     shots.map((shot) => shot.evidenceSlot),
     VIDEO_SLOTS.slice(0, 6),
@@ -285,6 +344,27 @@ export const parseStoryboardContract = (markdown) => {
   }
   if (!same(slots.sort(), [...VIDEO_SLOTS].sort())) {
     errors.push("storyboard must contain exactly eight pending evidence slots");
+  }
+  if (
+    !same(evidenceRows.map((row) => row.id), VIDEO_SLOTS) ||
+    evidenceRows.some((row) => row.status !== "pending")
+  ) {
+    errors.push("storyboard evidence rows must remain pending");
+  }
+
+  const lines = new Set(markdown.split(/\r?\n/u));
+  for (const [line, label] of [
+    [EXACT_VIDEO_STATUS_LINE, "exact video status line"],
+    [EXACT_PRODUCT_BOUNDARY_LINE, "exact product boundary line"],
+    [EXACT_DEPLOYMENT_OBSERVATION_LINE, "exact deployment observation line"],
+    [EXACT_DEPLOYMENT_CONCLUSION_LINE, "exact deployment conclusion line"],
+    [EXACT_REHEARSAL_CHECK_LINE, "exact rehearsal pending line"],
+    [EXACT_OPERATOR_UPLOAD_LINE, "exact operator upload line"],
+    [EXACT_VIDEO_PENDING_LINE, "exact video pending line"],
+  ]) {
+    if (!lines.has(line)) {
+      errors.push("storyboard missing " + label);
+    }
   }
 
   for (const phrase of [

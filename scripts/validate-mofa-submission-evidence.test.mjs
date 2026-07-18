@@ -256,6 +256,65 @@ test("immutable storyboard timing mutation fails", () => {
   assert.match(result.errors.join("\n"), /duration must total 180 seconds/);
 });
 
+test("immutable storyboard must start SHOT-01 at 00:00", () => {
+  const markdown = loadImmutableStoryboard().replace(
+    "| SHOT-01 | 00:00–00:20 | 20초 |",
+    "| SHOT-01 | 00:01–00:20 | 20초 |",
+  );
+  const result = parseStoryboardContract(markdown);
+  assert.equal(result.ok, false);
+  assert.match(result.errors.join("\n"), /SHOT-01 must start at 00:00/);
+});
+
+test("immutable storyboard overlap fails continuity", () => {
+  const markdown = loadImmutableStoryboard().replace(
+    "| SHOT-02 | 00:20–00:50 | 30초 |",
+    "| SHOT-02 | 00:19–00:50 | 30초 |",
+  );
+  const result = parseStoryboardContract(markdown);
+  assert.equal(result.ok, false);
+  assert.match(
+    result.errors.join("\n"),
+    /SHOT-02 must start at previous end 00:20/,
+  );
+});
+
+test("immutable storyboard gap fails continuity", () => {
+  const markdown = loadImmutableStoryboard().replace(
+    "| SHOT-02 | 00:20–00:50 | 30초 |",
+    "| SHOT-02 | 00:21–00:50 | 30초 |",
+  );
+  const result = parseStoryboardContract(markdown);
+  assert.equal(result.ok, false);
+  assert.match(
+    result.errors.join("\n"),
+    /SHOT-02 must start at previous end 00:20/,
+  );
+});
+
+test("immutable storyboard range length must equal declared duration", () => {
+  const markdown = loadImmutableStoryboard().replace(
+    "| SHOT-03 | 00:50–01:25 | 35초 |",
+    "| SHOT-03 | 00:50–01:24 | 35초 |",
+  );
+  const result = parseStoryboardContract(markdown);
+  assert.equal(result.ok, false);
+  assert.match(
+    result.errors.join("\n"),
+    /SHOT-03 range length must equal declared duration 35 seconds/,
+  );
+});
+
+test("immutable storyboard must end final shot at 03:00", () => {
+  const markdown = loadImmutableStoryboard().replace(
+    "| SHOT-06 | 02:40–03:00 | 20초 |",
+    "| SHOT-06 | 02:40–03:01 | 20초 |",
+  );
+  const result = parseStoryboardContract(markdown);
+  assert.equal(result.ok, false);
+  assert.match(result.errors.join("\n"), /SHOT-06 must end at 03:00/);
+});
+
 test("immutable storyboard evidence-slot mutation fails", () => {
   const markdown = loadImmutableStoryboard().replaceAll(
     "video:shot-06:pending",
@@ -281,4 +340,44 @@ test("immutable storyboard deployment/video pending mutation fails", () => {
   assert.equal(result.ok, false);
   assert.match(result.errors.join("\n"), /보류\(pending\)/);
   assert.match(result.errors.join("\n"), /미실시/);
+});
+
+test("immutable storyboard No-Go cannot be negated as implemented", () => {
+  const markdown = loadImmutableStoryboard().replace(
+    "production accuracy는 FUTURE / No-Go다.",
+    "production accuracy는 FUTURE / No-Go가 아니라 구현 완료다.",
+  );
+  const result = parseStoryboardContract(markdown);
+  assert.equal(result.ok, false);
+  assert.match(result.errors.join("\n"), /exact product boundary line/);
+});
+
+test("immutable storyboard deployment pending cannot be negated as complete", () => {
+  const markdown = loadImmutableStoryboard().replace(
+    "실패 5건으로 **보류(pending)** 상태이며 성공으로 제시하지 않는다.",
+    "실패 5건은 무효이며 **보류(pending)** 상태가 아니라 완료다.",
+  );
+  const result = parseStoryboardContract(markdown);
+  assert.equal(result.ok, false);
+  assert.match(result.errors.join("\n"), /exact product boundary line/);
+});
+
+test("immutable storyboard recording and upload pending cannot be negated", () => {
+  const markdown = loadImmutableStoryboard().replace(
+    "실제 영상 촬영/업로드/외부 제출은 미실시",
+    "실제 영상 촬영/업로드/외부 제출은 미실시가 아니라 완료",
+  );
+  const result = parseStoryboardContract(markdown);
+  assert.equal(result.ok, false);
+  assert.match(result.errors.join("\n"), /exact video status line/);
+});
+
+test("immutable storyboard rehearsal rows must remain pending", () => {
+  const markdown = loadImmutableStoryboard().replace(
+    "| `video:rehearsal-1:pending` | 리허설 실측 시간과 결과 | pending |",
+    "| `video:rehearsal-1:pending` | 리허설 실측 시간과 결과 | 완료 |",
+  );
+  const result = parseStoryboardContract(markdown);
+  assert.equal(result.ok, false);
+  assert.match(result.errors.join("\n"), /evidence rows must remain pending/);
 });
