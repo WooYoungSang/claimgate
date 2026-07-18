@@ -69,8 +69,10 @@ h1, h2, h3, p, blockquote, dl, dd { margin: 0; }
 .reset-button:disabled { cursor: not-allowed; opacity: .45; }
 .progress-label { display: flex; justify-content: space-between; color: var(--muted); font-size: .75rem; line-height: 1.4; }
 .progress-label strong { color: var(--ink); }
-.progress-track { height: 5px; margin-top: 8px; overflow: hidden; background: #e3e8e5; border-radius: 20px; }
-.progress-track i { display: block; height: 100%; background: var(--green); border-radius: inherit; transition: width .25s ease; }
+progress.progress-track { width: 100%; height: 5px; margin-top: 8px; display: block; overflow: hidden; appearance: none; background: #e3e8e5; border: 0; border-radius: 20px; }
+progress.progress-track::-webkit-progress-bar { background: #e3e8e5; border-radius: 20px; }
+progress.progress-track::-webkit-progress-value { background: var(--green); border-radius: 20px; transition: inline-size .25s ease; }
+progress.progress-track::-moz-progress-bar { background: var(--green); border-radius: 20px; transition: inline-size .25s ease; }
 .guide-coach { margin: 12px 22px 0; padding: 13px 14px; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 13px; color: #f5fbf7; background: linear-gradient(120deg, #153c2c, #1d5940); border: 1px solid #286c4e; border-radius: 13px; box-shadow: 0 12px 28px rgb(12 48 32 / 12%); }
 .guide-step-number { width: 36px; height: 36px; display: grid; place-items: center; color: #18472f; background: #d9efe2; border-radius: 10px; font-size: .75rem; font-weight: 900; }
 .guide-coach .section-kicker { color: #a9d4bd; }

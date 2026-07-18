@@ -230,17 +230,17 @@ function App(): React.ReactElement {
             <p>{mofaScenario?.reviewerPromptKo ?? 'AI가 제안한 주장을 출처와 규칙으로 검토하고, 사람의 판정만 근거 묶음에 반영합니다.'}</p>
           </div>
           <div className="run-controls">
-            <div
-              className="run-progress"
-              role="progressbar"
-              aria-label="검토 진행률"
-              aria-valuemin={0}
-              aria-valuemax={queue.length}
-              aria-valuenow={reviewedCount}
-              aria-valuetext={`${queue.length}건 중 ${reviewedCount}건 판정`}
-            >
+            <div className="run-progress">
               <div className="progress-label"><span>검토 진행률</span><strong>{reviewedCount} / {queue.length}</strong></div>
-              <div className="progress-track" aria-hidden="true"><i style={{ width: `${Math.round((reviewedCount / queue.length) * 100)}%` }} /></div>
+              <progress
+                className="progress-track"
+                aria-label="검토 진행률"
+                aria-valuetext={`${queue.length}건 중 ${reviewedCount}건 판정`}
+                value={reviewedCount}
+                max={queue.length}
+              >
+                {reviewedCount} / {queue.length}
+              </progress>
             </div>
             <button type="button" className="reset-button" onClick={resetAll}>처음부터</button>
           </div>
