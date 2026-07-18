@@ -1,0 +1,232 @@
+{
+  "schemaVersion": 1,
+  "artifactId": "claimgate-shapeops-portfolio-closeout-20260718",
+  "portfolioBetId": "bet-warvis-claimgate--claimgate-shapeops-portfolio-reconciliation-and-closeout",
+  "observedAt": "2026-07-18T01:01:50.000Z",
+  "source": {
+    "shapeOps": "canonical-neo4j-read",
+    "repository": "git-main-history",
+    "submissionEvidence": "artifacts/submission/2026-mofa-ai/claim-evidence-bundle.json",
+    "verificationResults": "artifacts/submission/2026-mofa-ai/verification-results.json"
+  },
+  "portfolioStatus": "operator-closeout-pending",
+  "summary": {
+    "targetBetCount": 6,
+    "mergedToMainCount": 6,
+    "reviewingCount": 6,
+    "shippedCount": 0,
+    "selfApprovedTransitionCount": 0
+  },
+  "bets": [
+    {
+      "id": "bet-warvis-claimgate--claimgate-demo-browser-geometry-regression-suite",
+      "phase": "reviewing",
+      "mergedToMain": true,
+      "mergeCommit": "bb3c993d3172373bbb6bc47336bf597926aac1a2",
+      "mergeSubject": "merge: browser geometry regression Bet",
+      "evidenceRefs": [
+        "scripts/browser-geometry-audit.mjs",
+        "artifacts/submission/2026-mofa-ai/verification-results.json#result-geometry"
+      ],
+      "verifiedSignals": [
+        "3-packs",
+        "6-viewports",
+        "48-measurements",
+        "3733-checks",
+        "cleanup-self-test"
+      ],
+      "outstanding": [
+        "separate-reviewer-and-operator-lifecycle-closeout"
+      ],
+      "nextGate": "independent-review-and-human-ratification"
+    },
+    {
+      "id": "bet-warvis-claimgate--claimgate-demo-end-to-end-judge-flow-qa",
+      "phase": "reviewing",
+      "mergedToMain": true,
+      "mergeCommit": "b9daa72d21a04ce860403847554e33f940570d38",
+      "mergeSubject": "merge: end-to-end judge flow QA Bet",
+      "evidenceRefs": [
+        "scripts/browser-geometry-audit.mjs",
+        "artifacts/submission/2026-mofa-ai/verification-results.json#result-judge-flow"
+      ],
+      "verifiedSignals": [
+        "3-packs",
+        "reject-correct-verify-reset",
+        "399-checks",
+        "deterministic-json-and-markdown-downloads"
+      ],
+      "outstanding": [
+        "separate-reviewer-and-operator-lifecycle-closeout"
+      ],
+      "nextGate": "independent-review-and-human-ratification"
+    },
+    {
+      "id": "bet-warvis-claimgate--claimgate-demo-korean-runbook-and-screen-copy-sync",
+      "phase": "reviewing",
+      "mergedToMain": true,
+      "mergeCommit": "91fc4d0fe5e6ace3d7d4e2877b14c268d73f7f6a",
+      "mergeSubject": "merge: Korean demo runbook sync Bet",
+      "evidenceRefs": [
+        "docs/demo/mofa-oda-3-minute-runbook.md",
+        "scripts/validate-demo-runbook.mjs",
+        "scripts/validate-demo-runbook.test.mjs"
+      ],
+      "verifiedSignals": [
+        "24-screen-labels",
+        "3-decision-buttons",
+        "4-guided-targets",
+        "6-ordered-stages",
+        "18-mutation-tests"
+      ],
+      "outstanding": [
+        "measure-two-independent-rehearsals",
+        "separate-reviewer-and-operator-lifecycle-closeout"
+      ],
+      "nextGate": "measured-rehearsals-then-human-closeout"
+    },
+    {
+      "id": "bet-warvis-claimgate--claimgate-clean-clone-reproducibility-gate",
+      "phase": "reviewing",
+      "mergedToMain": true,
+      "mergeCommit": "f4af33f7761f45546f46c08c8d36501dc59306cc",
+      "mergeSubject": "merge: clean clone reproducibility Bet",
+      "evidenceRefs": [
+        "scripts/verify-clean-clone.mjs",
+        "scripts/verify-clean-clone.test.mjs",
+        "artifacts/submission/2026-mofa-ai/verification-results.json#result-clean-clone-self"
+      ],
+      "verifiedSignals": [
+        "offline-frozen-install",
+        "hard-timeout",
+        "process-group-cleanup",
+        "failure-continuation-report"
+      ],
+      "carryForwardNits": [
+        "symlink-named-node_modules-detection",
+        "signal-self-test-readiness-race",
+        "integrated-failure-json-assertion-strengthening"
+      ],
+      "outstanding": [
+        "review-carry-forward-nits",
+        "separate-reviewer-and-operator-lifecycle-closeout"
+      ],
+      "nextGate": "human-review-of-carry-forward-nits-and-closeout"
+    },
+    {
+      "id": "bet-warvis-claimgate--claimgate-demo-deployment-and-cloudflare-hardening",
+      "phase": "reviewing",
+      "mergedToMain": true,
+      "mergeCommit": "890d427e7bdd296113fbbf7b40480b45f1c757ee",
+      "mergeSubject": "merge: deployment and Cloudflare hardening Bet",
+      "evidenceRefs": [
+        "scripts/deploy/Caddyfile",
+        "scripts/deploy/release.mjs",
+        "scripts/deploy/smoke.mjs",
+        "artifacts/submission/2026-mofa-ai/verification-results.json#result-public-probe"
+      ],
+      "verifiedSignals": [
+        "37-local-deployment-contract-checks",
+        "atomic-release-and-rollback",
+        "exact-html-and-asset-policy"
+      ],
+      "publicDeployment": {
+        "status": "pending",
+        "productionCaddyApplied": false,
+        "probeObservedExit": 1,
+        "failureCount": 5,
+        "failureIds": [
+          "root-cache",
+          "spa-cache",
+          "html-security-headers",
+          "js-asset-cache",
+          "css-asset-cache"
+        ]
+      },
+      "outstanding": [
+        "operator-applies-production-caddy-hardening",
+        "operator-reruns-public-probe-to-exit-zero",
+        "separate-reviewer-and-operator-lifecycle-closeout"
+      ],
+      "nextGate": "production-change-approval-and-green-public-probe"
+    },
+    {
+      "id": "bet-warvis-claimgate--claimgate-mofa-submission-video-and-final-evidence-bundle",
+      "phase": "reviewing",
+      "mergedToMain": true,
+      "mergeCommit": "ff7973cb7e54040998ad468bbda8017de74f9df6",
+      "mergeSubject": "merge: MOFA submission evidence Bet",
+      "evidenceRefs": [
+        "docs/demo/mofa-oda-submission-video-storyboard.md",
+        "artifacts/submission/2026-mofa-ai/claim-evidence-bundle.json",
+        "artifacts/submission/2026-mofa-ai/verification-results.json",
+        "scripts/validate-mofa-submission-evidence.mjs"
+      ],
+      "verifiedSignals": [
+        "180-second-six-shot-storyboard",
+        "34-evidence-contract-tests",
+        "immutable-git-evidence-binding"
+      ],
+      "video": {
+        "storyboardOnly": true,
+        "recorded": false,
+        "uploaded": false,
+        "rehearsalCountRequired": 2,
+        "rehearsalCountMeasured": 0,
+        "evidenceSlotCount": 8,
+        "completedEvidenceSlotCount": 0
+      },
+      "outstanding": [
+        "record-three-minute-video",
+        "measure-two-independent-rehearsals",
+        "operator-approves-upload-and-external-submission",
+        "separate-reviewer-and-operator-lifecycle-closeout"
+      ],
+      "nextGate": "video-rehearsal-deployment-and-human-submission-gate"
+    }
+  ],
+  "requiredNoGo": [
+    "live-openapi",
+    "real-llm",
+    "ocr",
+    "server",
+    "database",
+    "authentication",
+    "production-accuracy",
+    "agent-self-ratification",
+    "agent-external-deployment-or-submission"
+  ],
+  "operatorWork": [
+    {
+      "id": "operator-production-caddy",
+      "status": "pending",
+      "requiresApproval": true
+    },
+    {
+      "id": "operator-green-public-probe",
+      "status": "pending",
+      "requiresApproval": false
+    },
+    {
+      "id": "operator-record-video",
+      "status": "pending",
+      "requiresApproval": false
+    },
+    {
+      "id": "operator-measure-two-rehearsals",
+      "status": "pending",
+      "requiresApproval": false
+    },
+    {
+      "id": "operator-upload-and-submit",
+      "status": "pending",
+      "requiresApproval": true
+    },
+    {
+      "id": "operator-ratify-lifecycle-closeouts",
+      "status": "pending",
+      "requiresApproval": true
+    }
+  ],
+  "terminalTransitionsPerformed": []
+}
