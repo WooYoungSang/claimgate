@@ -2,7 +2,13 @@ import { appendAuditEvent, createAuditEvent, reviewerActor, type AuditActor, typ
 import { hasSourceAnchor, type Claim, type ClaimLifecycleState, type ClaimValue, type CorrectionRecord } from './claim.js';
 import { sourceAnchorId } from './source-anchor.js';
 
-export type VerificationErrorCode = 'E_NO_ANCHOR' | 'E_NO_REVIEWER' | 'E_INVALID_TRANSITION' | 'E_CORRECTION_REQUIRED';
+export type VerificationErrorCode =
+  | 'E_NO_ANCHOR'
+  | 'E_NO_REVIEWER'
+  | 'E_INVALID_TRANSITION'
+  | 'E_CORRECTION_REQUIRED'
+  | 'E_STALE_REVIEWER_DECISION'
+  | 'E_TERMINAL_DECISION_ALREADY_RECORDED';
 
 export class VerificationError extends Error {
   readonly code: VerificationErrorCode;
@@ -29,6 +35,13 @@ export interface TransitionClaimInput {
   readonly now?: () => string;
 }
 
+export type TerminalReviewerDecisionState = 'verified' | 'corrected' | 'rejected';
+
+export interface ApplyTerminalReviewerDecisionInput extends Omit<TransitionClaimInput, 'actor' | 'to'> {
+  readonly to: TerminalReviewerDecisionState;
+  readonly expectedVersion?: number;
+}
+
 const defaultNow = () => new Date().toISOString();
 
 const allowedTransitions: Readonly<Record<ClaimLifecycleState, readonly ClaimLifecycleState[]>> = Object.freeze({
@@ -49,6 +62,30 @@ export function canTransition(from: ClaimLifecycleState, to: ClaimLifecycleState
   return allowedTransitions[from].includes(to);
 }
 
+export function claimReviewVersion(claim: Claim): number {
+  return claim.audit.length;
+}
+
+export function applyTerminalReviewerDecision(claim: Claim, input: ApplyTerminalReviewerDecisionInput): Claim {
+  const currentVersion = claimReviewVersion(claim);
+
+  if (input.expectedVersion !== undefined && input.expectedVersion !== currentVersion) {
+    throw new VerificationError(
+      'E_STALE_REVIEWER_DECISION',
+      `Stale reviewer decision for claim ${claim.id}: expected version ${input.expectedVersion} but current version is ${currentVersion}.`
+    );
+  }
+
+  if (terminalStates.has(claim.state)) {
+    throw new VerificationError(
+      'E_TERMINAL_DECISION_ALREADY_RECORDED',
+      `Claim ${claim.id} already has a terminal reviewer decision: ${claim.state}.`
+    );
+  }
+
+  return transitionClaim(claim, input);
+}
+
 export function transitionClaim(claim: Claim, input: TransitionClaimInput): Claim {
   if (!canTransition(claim.state, input.to)) {
     throw new VerificationError('E_INVALID_TRANSITION', `Cannot transition from ${claim.state} to ${input.to}.`);
@@ -58,7 +95,7 @@ export function transitionClaim(claim: Claim, input: TransitionClaimInput): Clai
     throw new VerificationError('E_NO_ANCHOR', `A claim needs a Source Anchor before it can become ${input.to}.`);
   }
 
-  if (terminalStates.has(input.to) && !input.reviewer) {
+  if (terminalStates.has(input.to) && !hasReviewerIdentity(input.reviewer)) {
     throw new VerificationError('E_NO_REVIEWER', 'Terminal verification decisions require a reviewer.');
   }
 
@@ -89,6 +126,10 @@ export function transitionClaim(claim: Claim, input: TransitionClaimInput): Clai
       })
     )
   });
+}
+
+function hasReviewerIdentity(reviewer: Reviewer | undefined): reviewer is Reviewer {
+  return typeof reviewer?.id === 'string' && reviewer.id.trim().length > 0;
 }
 
 function buildCorrection(claim: Claim, reviewer: Reviewer, correction: CorrectionInput): CorrectionRecord {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { attachAnchor, createExtractedClaim, type Claim } from '../../src/index.js';
-import { buildRiskQueue } from '../../src/risk/index.js';
+import { attachAnchor, createExtractedClaim, type Claim, type DomainPack } from '../../src/index.js';
+import { buildRiskQueue, greenSamplingOptionsFromDomainPack, RiskEngineError } from '../../src/risk/index.js';
 
 const now = () => '2026-07-07T00:00:00.000Z';
 const actor = { kind: 'system' as const, id: 'fixture-anchorer' };
@@ -40,10 +40,45 @@ describe('risk queue and green sampling', () => {
     expect(queue.summary).toMatchObject({ redCount: 1, yellowCount: 1, aggregateOnlyCount: 1, greenCount: 2, sampledGreenCount: 1 });
   });
 
-  it('samples at least one green by default when greens exist', () => {
+  it('does not invent a green sampling policy when the host provides no sampling rate or minimum', () => {
     const queue = buildRiskQueue([{ claim: anchored('green-only', 1, 1) }], { seed: 'default' });
+
+    expect(queue.items).toEqual([]);
+    expect(queue.summary).toMatchObject({ greenCount: 1, sampledGreenCount: 0, queuedForReviewCount: 0 });
+  });
+
+  it('samples greens only when the DomainPack or host supplies an explicit sampling policy', () => {
+    const queue = buildRiskQueue(
+      [{ claim: anchored('green-1', 1, 1) }, { claim: anchored('green-2', 2, 2) }, { claim: anchored('green-3', 3, 3) }],
+      { greenSampleRate: 0, minGreenSampleCount: 1, seed: 'host-policy' }
+    );
 
     expect(queue.items).toHaveLength(1);
     expect(queue.items[0]).toMatchObject({ bucket: 'green', sampledForReview: true });
+  });
+
+  it('uses a DomainPack green sampling recommendation as explicit host-supplied options', () => {
+    const pack = {
+      greenSamplingPolicyRecommendation: {
+        owner: 'domain-pack',
+        greenSampleRate: 0,
+        minGreenSampleCount: 1,
+        seed: 'pack-policy',
+        reason: 'Pack requires at least one green sample.'
+      }
+    } as const satisfies Pick<DomainPack, 'greenSamplingPolicyRecommendation'>;
+
+    const queue = buildRiskQueue(
+      [{ claim: anchored('green-pack-1', 1, 1) }, { claim: anchored('green-pack-2', 2, 2) }],
+      greenSamplingOptionsFromDomainPack(pack)
+    );
+
+    expect(queue.summary).toMatchObject({ greenCount: 2, sampledGreenCount: 1, queuedForReviewCount: 1 });
+    expect(queue.items[0]?.sampledForReview).toBe(true);
+  });
+
+  it('rejects invalid explicit green sampling policy values instead of silently under-sampling', () => {
+    expect(() => buildRiskQueue([{ claim: anchored('green-invalid-rate', 1, 1) }], { greenSampleRate: Number.NaN })).toThrow(RiskEngineError);
+    expect(() => buildRiskQueue([{ claim: anchored('green-invalid-min', 1, 1) }], { minGreenSampleCount: -1 })).toThrow(RiskEngineError);
   });
 });

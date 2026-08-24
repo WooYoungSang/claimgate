@@ -43,6 +43,9 @@
       ],
       "@claimgate/conformance": [
         "packages/conformance/src/index.ts"
+      ],
+      "@claimgate/ai-local": [
+        "packages/ai-local/src/index.ts"
       ]
     }
   },

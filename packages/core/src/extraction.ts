@@ -1,4 +1,4 @@
-import { createExtractedClaim, type Claim, type ClaimValue, type CreateExtractedClaimInput } from './claim.js';
+import { createExtractedClaim, hasAdditionalAnchorCollections, type Claim, type ClaimValue, type CreateExtractedClaimInput } from './claim.js';
 import { freezeSourceAnchor, type Source, type SourceAnchor } from './source-anchor.js';
 
 export type MaybePromise<T> = T | Promise<T>;
@@ -73,6 +73,11 @@ export class CandidateAuthorityError extends Error {
 
 const forbiddenAuthorityKeys = new Set([
   'anchor',
+  'anchors',
+  'sourceAnchor',
+  'sourceAnchors',
+  'evidenceAnchors',
+  'proposedAnchors',
   'sourceValue',
   'riskScore',
   'riskLevel',
@@ -87,8 +92,12 @@ const forbiddenAuthorityKeys = new Set([
   'graph'
 ]);
 
+const allowedCandidateKeys = new Set(['id', 'text', 'state', 'subject', 'aiValue', 'proposedAnchor', 'fixtureNotes']);
+
 export function assertCandidateClaim(candidate: CandidateClaim): void {
   assertNoAuthorityLeak(candidate as unknown as Record<string, unknown>);
+  assertOnlyCandidateKeys(candidate as unknown as Record<string, unknown>);
+  assertNoMultiAnchorProposal(candidate);
 
   if (candidate.state !== 'extracted') {
     throw new CandidateAuthorityError();
@@ -96,11 +105,7 @@ export function assertCandidateClaim(candidate: CandidateClaim): void {
 }
 
 export function assertCandidateClaims(candidates: readonly CandidateClaim[]): readonly CandidateClaim[] {
-  for (const candidate of candidates) {
-    assertCandidateClaim(candidate);
-  }
-
-  return Object.freeze([...candidates]);
+  return Object.freeze(candidates.map(normalizeCandidateClaim));
 }
 
 export async function extractCandidateClaims(
@@ -127,6 +132,8 @@ export function normalizeCandidateClaim(input: unknown): CandidateClaim {
   }
 
   assertNoAuthorityLeak(input);
+  assertOnlyCandidateKeys(input);
+  assertNoMultiAnchorProposal(input);
 
   const id = requireString(input.id, 'candidate.id');
   const text = requireString(input.text, 'candidate.text');
@@ -152,22 +159,22 @@ export function normalizeCandidateClaim(input: unknown): CandidateClaim {
 
 export function createExtractedClaimFromCandidate(
   candidate: CandidateClaim,
-  options: Pick<CreateExtractedClaimInput, 'actor' | 'now'> = {}
+  options: Pick<CreateExtractedClaimInput, 'actor' | 'reason' | 'now'> = {}
 ): Claim {
-  assertCandidateClaim(candidate);
+  const normalized = normalizeCandidateClaim(candidate);
 
   return createExtractedClaim({
-    id: candidate.id,
-    text: candidate.text,
-    ...(candidate.subject ? { subject: candidate.subject } : {}),
-    ...(candidate.aiValue !== undefined ? { aiValue: candidate.aiValue } : {}),
+    id: normalized.id,
+    text: normalized.text,
+    ...(normalized.subject ? { subject: normalized.subject } : {}),
+    ...(normalized.aiValue !== undefined ? { aiValue: normalized.aiValue } : {}),
     ...options
   });
 }
 
 export function createExtractedClaimsFromCandidates(
   candidates: readonly CandidateClaim[],
-  options: Pick<CreateExtractedClaimInput, 'actor' | 'now'> = {}
+  options: Pick<CreateExtractedClaimInput, 'actor' | 'reason' | 'now'> = {}
 ): readonly Claim[] {
   return Object.freeze(candidates.map((candidate) => createExtractedClaimFromCandidate(candidate, options)));
 }
@@ -181,6 +188,20 @@ function assertNoAuthorityLeak(candidate: Record<string, unknown>): void {
     if (forbiddenAuthorityKeys.has(key)) {
       throw new CandidateAuthorityError();
     }
+  }
+}
+
+function assertOnlyCandidateKeys(candidate: Record<string, unknown>): void {
+  for (const key of Object.keys(candidate)) {
+    if (!allowedCandidateKeys.has(key)) {
+      throw new CandidateAuthorityError();
+    }
+  }
+}
+
+function assertNoMultiAnchorProposal(candidate: unknown): void {
+  if (hasAdditionalAnchorCollections(candidate)) {
+    throw new CandidateAuthorityError();
   }
 }
 

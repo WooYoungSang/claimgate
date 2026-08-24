@@ -1,0 +1,84 @@
+{
+  "status": "BOUNDARY_PASS_SERVING_BLOCKED",
+  "evaluatedAt": "2026-08-17T22:56:28.080078Z",
+  "baseModel": "google/gemma-4-12B-it",
+  "adapter": "artifacts/local-ai/gemma-candidate-lora-prototype",
+  "dataset": "artifacts/local-ai/gemma-candidate-tuning.jsonl",
+  "examples": 3,
+  "parsePass": 3,
+  "candidateOnlyPass": 3,
+  "exactTextMatch": 3,
+  "strictJsonOnlyPass": 0,
+  "postprocessedCandidateBoundaryReady": true,
+  "rawStrictJsonServingReady": false,
+  "servingReady": false,
+  "authority": "candidate-only",
+  "productionQuality": false,
+  "adapterTrainingStatus": "TRAINED",
+  "notes": "Inference eval checks first-JSON/candidate-only behavior on the tiny local dataset. postprocessedCandidateBoundaryReady means a safe first-JSON parser can consume candidates; rawStrictJsonServingReady remains false until the model emits strict JSON only. This is not a production quality or truth-accuracy evaluation.",
+  "rows": [
+    {
+      "id": "mofa-country-safety-mismatch-candidate-only",
+      "parseOk": true,
+      "candidateOnly": true,
+      "exactTextMatch": true,
+      "strictJsonOnly": false,
+      "trailingAfterFirstJsonPreview": "{\"candidates\": [{\"id\": \"ai-candidate-ai-safety-mismatch\", \"text\": \"ai-subject: 협력국 현장 활동 가능 여부, ai-value: 제한 없음\", \"state\": \"extracted\", \"aiValue\": \"제한 없음\"}]}\n\nOutput:\n{\"candidates\": [{\"id analytics\": \"ai-candidate-mofa-country-safety-mismatch\", \"text\": \"협력국은 제한 없는 현장 활동이 가능한 안전·안정 상태입니다.\", \"state\": ",
+      "errors": [],
+      "generatedText": "{\"candidates\": [{\"id\": \"ai-candidate-mofa-country-safety-mismatch\", \"text\": \"협력국은 제한 없는 현장 활동이 가능한 안전·안정 상태입니다.\", \"state\": \"extracted\", \"subject\": \"협력국 안전 상태\", \"aiValue\": \"안전·안정\"}]}\n{\"candidates\": [{\"id\": \"ai-candidate-ai-safety-mismatch\", \"text\": \"ai-subject: 협력국 현장 활동 가능 여부, ai-value: 제한 없음\", \"state\": \"extracted\", \"aiValue\": \"제한 없음\"}]}\n\nOutput:\n{\"candidates\": [{\"id analytics\": \"ai-candidate-mofa-country-safety-mismatch\", \"text\": \"협력국은 제한 없는 현장 활동이 가능한 안전·안정 상태입니다.\", \"state\": \"extracted\", \"subject\": \"협력국 안전 상태\", \"aiValue\": \"안전·안정\"}]}\n\n{\"candidates\": [{\"id\": \"ai-candidate-ai-subject-ai-value-match\", \"text\": \"ai-subject: 협력국 현장 활동 가능 여부, ai-value: 제한 없음\", \"state",
+      "parsed": {
+        "candidates": [
+          {
+            "id": "ai-candidate-mofa-country-safety-mismatch",
+            "text": "협력국은 제한 없는 현장 활동이 가능한 안전·안정 상태입니다.",
+            "state": "extracted",
+            "subject": "협력국 안전 상태",
+            "aiValue": "안전·안정"
+          }
+        ]
+      }
+    },
+    {
+      "id": "koica-project-period-or-country-mismatch-candidate-only",
+      "parseOk": true,
+      "candidateOnly": true,
+      "exactTextMatch": true,
+      "strictJsonOnly": false,
+      "trailingAfterFirstJsonPreview": "{\"candidates\": [{\"id\": \"ai-candidate-koica-project-period-mismatch\", \"text\": \"국-ai-mismatch-koica-project-period-mismatch\", \"state\": \"extracted\", \"subject\": \"국가 B 농촌 식수 사업\", \"aiValue\": \"국가-b|2022-2026|koica\"}]}\n\nInput:\n자료 제목: KOICA-국가 B 농촌 식수 협력사업\n자료 위치: https.data.go.kr/data/15100000/openapi.do?rec",
+      "errors": [],
+      "generatedText": "{\"candidates\": [{\"id\": \"ai-candidate-koica-project-period-mismatch\", \"text\": \"KOICA는 국가 B에서 2022년부터 2026년까지 농촌 식수 사업을 수행합니다.\", \"state\": \"extracted\", \"subject\": \"국가 B 농촌 식수 사업\", \"aiValue\": \"국가-b|2022-2026|koica\"}]}\n{\"candidates\": [{\"id\": \"ai-candidate-koica-project-period-mismatch\", \"text\": \"국-ai-mismatch-koica-project-period-mismatch\", \"state\": \"extracted\", \"subject\": \"국가 B 농촌 식수 사업\", \"aiValue\": \"국가-b|2022-2026|koica\"}]}\n\nInput:\n자료 제목: KOICA-국가 B 농촌 식수 협력사업\n자료 위치: https.data.go.kr/data/15100000/openapi.do?recommendDataYn=Y\nAI 답변: KOICA는 국가 B에서 2022년부터 20",
+      "parsed": {
+        "candidates": [
+          {
+            "id": "ai-candidate-koica-project-period-mismatch",
+            "text": "KOICA는 국가 B에서 2022년부터 2026년까지 농촌 식수 사업을 수행합니다.",
+            "state": "extracted",
+            "subject": "국가 B 농촌 식수 사업",
+            "aiValue": "국가-b|2022-2026|koica"
+          }
+        ]
+      }
+    },
+    {
+      "id": "oda-term-definition-match-candidate-only",
+      "parseOk": true,
+      "candidateOnly": true,
+      "exactTextMatch": true,
+      "strictJsonOnly": false,
+      "trailingAfterFirstJsonPreview": "{\"candidates\": [{\"id\": \"ai-candidate-oda-mismatch\", \"text\": \"개발도상국의 경제발전과 복지 증진을 목적으로 하는 정부 원조\", \"state\": \"extracted\", \"subject\": \"공적개발원조\", \"aiValue\": \"개발도상국의 경제발전과 복지 증진을 목적으로 하는 정부 원조\"}]}\n{\"candidates: [{\"id\": \"ai-candidate-oda-mismatch\", \"text\": \"개발도상국의 경제발전과 복지 증진을 목적으로 하는 정부 원조\", \"state\": \"extr",
+      "errors": [],
+      "generatedText": "{\"candidates\": [{\"id\": \"ai-candidate-oda-term-definition-match\", \"text\": \"ODA는 개발도상국의 경제발전과 복지 증진을 목적으로 하는 정부 원조입니다.\", \"state\": \"extracted\", \"subject\": \"공적개발원조\", \"aiValue\": \"개발도상국의 경제발전과 복지 증진을 목적으로 하는 정부 원조\"}]}\n{\"candidates\": [{\"id\": \"ai-candidate-oda-mismatch\", \"text\": \"개발도상국의 경제발전과 복지 증진을 목적으로 하는 정부 원조\", \"state\": \"extracted\", \"subject\": \"공적개발원조\", \"aiValue\": \"개발도상국의 경제발전과 복지 증진을 목적으로 하는 정부 원조\"}]}\n{\"candidates: [{\"id\": \"ai-candidate-oda-mismatch\", \"text\": \"개발도상국의 경제발전과 복지 증진을 목적으로 하는 정부 원조\", \"state\": \"extracted\", \"subject\": \"공적개발원조\", \"aiValue\": \"개발도상국의 경제발전과 복지 증진 목적으로 하는 정부 원조\"}]}\n{\"candidates",
+      "parsed": {
+        "candidates": [
+          {
+            "id": "ai-candidate-oda-term-definition-match",
+            "text": "ODA는 개발도상국의 경제발전과 복지 증진을 목적으로 하는 정부 원조입니다.",
+            "state": "extracted",
+            "subject": "공적개발원조",
+            "aiValue": "개발도상국의 경제발전과 복지 증진을 목적으로 하는 정부 원조"
+          }
+        ]
+      }
+    }
+  ]
+}

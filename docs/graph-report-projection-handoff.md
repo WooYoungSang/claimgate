@@ -29,5 +29,5 @@ The smoke constructs one reviewer-verified claim and one reviewer-rejected claim
 
 ## v0 no-go reminders
 
-- No graph DB, server, auth, multitenancy, OCR, real LLM extraction, or online/non-deterministic handoff.
+- No graph DB, server, auth, multitenancy, OCR, hosted LLM, LLM-as-judge, or online/non-deterministic handoff. The local Gemma path is candidate extraction only.
 - Graph remains auxiliary; Evidence Pack remains the reusable artifact.

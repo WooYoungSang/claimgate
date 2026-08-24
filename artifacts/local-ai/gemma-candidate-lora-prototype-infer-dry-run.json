@@ -1,0 +1,13 @@
+{
+  "status": "DRY_RUN_PASS",
+  "baseModel": "google/gemma-4-12B-it",
+  "adapter": "artifacts/local-ai/gemma-candidate-lora-prototype",
+  "dataset": "artifacts/local-ai/gemma-candidate-tuning.jsonl",
+  "examples": 3,
+  "modelType": "gemma4_unified",
+  "modelLoader": "AutoModelForImageTextToText",
+  "tokenizer": "GemmaTokenizer",
+  "adapterTrainingStatus": "TRAINED",
+  "authority": "candidate-only",
+  "productionQuality": false
+}

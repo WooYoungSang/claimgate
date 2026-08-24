@@ -1,4 +1,4 @@
-import type { EvidencePack } from '../evidence.js';
+import { assertEvidencePackProjectable, type EvidencePack } from '../evidence.js';
 
 export type GraphNodeLabel = 'EvidencePack' | 'Claim' | 'Source';
 export type GraphEdgeType = 'CONTAINS_CLAIM' | 'ANCHORED_TO';
@@ -23,6 +23,8 @@ export interface GraphProjection {
 }
 
 export function projectEvidencePackToGraph(pack: EvidencePack): GraphProjection {
+  assertEvidencePackProjectable(pack);
+
   const packNodeId = graphId('evidence-pack', pack.id);
   const packNode: GraphNode = {
     id: packNodeId,

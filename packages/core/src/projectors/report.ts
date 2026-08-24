@@ -1,4 +1,4 @@
-import type { EvidenceItem, EvidencePack } from '../evidence.js';
+import { assertEvidencePackProjectable, type EvidenceItem, type EvidencePack } from '../evidence.js';
 
 export interface EvidenceReportTemplate {
   readonly title?: string;
@@ -8,6 +8,8 @@ export interface EvidenceReportTemplate {
 }
 
 export function renderEvidenceReportMarkdown(pack: EvidencePack, template: EvidenceReportTemplate = {}): string {
+  assertEvidencePackProjectable(pack);
+
   const title = template.title ?? pack.title;
   const itemLabel = template.itemLabel ?? 'Claim';
   const includeAudit = template.includeAudit ?? false;
@@ -45,6 +47,8 @@ export function renderEvidenceReportMarkdown(pack: EvidencePack, template: Evide
 }
 
 export function renderEvidenceReportHtml(pack: EvidencePack, template: EvidenceReportTemplate = {}): string {
+  assertEvidencePackProjectable(pack);
+
   const title = template.title ?? pack.title;
   const itemLabel = template.itemLabel ?? 'Claim';
   const includeAudit = template.includeAudit ?? false;

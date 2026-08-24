@@ -1,0 +1,1716 @@
+{
+  "meta": {
+    "name": "warvis-claimgate",
+    "purpose": "Project-local ClaimGate knowledge base managed through ./kbctl; document records index ClaimGate submission, product, verification, and package-boundary docs."
+  },
+  "_index": {
+    "top_level_keys": [
+      "meta",
+      "documents",
+      "roadmap",
+      "mvp_v1_parallel_roadmap",
+      "decisions",
+      "incidents",
+      "open_issues",
+      "lessons",
+      "ddd_scenarios",
+      "ddd_rules",
+      "ddd_questions",
+      "ddd_metaphor_deltas",
+      "ddd_terms",
+      "ddd_metaphors",
+      "ddd_events",
+      "ddd_commands",
+      "ddd_aggregates",
+      "ddd_usecases",
+      "ddd_metaphor_mappings",
+      "design_changes"
+    ],
+    "document_ids": [
+      "DOC-CHANGELOG-MD",
+      "DOC-CONTRIBUTING-MD",
+      "DOC-README-MD",
+      "DOC-SECURITY-MD",
+      "DOC-THIRD-PARTY-LICENSES-MD",
+      "DOC-DOCS-AI-EXTRACTION-BOUNDARY-MD",
+      "DOC-DOCS-BENCHMARK-DIFFERENTIATION-MD",
+      "DOC-DOCS-COMPETITION-REPORT-MD",
+      "DOC-DOCS-COMPETITION-SUBMISSION-MD",
+      "DOC-DOCS-DEMO-SCRIPT-MD",
+      "DOC-DOCS-DEMO-MOFA-ODA-3-MINUTE-RUNBOOK-MD",
+      "DOC-DOCS-DEMO-MOFA-ODA-SUBMISSION-VIDEO-STORYBOARD-MD",
+      "DOC-DOCS-DOMAIN-PACKS-MD",
+      "DOC-DOCS-GRAPH-REPORT-PROJECTION-HANDOFF-MD",
+      "DOC-DOCS-OPENDID-TRUST-ADAPTER-MD",
+      "DOC-DOCS-OPERATIONS-CLAIMGATE-DEMO-DEPLOYMENT-MD",
+      "DOC-DOCS-OPERATIONS-KBCTL-MD",
+      "DOC-DOCS-PACKAGE-BOUNDARIES-MD",
+      "DOC-DOCS-PRODUCT-MANIFESTO-MD",
+      "DOC-DOCS-QA-SIMULATION-HARNESS-MD",
+      "DOC-DOCS-RELEASE-READINESS-MD",
+      "DOC-DOCS-REPRODUCIBILITY-MD",
+      "DOC-DOCS-SUBMISSION-EVIDENCE-MAP-MD",
+      "DOC-DOCS-SUBMISSION-LANGUAGE-KIT-MD",
+      "DOC-DOCS-SUBMISSION-2026-MOFA-AI-NO-PRINT-SUBMISSION-GUIDE-MD",
+      "DOC-DOCS-SUBMISSION-2026-MOFA-AI-WINDOWS-EDITING-GUIDE-MD",
+      "DOC-DOCS-SUBMISSION-2026-MOFA-AI-ASSET-MANIFEST-MD",
+      "DOC-DOCS-SUBMISSION-2026-MOFA-AI-CLAIM-EVIDENCE-MATRIX-MD",
+      "DOC-DOCS-SUBMISSION-2026-MOFA-AI-CLAIMGATE-ODA-PARTICIPATION-APPLICATION-MD",
+      "DOC-DOCS-SUBMISSION-2026-MOFA-AI-CLAIMGATE-ODA-PRIVACY-CONSENT-MD",
+      "DOC-DOCS-SUBMISSION-2026-MOFA-AI-CLAIMGATE-ODA-PRODUCT-SERVICE-PROPOSAL-MD",
+      "DOC-DOCS-VERIFICATION-MATRIX-MD",
+      "DOC-FIXTURES-README-MD",
+      "DOC-PACKAGES-CONFORMANCE-README-MD",
+      "DOC-PACKAGES-CORE-README-MD",
+      "DOC-PACKAGES-UI-README-MD",
+      "DOC-PACKS-CIVIC-DATA-README-MD",
+      "DOC-PACKS-HEALTH-DATA-README-MD",
+      "DOC-CLAIMGATE-PROJECT-BRIEF",
+      "DOC-DOCS-DESIGN-DDD-PROTOCOL-MD",
+      "DOC-DOCS-DESIGN-DDD-IMPLEMENTATION-GAP-REVIEW-MD",
+      "DOC-DOCS-DESIGN-DDD-DESTRUCTIVE-REFACTOR-ROADMAP-MD",
+      "DOC-OMX-PLANS-CLAIMGATE-DESTRUCTIVE-DDD-REFACTOR-MD",
+      "DOC-DOCS-DESIGN-DDD-BOUNDED-CONTEXTS-MD",
+      "DOC-DOCS-DESIGN-DDD-CONTEXT-MAP-MD",
+      "DOC-DOCS-DESIGN-DDD-INVARIANTS-MD",
+      "DOC-DOCS-DESIGN-DDD-AGGREGATES-MD",
+      "DOC-DOCS-DESIGN-DDD-UC1-MD",
+      "DOC-DOCS-DESIGN-DDD-IMPLEMENTATION-MODEL-MD",
+      "DOC-PACKS-MOFA-ODA-README-MD",
+      "DOC-SCRIPTS-VALIDATE-CONTEST-OVERCLAIMS-MJS",
+      "DOC-DOCS-DEMO-MOFA-ODA-VIDEO-PREFLIGHT-MD",
+      "DOC-PACKAGES-AI-LOCAL-README-MD",
+      "DOC-FMON-README"
+    ],
+    "decision_ids": [
+      "D-001",
+      "D-002",
+      "D-003",
+      "D-004",
+      "D-005",
+      "D-006",
+      "D-007",
+      "D-008",
+      "D-009",
+      "D-010",
+      "D-011",
+      "D-012",
+      "D-013",
+      "D-014",
+      "D-015",
+      "D-016",
+      "D-017",
+      "D-018",
+      "D-019",
+      "D-020",
+      "D-021",
+      "D-022",
+      "D-023",
+      "D-024",
+      "D-025",
+      "D-026",
+      "D-027",
+      "D-028",
+      "D-029",
+      "D-030",
+      "D-031",
+      "D-032",
+      "D-033",
+      "D-034",
+      "D-035",
+      "D-036",
+      "D-037",
+      "D-038",
+      "D-039",
+      "D-040",
+      "D-041",
+      "D-042",
+      "D-043",
+      "D-044",
+      "D-045",
+      "D-046",
+      "D-047",
+      "D-048",
+      "D-049",
+      "D-050",
+      "D-051",
+      "D-052",
+      "D-053"
+    ],
+    "incident_ids": [],
+    "open_issue_ids": [
+      "OI-001",
+      "OI-002",
+      "OI-003"
+    ],
+    "roadmap_stages": [
+      "OSS-1",
+      "OSS-2",
+      "OSS-3"
+    ],
+    "mvp_v1_work_packet_ids": [
+      "PKT-KBCTL-MIGRATION",
+      "PKT-PUBLIC-EXPORT-HYGIENE",
+      "PKT-OSS-CONTEST-ASSETS"
+    ],
+    "ddd_scenario_ids": [
+      "S-1"
+    ],
+    "ddd_rule_ids": [
+      "R-1",
+      "R-2",
+      "R-3",
+      "R-4",
+      "R-5",
+      "R-6",
+      "R-7",
+      "R-8",
+      "R-9",
+      "R-10",
+      "R-11",
+      "R-12",
+      "R-13",
+      "R-14",
+      "R-15"
+    ],
+    "ddd_question_ids": [
+      "KG-1",
+      "KG-2",
+      "KG-3",
+      "KG-4",
+      "KG-5",
+      "KG-6",
+      "KG-7",
+      "KG-9"
+    ],
+    "ddd_delta_ids": [
+      "M-1",
+      "M-2",
+      "M-3",
+      "M-4"
+    ],
+    "ddd_term_ids": [
+      "T-1",
+      "T-2",
+      "T-3",
+      "T-4",
+      "T-5",
+      "T-6",
+      "T-7",
+      "T-8",
+      "T-9",
+      "T-10",
+      "T-11",
+      "T-12",
+      "T-13"
+    ],
+    "ddd_metaphor_ids": [
+      "MET-1"
+    ],
+    "ddd_mapping_ids": [
+      "MAP-1",
+      "MAP-2",
+      "MAP-3",
+      "MAP-4",
+      "MAP-5"
+    ],
+    "ddd_event_ids": [
+      "EVT-1",
+      "EVT-2",
+      "EVT-3",
+      "EVT-4",
+      "EVT-5",
+      "EVT-6"
+    ],
+    "ddd_command_ids": [
+      "CMD-1",
+      "CMD-2",
+      "CMD-3",
+      "CMD-4",
+      "CMD-5",
+      "CMD-6"
+    ],
+    "ddd_aggregate_ids": [
+      "AGG-1",
+      "AGG-2",
+      "AGG-3"
+    ],
+    "ddd_usecase_ids": [
+      "UC-1"
+    ],
+    "lesson_ids": [
+      "L-1",
+      "L-2",
+      "L-3"
+    ]
+  },
+  "documents": [
+    {
+      "id": "DOC-CHANGELOG-MD",
+      "path": "CHANGELOG.md",
+      "title": "Changelog",
+      "summary": "All notable changes to ClaimGate will be documented in this file. - Added evaluator trust pack docs: verification matrix, reproducibility guide, security policy, and third-party license notes. - Positioned `pnpm eval:framework` as the one-command offline evaluator smoke and clarified framework performance vs LLM quality.",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-CONTRIBUTING-MD",
+      "path": "CONTRIBUTING.md",
+      "title": "Contributing to ClaimGate",
+      "summary": "Thank you for improving ClaimGate. v0 changes must preserve the offline, deterministic, fixture-first contract. Run the full local gate before proposing a change: pnpm install --frozen-lockfile pnpm eval:framework For narrower local loops, run `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, or `pnpm demo` directly. Do not mask failing exits with `|",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-README-MD",
+      "path": "README.md",
+      "title": "ClaimGate Framework",
+      "summary": "ClaimGate is an offline, deterministic, source-grounded claim review framework for public-data AI outputs. It helps teams pull risky AI-produced claims into a human review workflow where every accepted claim must trace back to a source anchor and auditable evidence.",
+      "status": "canonical"
+    },
+    {
+      "id": "DOC-SECURITY-MD",
+      "path": "SECURITY.md",
+      "title": "Security Policy",
+      "summary": "ClaimGate v0 is an offline, deterministic, fixture-first framework evaluation surface. It intentionally excludes production network and identity infrastructure so reviewers can inspect the trust boundary without secret handling.",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-THIRD-PARTY-LICENSES-MD",
+      "path": "THIRD_PARTY_LICENSES.md",
+      "title": "Third-Party License Notes",
+      "summary": "ClaimGate itself is licensed under the MIT License; see [`LICENSE`](LICENSE). This file summarizes the direct third-party packages declared in `package.json` and records the public-release license review gate. It is not a generated legal bill of materials; run your organization's license tooling before production redistribution.",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-DOCS-AI-EXTRACTION-BOUNDARY-MD",
+      "path": "docs/ai-extraction-boundary.md",
+      "title": "AI Extraction Boundary",
+      "summary": "ClaimGate의 AI/Local LLM 추출은 CandidateClaim[] 후보 제안 전용이다. 제출 영상 목표는 RTX 4090 노드의 local Ollama/Gemma 경로이며, 이 경로도 verify/risk/final anchor/reviewer/projection 권한을 갖지 않는다.",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-DOCS-BENCHMARK-DIFFERENTIATION-MD",
+      "path": "docs/benchmark-differentiation.md",
+      "title": "ClaimGate Benchmark Differentiation and Award Strategy",
+      "summary": "_Last checked: 2026-07-08 KST. Scope: source-backed benchmark notes and submission action mapping for `bet-warvis-claimgate-framework--claimgate-benchmark-differentiation-and-award-strategy`._ ClaimGate should be presented as a **source-grounded claim review framework**, not as an automatic truth engine. The safe claim is:",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-DOCS-COMPETITION-REPORT-MD",
+      "path": "docs/competition-report.md",
+      "title": "ClaimGate Development Report and Submission Narrative",
+      "summary": "Status: review draft for the ClaimGate v0 submission. All implementation and performance claims in this report are scoped to the repository evidence in [`docs/submission-evidence-map.md`](submission-evidence-map.md). v0 is offline, deterministic, and fixture-first.",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-DOCS-COMPETITION-SUBMISSION-MD",
+      "path": "docs/competition-submission.md",
+      "title": "ClaimGate OSS Contest Submission Control Plane",
+      "summary": "Private-until-ready contest submission control plane. It keeps external submission operator-only, sets the demo target to RTX 4090 local Ollama/Gemma candidate-only extraction, and requires three-pack conformance evidence.",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-DOCS-DEMO-SCRIPT-MD",
+      "path": "docs/demo-script.md",
+      "title": "ClaimGate judges-first three-minute demo script",
+      "summary": "ClaimGate judges-first demo script. It separates deterministic offline pack-swap smoke from the real RTX 4090 local Ollama/Gemma candidate-only recording path, and discloses lexical fixture RAG plus absence of fine-tuned Gemma artifacts.",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-DOCS-DEMO-MOFA-ODA-3-MINUTE-RUNBOOK-MD",
+      "path": "docs/demo/mofa-oda-3-minute-runbook.md",
+      "title": "ClaimGate 외교부 ODA 3분 심사 데모 런북",
+      "summary": "ClaimGate 외교부 ODA 3분 런북. RTX 4090 Local Gemma 또는 offline fixture 후보를 공공데이터 Source Anchor와 deterministic rule trace로 검토하고, hosted LLM/LLM-as-judge/live OpenAPI/production accuracy는 No-Go로 둔다.",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-DOCS-DEMO-MOFA-ODA-SUBMISSION-VIDEO-STORYBOARD-MD",
+      "path": "docs/demo/mofa-oda-submission-video-storyboard.md",
+      "title": "ClaimGate 외교부 ODA 제출 영상 스토리보드",
+      "summary": "ClaimGate 외교부 ODA 제출 영상 스토리보드. 실제 촬영/업로드/외부 제출은 미실시이며, 제품 경계는 RTX 4090 Local Gemma candidate-only plus offline fixtures; hosted LLM/LLM-as-judge/live OpenAPI/production accuracy는 No-Go다.",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-DOCS-DOMAIN-PACKS-MD",
+      "path": "docs/domain-packs.md",
+      "title": "ClaimGate DomainPack Contract",
+      "summary": "ClaimGate v0 keeps trust invariants in `@claimgate/core` and domain judgment in `@claimgate/pack-*` packages. - Core owns invariant types, claim state, anchors, projection guards, and the `DomainPack` TypeScript contract at `@claimgate/core/domain-pack`.",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-DOCS-GRAPH-REPORT-PROJECTION-HANDOFF-MD",
+      "path": "docs/graph-report-projection-handoff.md",
+      "title": "Graph/Report Projection Handoff Readiness",
+      "summary": "ClaimGate handoff output is ordered deliberately: 1. **Evidence Pack JSON is primary.** It contains only reviewer-audited `verified` and `corrected` claims with Source Anchors. 2. **Report Markdown/HTML is an auxiliary projection** generated from the Evidence Pack for humans.",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-DOCS-OPENDID-TRUST-ADAPTER-MD",
+      "path": "docs/opendid-trust-adapter.md",
+      "title": "OpenDID Trust Adapter Boundary",
+      "summary": "ClaimGate v0 treats OpenDID/VC as an optional trust context extension, not as core verification authority. - `@claimgate/core/trust-adapter` defines an offline `TrustAdapter` contract and deterministic mock credential evaluator.",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-DOCS-OPERATIONS-CLAIMGATE-DEMO-DEPLOYMENT-MD",
+      "path": "docs/operations/claimgate-demo-deployment.md",
+      "title": "ClaimGate 외교부 ODA 데모 배포·복구 런북",
+      "summary": "이 문서는 `mofa.warvis.org`의 **기존 노드 + Caddy + Cloudflare** 경계를 유지하면서 정적 데모를 반복 배포하는 절차다. 저장소가 자동화하는 범위는 정적 빌드 검증, 버전 디렉터리 배치, 활성 링크의 원자 교체, 공개 읽기 스모크, 실패 시 자동 롤백이다. - Cloudflare 토큰, 원본 인증서, 개인키, `.env`를 읽거나 출력하거나 저장소에 넣지 않는다.",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-DOCS-OPERATIONS-KBCTL-MD",
+      "path": "docs/operations/kbctl.md",
+      "title": "kbctl 사용법",
+      "summary": "`kbctl`은 프로젝트 로컬 JSON 지식 정본을 조회하고 원자적으로 변경하는 Go CLI다. - 소스: `tools/kbctl` - 바이너리: `./kbctl` - 기본 KB: `governance/knowledge/claimgate-kb.json` - 실행 기준 위치: 워크스페이스 루트 ClaimGate 기본 작업에서는 다른 프로젝트의 KB를 `--kb`로 지정하지 않는다. 마이그레이션/복구 검증 때만 명시 경로를 사용한다.",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-DOCS-PACKAGE-BOUNDARIES-MD",
+      "path": "docs/package-boundaries.md",
+      "title": "ClaimGate Package Boundaries",
+      "summary": "ClaimGate package boundaries: core는 trust invariant와 ClaimExtractor 후보 계약만 소유한다. optional Local Gemma/Ollama demo path는 core 밖 adapter이며 candidate-only 경계를 통과해야 한다.",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-DOCS-PRODUCT-MANIFESTO-MD",
+      "path": "docs/product-manifesto.md",
+      "title": "ClaimGate Product Manifesto",
+      "summary": "ClaimGate is not a fact-checking oracle. It is an offline, deterministic review framework that turns risky public-data AI output into source-grounded reviewer work and reusable Evidence Packs. The product promise is deliberately narrow: ClaimGate reduces fake work by forcing every accepted claim through visible anchors, rule traces, reviewer decisions, and p",
+      "status": "canonical"
+    },
+    {
+      "id": "DOC-DOCS-QA-SIMULATION-HARNESS-MD",
+      "path": "docs/qa-simulation-harness.md",
+      "title": "ClaimGate User Scenario Simulation QA Harness",
+      "summary": "Judge-facing offline deterministic scenario matrix. It does not add hosted LLM extraction, LLM-as-judge behavior, OCR, PDF/Excel parsing, server, database, auth, graph DB persistence, or real DID behavior.",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-DOCS-RELEASE-READINESS-MD",
+      "path": "docs/release-readiness.md",
+      "title": "Private-to-Public OSS Release Readiness",
+      "summary": "Status: readiness checklist prepared; repository visibility must remain private until a separate human/operator public-release decision. This document supports a future public OSS transition. It does **not** authorize any of the following:",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-DOCS-REPRODUCIBILITY-MD",
+      "path": "docs/reproducibility.md",
+      "title": "ClaimGate Reproducibility Guide",
+      "summary": "ClaimGate deterministic reproducibility guide. Default evaluator path uses checked-in fixtures and no hosted services; separate pnpm demo:ai:gemma requires the RTX 4090 local Ollama/Gemma runtime and remains candidate-only.",
+      "status": "canonical"
+    },
+    {
+      "id": "DOC-DOCS-SUBMISSION-EVIDENCE-MAP-MD",
+      "path": "docs/submission-evidence-map.md",
+      "title": "ClaimGate Submission Evidence Map",
+      "summary": "This file is the evidence index for the competition report in [`docs/competition-report.md`](competition-report.md). It is intentionally conservative: if a claim cannot be tied to a repo file, test, or command, the report should not state it as completed behavior.",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-DOCS-SUBMISSION-LANGUAGE-KIT-MD",
+      "path": "docs/submission-language-kit.md",
+      "title": "ClaimGate Submission Language Kit",
+      "summary": "This kit keeps README, report, and video wording aligned with implemented ClaimGate v0 behavior. It is intentionally conservative: submission language must stay below implementation truth. ClaimGate is an offline, deterministic framework for reviewing risky public-data AI output. It converts AI-produced candidate claims into source-grounded reviewer work, th",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-DOCS-SUBMISSION-2026-MOFA-AI-NO-PRINT-SUBMISSION-GUIDE-MD",
+      "path": "docs/submission/2026-mofa-ai/NO-PRINT-SUBMISSION-GUIDE.md",
+      "title": "ClaimGate ODA 무출력 제출 방법",
+      "summary": "1. `claimgate-oda-participation-application.md`의 대괄호 개인정보를 수정한다. 2. `SIGNATURE-PAD.html`에서 서명하여 `signature.png`를 같은 폴더에 저장한다. 3. Windows에서 `EXPORT-APPLICATION-PDF-WINDOWS.cmd`를 더블클릭한다. 4. 생성된 참가신청서 PDF를 열어 정보와 서명을 확인한다. 5. 제품 기획서와 개인정보 동의서도 개인정보·서명을 반영한다.",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-DOCS-SUBMISSION-2026-MOFA-AI-WINDOWS-EDITING-GUIDE-MD",
+      "path": "docs/submission/2026-mofa-ai/WINDOWS-EDITING-GUIDE.md",
+      "title": "Windows에서 참가신청서 수정·PDF 생성",
+      "summary": "메모장 또는 VS Code로 `claimgate-oda-participation-application.md`를 엽니다. 대괄호로 표시된 항목만 실제 정보로 교체합니다. - `[☐ 개인　☐ 팀]` → 예: `☑ 개인　☐ 팀` - `[성명 또는 팀장명]` - `[010-0000-0000]` - `[name@example.com]` - `[소속 또는 해당 없음]` - `[팀명 또는 개인 참가]` - 팀원 정보",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-DOCS-SUBMISSION-2026-MOFA-AI-ASSET-MANIFEST-MD",
+      "path": "docs/submission/2026-mofa-ai/asset-manifest.md",
+      "title": "ClaimGate ODA 제출 자산 매니페스트",
+      "summary": "생성일: 2026-07-13 KST **내부 검증 문서 — 외부 제출 금지** 외부 제출 대상은 아래 PDF 3개다. 개인정보·날짜·서명은 운영자가 직접 기입한다. 기존 `*.docx` 및 `*.reference.*` 파일은 편집·비교 참고용이며 최종 제출본이 아니다. - 공식 공고문 HWP SHA-256: `d0dd894d15f08f42e93cc81461b0e42669a4fff03417249bb2f15c537e524721`",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-DOCS-SUBMISSION-2026-MOFA-AI-CLAIM-EVIDENCE-MATRIX-MD",
+      "path": "docs/submission/2026-mofa-ai/claim-evidence-matrix.md",
+      "title": "2026 외교 공공데이터·AI 활용 경진대회 Claim-Evidence Matrix",
+      "summary": "- **Matrix purpose**: 2026 외교 공공데이터·AI 활용 경진대회 제안서의 주장과 근거를 보수적으로 연결한다. - **Current product scope**: 현재 구현된 것은 `ClaimGate v0` 범용 프레임워크와 그 위에 구성한 오프라인·결정론적·fixture-first `@claimgate/pack-mofa-oda` 시제품이다. - **ODA composition boundary**: DATA-001~003은 pack 내부 offline fixture와 3-pack demo로 구현됐다. 외교부/KOICA URL은 provenance metadata이며 live OpenAPI/file download 연동은",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-DOCS-SUBMISSION-2026-MOFA-AI-CLAIMGATE-ODA-PARTICIPATION-APPLICATION-MD",
+      "path": "docs/submission/2026-mofa-ai/claimgate-oda-participation-application.md",
+      "title": "claimgate-oda-participation-application.md",
+      "summary": "<!-- 편집 방법 - 대괄호로 표시된 값만 실제 정보로 교체합니다. - 개인 참가자는 팀명과 팀원 표에 \"해당 없음\"을 입력합니다. - 같은 폴더에 signature.png를 두면 두 번째 쪽 서명란에 자동 삽입됩니다. --> <section class=\"page application-page\"> <header class=\"attachment-band\"> <div class=\"attachment-number\">붙임1</div>",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-DOCS-SUBMISSION-2026-MOFA-AI-CLAIMGATE-ODA-PRIVACY-CONSENT-MD",
+      "path": "docs/submission/2026-mofa-ai/claimgate-oda-privacy-consent.md",
+      "title": "claimgate-oda-privacy-consent.md",
+      "summary": "<!-- 대괄호 또는 현재 입력값을 수정한 뒤 통합 CMD를 실행합니다. 같은 폴더의 signature.png가 자동 삽입됩니다. --> <section class=\"page privacy-page\"> <header class=\"attachment-band\"> <div class=\"attachment-number\">붙임4</div> <div class=\"attachment-title\">개인정보 수집·이용 동의서</div>",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-DOCS-SUBMISSION-2026-MOFA-AI-CLAIMGATE-ODA-PRODUCT-SERVICE-PROPOSAL-MD",
+      "path": "docs/submission/2026-mofa-ai/claimgate-oda-product-service-proposal.md",
+      "title": "claimgate-oda-product-service-proposal.md",
+      "summary": "<header class=\"attachment-band\"> <div class=\"attachment-number\">붙임3</div> <div class=\"attachment-title\">외교 공공데이터·AI 활용 경진대회 제품(서비스) 기획서</div> </header> **한 줄 소개**<br> AI가 초안을 빠르게 쓰게 한다면, ClaimGate ODA는 그 문장을 사람이 근거와 함께 책임질 수 있게 합니다.",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-DOCS-VERIFICATION-MATRIX-MD",
+      "path": "docs/verification-matrix.md",
+      "title": "ClaimGate Verification Matrix",
+      "summary": "Evaluator-facing trust matrix mapping ClaimGate claims to offline commands. It includes local Ollama/Gemma guard evidence, RTX 4090 demo-runtime evidence requirements, demo-grade RAG/no tuning boundaries, and civic/health/MOFA ODA three-pack conformance.",
+      "status": "canonical"
+    },
+    {
+      "id": "DOC-FIXTURES-README-MD",
+      "path": "fixtures/README.md",
+      "title": "ClaimGate Fixtures",
+      "summary": "Fixture data belongs here or inside a domain pack. v0 fixtures must be offline and deterministic.",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-PACKAGES-CONFORMANCE-README-MD",
+      "path": "packages/conformance/README.md",
+      "title": "@claimgate/conformance",
+      "summary": "Offline deterministic conformance kit for ClaimGate `DomainPack` implementations. It validates pack metadata, entity/risk/template coverage, fixture anchors, rule traces, and deterministic rule output.",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-PACKAGES-CORE-README-MD",
+      "path": "packages/core/README.md",
+      "title": "@claimgate/core",
+      "summary": "Core README documents pure TypeScript trust core plus Source Anchor workflow APIs: acceptSourceAnchor, acceptProposedSourceAnchor, and rejectProposedSourceAnchor keep AI proposedAnchor proposal-only until reviewer/source workflow acceptance.",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-PACKAGES-UI-README-MD",
+      "path": "packages/ui/README.md",
+      "title": "@claimgate/ui",
+      "summary": "Controlled React primitives for ClaimGate review surfaces. - Props in, callbacks out: host apps own claim state, reviewer decisions, and projection authority. - Components do not score truth, verify facts, project claims, call servers, or store hidden review state.",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-PACKS-CIVIC-DATA-README-MD",
+      "path": "packs/civic-data/README.md",
+      "title": "@claimgate/pack-civic-data",
+      "summary": "Civic public-data DomainPack scaffold. Later Bets add deterministic rules, fixtures, copy, and conformance tests.",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-PACKS-HEALTH-DATA-README-MD",
+      "path": "packs/health-data/README.md",
+      "title": "@claimgate/pack-health-data",
+      "summary": "Health public-data DomainPack scaffold. Later Bets add deterministic rules, fixtures, copy, and conformance tests.",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-CLAIMGATE-PROJECT-BRIEF",
+      "title": "ClaimGate Project Brief: 본질, 목표, 철학, 현재 구현 상태",
+      "path": "docs/claimgate-project-brief.md",
+      "summary": "ClaimGate의 본질, 목표, 철학, 구현 상태를 정리한 컨텍스트 회복용 브리프. 기본 검증은 offline fixture-first이고 제출 영상 목표는 RTX 4090 local Ollama/Gemma 후보 추출 전용 경로다.",
+      "status": "canonical"
+    },
+    {
+      "id": "DOC-DOCS-DESIGN-DDD-PROTOCOL-MD",
+      "title": "ClaimGate DDD Discovery Protocol",
+      "path": "docs/design/ddd/PROTOCOL.md",
+      "summary": "ClaimGate 설계 재정립을 위한 Reality→Story→Metaphor→Delta→Knowledge Gap→Language→Invariant→Aggregate→Use Case→Implementation loop와 AI Agent 도메인 모델링 가드레일.",
+      "status": "canonical"
+    },
+    {
+      "id": "DOC-DOCS-DESIGN-DDD-IMPLEMENTATION-GAP-REVIEW-MD",
+      "title": "ClaimGate DDD Implementation Gap Review — S-1",
+      "path": "docs/design/ddd/implementation-gap-review.md",
+      "summary": "Local Gemma/RAG 후보 주장부터 Evidence Pack 투영까지의 첫 Business Scenario 기준 DDD 리뷰. RTX 4090 Local Gemma candidate-only 경로와 hosted LLM/LLM-as-judge/production RAG 경계를 구분한다.",
+      "status": "canonical"
+    },
+    {
+      "id": "DOC-DOCS-DESIGN-DDD-DESTRUCTIVE-REFACTOR-ROADMAP-MD",
+      "title": "Destructive DDD Refactor Roadmap",
+      "path": "docs/design/ddd/09-architecture/destructive-refactor-roadmap.md",
+      "summary": "S-1/UC-1 기준으로 파괴적 DDD 리팩토링을 진행하기 위한 gate order, 첫 refactor target, 검증 명령을 정리한 로드맵.",
+      "status": "canonical"
+    },
+    {
+      "id": "DOC-OMX-PLANS-CLAIMGATE-DESTRUCTIVE-DDD-REFACTOR-MD",
+      "title": "ClaimGate Destructive DDD Refactor Plan",
+      "path": ".omx/plans/claimgate-destructive-ddd-refactor.md",
+      "summary": "S-1/UC-1 기준으로 완전 파괴적 DDD 리팩토링을 단계별 gate로 진행하기 위한 RALPLAN-DR 계획. Option C parallel new-core slice를 선호하고, code move/delete 전 invariant test와 KG decision을 요구한다.",
+      "status": "canonical"
+    },
+    {
+      "id": "DOC-DOCS-DESIGN-DDD-BOUNDED-CONTEXTS-MD",
+      "title": "Bounded Contexts — S-1",
+      "path": "docs/design/ddd/06-context/bounded-contexts.md",
+      "summary": "S-1 기준 Extraction, Claim Review, Source Evidence, Domain Pack Policy, Evidence Projection, Review UI bounded context와 소유권/누수 금지 규칙.",
+      "status": "canonical"
+    },
+    {
+      "id": "DOC-DOCS-DESIGN-DDD-CONTEXT-MAP-MD",
+      "title": "Context Map — S-1",
+      "path": "docs/design/ddd/06-context/context-map.md",
+      "summary": "S-1의 context 관계와 upstream/downstream contract, published language, anti-corruption boundary를 정리한 context map.",
+      "status": "canonical"
+    },
+    {
+      "id": "DOC-DOCS-DESIGN-DDD-INVARIANTS-MD",
+      "title": "Invariants — S-1",
+      "path": "docs/design/ddd/07-model/invariants.md",
+      "summary": "R-1~R-15를 invariant/constraint로 분류하고 구현 상태와 파괴적 리팩토링 전 추가 테스트 대상을 정리한 모델 문서.",
+      "status": "canonical"
+    },
+    {
+      "id": "DOC-DOCS-DESIGN-DDD-AGGREGATES-MD",
+      "title": "Aggregates — S-1",
+      "path": "docs/design/ddd/07-model/aggregates.md",
+      "summary": "Claim, EvidencePack, DomainPackPolicy aggregate 후보를 보호하는 invariant에서 도출한 consistency boundary와 허용/금지 operation.",
+      "status": "canonical"
+    },
+    {
+      "id": "DOC-DOCS-DESIGN-DDD-UC1-MD",
+      "title": "UC-1 ReviewLocalGemmaCandidateIntoEvidencePack",
+      "path": "docs/design/ddd/08-usecases/review-local-gemma-candidate-into-evidence-pack.md",
+      "summary": "Local Gemma/RAG 후보 추출부터 Source Anchor, deterministic risk, reviewer decision, Evidence Pack Snapshot까지의 vertical slice use case와 실패 경로/추가 테스트.",
+      "status": "canonical"
+    },
+    {
+      "id": "DOC-DOCS-DESIGN-DDD-IMPLEMENTATION-MODEL-MD",
+      "title": "Implementation Model Proposal — UC-1",
+      "path": "docs/design/ddd/09-architecture/implementation-model.md",
+      "summary": "파괴적 DDD 리팩토링의 target package/context shape, migration order, compatibility policy, no-go를 정의한 implementation model proposal.",
+      "status": "canonical"
+    },
+    {
+      "id": "DOC-PACKS-MOFA-ODA-README-MD",
+      "path": "packs/mofa-oda/README.md",
+      "title": "Claimgate pack mofa oda README",
+      "summary": "Deterministic MOFA/KOICA ODA DomainPack README. It documents offline fixture-only scope, red/yellow/green fixtures, provenance-only public-data URLs, and conformance commands.",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-SCRIPTS-VALIDATE-CONTEST-OVERCLAIMS-MJS",
+      "path": "scripts/validate-contest-overclaims.mjs",
+      "title": "Contest Overclaim Guard",
+      "summary": "Submission wording guard that fails on stale or overbroad claims about live OpenAPI, production vector RAG, fine-tuned Gemma artifacts, missing MOFA pack docs, or two-pack-only conformance wording.",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-DOCS-DEMO-MOFA-ODA-VIDEO-PREFLIGHT-MD",
+      "path": "docs/demo/mofa-oda-video-preflight.md",
+      "title": "ClaimGate MOFA ODA Video Preflight",
+      "summary": "Recording preflight for OSS contest video. It requires RTX 4090 Local Gemma/Ollama evidence, aiAuthority=candidate-only, Evidence Pack JSON/Report Markdown output, and keeps actualRecording pending until operator evidence exists.",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-PACKAGES-AI-LOCAL-README-MD",
+      "path": "packages/ai-local/README.md",
+      "title": "ClaimGate ai-local README",
+      "summary": "First-class Local Gemma/Ollama candidate-only adapter package. Owns local endpoint/model guards, demo-grade lexical RAG retrieval, and provenance constants outside @claimgate/core.",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-FMON-README",
+      "title": "ClaimGate FMON operations",
+      "path": "tools/fmon/README.md",
+      "summary": "Fail-closed Bubble Tea dashboard over kbctl JSON output, including Human Review Gate and operational checks.",
+      "status": "supporting"
+    }
+  ],
+  "roadmap": [
+    {
+      "stage": "OSS-1",
+      "output": "Migrate kbctl and ClaimGate document index into the repo",
+      "status": "complete",
+      "evidence": "kbctl migrated, ClaimGate docs indexed, project brief added, and pnpm test:kbctl passes."
+    },
+    {
+      "stage": "OSS-2",
+      "output": "Prepare sanitized public export branch for OSSContest source submission",
+      "status": "not_started",
+      "evidence": "blocked until repository hygiene lane removes private harness/runtime surfaces"
+    },
+    {
+      "stage": "OSS-3",
+      "output": "Finalize development report, 3-minute demo video, and source URL package",
+      "status": "not_started",
+      "evidence": "pending human/operator publication and contest portal actions"
+    }
+  ],
+  "mvp_v1_parallel_roadmap": {
+    "waves": [
+      {
+        "wave": "W-OSS-PREP",
+        "goal": "Prepare ClaimGate for OSSContest source/report/video submission",
+        "parallelism": "serial until public export hygiene is complete",
+        "work_packets": [
+          {
+            "id": "PKT-KBCTL-MIGRATION",
+            "depends_on": [],
+            "exclusive_file_lease": [
+              "tools/kbctl/**",
+              "docs/operations/kbctl.md",
+              "governance/knowledge/claimgate-kb.json",
+              "package.json",
+              ".gitignore"
+            ],
+            "delivers": "ClaimGate-local kbctl source, default KB, and document index.",
+            "done_when": "kbctl test/vet/build/verify pass and ClaimGate docs are queryable as document records.",
+            "status": "complete",
+            "evidence": "tools/kbctl, docs/operations/kbctl.md, governance/knowledge/claimgate-kb.json, docs/claimgate-project-brief.md; pnpm test:kbctl passes."
+          },
+          {
+            "id": "PKT-PUBLIC-EXPORT-HYGIENE",
+            "depends_on": [
+              "PKT-KBCTL-MIGRATION"
+            ],
+            "exclusive_file_lease": [
+              ".gitignore",
+              "docs/release-readiness.md",
+              "scripts/**"
+            ],
+            "delivers": "A sanitized public export candidate without private runtime/operator surfaces.",
+            "done_when": "secret/private endpoint scans are triaged and public source tree is reproducible.",
+            "status": "not_started"
+          },
+          {
+            "id": "PKT-OSS-CONTEST-ASSETS",
+            "depends_on": [
+              "PKT-PUBLIC-EXPORT-HYGIENE"
+            ],
+            "exclusive_file_lease": [
+              "README.md",
+              "docs/competition-report.md",
+              "docs/demo-script.md",
+              "docs/competition-submission.md"
+            ],
+            "delivers": "OSSContest-facing report, video script, and quickstart narrative.",
+            "done_when": "report, 3-minute video plan, source URL, and final checklist are ready for human portal submission.",
+            "status": "in_progress",
+            "evidence": "Added docs/demo/mofa-oda-video-preflight.md and pnpm test:video-preflight. Local Gemma demo smoke previously passed on RTX 4090 with gemma4:12b; final video recording remains pending operator evidence.",
+            "next_step": "Record two timed rehearsals and final 3-minute video, then attach external evidence/checksums without committing private portal credentials."
+          }
+        ]
+      }
+    ]
+  },
+  "decisions": [
+    {
+      "id": "D-001",
+      "date": "2026-08-17",
+      "status": "accepted",
+      "decision": "ClaimGate keeps kbctl as a project-local JSON knowledge CLI under tools/kbctl rather than introducing a server, database, or external knowledge service.",
+      "rationale": "OSSContest preparation needs queryable local context while preserving the v0 offline deterministic boundary."
+    },
+    {
+      "id": "D-002",
+      "date": "2026-08-17",
+      "status": "accepted",
+      "decision": "FisherMan domain records are not copied into ClaimGate; only the reusable kbctl implementation and operation pattern are migrated.",
+      "rationale": "Cross-project domain records would contaminate ClaimGate submission context. ClaimGate gets a new claimgate-kb.json seeded from its own docs."
+    },
+    {
+      "id": "D-003",
+      "date": "2026-08-17",
+      "status": "accepted",
+      "decision": "ClaimGate documentation is indexed as kbctl document records so report, demo, verification, and package-boundary docs can be searched before submission work.",
+      "rationale": "Document indexing gives fast local context recovery without claiming Obsidian/vault or private runtime state is part of the public product."
+    },
+    {
+      "id": "D-004",
+      "date": "2026-08-17",
+      "status": "accepted",
+      "decision": "ClaimGate의 본질은 AI 판단기가 아니라 AI 후보 주장을 출처 앵커, 결정론적 위험 규칙, 사람 검토, Evidence Pack으로 통과시키는 Claim Gate로 설명한다.",
+      "rationale": "출품 문구가 구현 범위를 넘지 않게 하고 AI Curator, Not Judge 원칙을 공개 설명의 중심에 두기 위해서다."
+    },
+    {
+      "id": "D-005",
+      "date": "2026-08-17",
+      "status": "accepted",
+      "decision": "OSSContest 목표는 production SaaS가 아니라 오프라인 deterministic public-data claim review framework와 재현 가능한 evaluator smoke를 제출하는 것이다.",
+      "rationale": "v0는 서버, DB, auth, 실시간 LLM/OCR/API 호출을 의도적으로 제외하므로 심사자는 pnpm eval:framework와 문서로 구현 경계를 확인해야 한다."
+    },
+    {
+      "id": "D-006",
+      "date": "2026-08-17",
+      "status": "accepted",
+      "decision": "현재 구현 상태는 pure TypeScript core, controlled React UI, conformance kit, civic/health/mofa-oda DomainPack, fixture demo, verification scripts, kbctl knowledge index가 작동하는 v0 framework로 기술한다.",
+      "rationale": "구현된 표면과 미구현 표면을 분리해야 개발보고서와 3분 영상에서 과장 없는 설명을 유지할 수 있다."
+    },
+    {
+      "id": "D-007",
+      "date": "2026-08-17",
+      "status": "accepted",
+      "decision": "proposedAnchor는 자동으로 Source Anchor가 되지 않는다. Source anchoring workflow가 명시적으로 accept한 경우에만 AttachSourceAnchor command가 실제 Source Anchor를 붙인다.",
+      "rationale": "AI Curator Not Judge와 No Anchor No Claim을 동시에 지키려면 AI 제안과 권한 있는 출처 부착을 분리해야 한다."
+    },
+    {
+      "id": "D-008",
+      "date": "2026-08-17",
+      "status": "accepted",
+      "decision": "Local Gemma/RAG provenance는 EvidencePack metadata와 Claim creation audit actor/reason에 보존하되, authority가 아니라 provenance로만 해석한다.",
+      "rationale": "출품 영상에서 local model tag, adapter id, prompt/tuning-card version, RAG corpus ids를 보여줘야 하지만 AI가 검증 주체로 오해되면 안 된다."
+    },
+    {
+      "id": "D-009",
+      "date": "2026-08-17",
+      "status": "accepted",
+      "decision": "EvidencePack은 생성 시점의 immutable snapshot이다. Claim이 이후 바뀌면 기존 pack을 수정하지 않고 새 pack을 발행하거나 supersede 관계를 남긴다.",
+      "rationale": "Evidence Pack First 원칙의 핵심은 재현 가능한 감사 산출물이므로 과거 pack mutation을 허용하면 감사성이 깨진다."
+    },
+    {
+      "id": "D-010",
+      "date": "2026-08-17",
+      "status": "accepted",
+      "decision": "v0 Claim은 single primary Source Anchor를 유지하고 복합 주장은 atomic subclaims로 분해한다. multi-anchor Claim aggregate는 별도 scenario에서 다룬다.",
+      "rationale": "현재 SourceAnchor/Claim model과 데모 안정성을 보존하면서 복합 주장을 허위 단일 앵커로 검증하는 문제를 피한다."
+    },
+    {
+      "id": "D-011",
+      "date": "2026-08-17",
+      "status": "accepted",
+      "decision": "RAG no-hit은 extraction failure 또는 needs-evidence candidate로 분리하고, RAG conflict는 extracted candidate를 유지한 뒤 deterministic risk에서 conflict로 보낸다.",
+      "rationale": "추출 단계가 진실 판정을 하지 않도록 하면서 출처 부족과 출처 충돌을 다른 도메인 사건으로 관찰할 수 있다."
+    },
+    {
+      "id": "D-012",
+      "date": "2026-08-17",
+      "status": "accepted",
+      "decision": "green sampling에서 core는 sampling mechanism만 제공하고 sampling policy default는 DomainPack 또는 host application이 정한다.",
+      "rationale": "도메인마다 false-negative risk tolerance가 다르므로 core에 단일 정책을 박으면 도메인 판단이 core로 새어 들어온다."
+    },
+    {
+      "id": "D-013",
+      "date": "2026-08-17",
+      "status": "accepted",
+      "decision": "v0 in-memory slice에서는 단일 reviewer terminal decision만 허용한다. repository/server가 도입되면 optimistic concurrency와 append-only decision event ordering을 추가한다.",
+      "rationale": "현재 제품에는 서버/DB가 없으므로 동시성 정책을 과구현하지 않되, future persistence에서 aggregate version이 필요함을 명시한다."
+    },
+    {
+      "id": "D-014",
+      "date": "2026-08-17",
+      "status": "accepted",
+      "decision": "ClaimGate의 제품 컨텍스트, DDD 모델링, 설계 결정, Knowledge Gap, 용어, 이벤트, 컨텍스트, invariant, aggregate, use case, implementation-model, roadmap/workpacket, 출품 설계 컨텍스트의 repo-local 최고 권위는 governance/knowledge/claimgate-kb.json이며 반드시 ./kbctl을 통해 조회·기록·검증한다.",
+      "rationale": "별도 Markdown/chat 산출물이 정본처럼 늘어나면 설계 드리프트가 발생하므로, AGENTS.md에 kbctl SSOT 규칙을 추가하고 모든 설계 변경은 kbctl record로 관리한다."
+    },
+    {
+      "id": "D-015",
+      "date": "2026-08-17",
+      "status": "accepted",
+      "decision": "Harness/agent/skill/hook rewrite work must use official OpenAI GPT-5.6/Codex customization, skill, subagent, hook, prompt-engineering, reasoning, and config-reference documentation as external evidence, while preserving ClaimGate kbctl as the repo-local design SSOT.",
+      "rationale": "GPT-5.6 documentation confirms gpt-5.6 routes to gpt-5.6-sol and recommends leaner prompts, explicit autonomy/approval boundaries, skills through progressive disclosure, narrow subagents, deterministic trusted hooks, and eval-backed prompt changes."
+    },
+    {
+      "id": "D-016",
+      "date": "2026-08-17",
+      "status": "accepted",
+      "decision": "ClaimGate removes private lifecycle/MCP harness coupling from agent guides, local config, custom agents, skills, hooks, and package scripts; repo-local context is served by kbctl.",
+      "rationale": "The contest project should be understandable and reproducible from the public repository. kbctl already holds ClaimGate context and design state without requiring private operator services."
+    },
+    {
+      "id": "D-017",
+      "date": "2026-08-17",
+      "status": "accepted",
+      "decision": "Local Gemma/RAG demo treats RAG no-hit as fail-loud extraction failure rather than returning zero-score documents as grounding evidence.",
+      "rationale": "R-14 requires no-hit not to be silently treated as verified or grounded evidence. The demo now filters lexical retrieval to positive hits and throws when no hit remains."
+    },
+    {
+      "id": "D-018",
+      "decision": "EvidencePack supersede relation is represented by creating a new immutable generated pack that records supersedes and supersedeReason; the previous pack remains byte-stable.",
+      "rationale": "R-13 and AGG-2 require later claim/evidence changes to create a new pack or relation without mutating the original EvidencePack snapshot.",
+      "status": "accepted",
+      "date": "2026-08-17"
+    },
+    {
+      "id": "D-019",
+      "decision": "EvidencePack metadata may preserve local model, adapter, prompt, and RAG provenance only; review, risk, verification, and projection authority-shaped metadata is rejected.",
+      "rationale": "R-12 requires Gemma/RAG information to remain provenance rather than verification authority. The demo keeps aiAuthority=candidate-only, and core now rejects metadata keys or aiAuthority values that would imply AI review or projection power.",
+      "status": "accepted",
+      "date": "2026-08-17"
+    },
+    {
+      "id": "D-020",
+      "decision": "Report and Graph projectors must re-check EvidencePack runtime invariants instead of trusting a structurally forged EvidencePack interface.",
+      "rationale": "R-4 is protected by createEvidencePack and projection-guards, but JavaScript callers can still pass forged objects to projectors. Projector entrypoints now reject non verified/corrected, missing-source, anchor-mismatch, missing-reviewer, missing-audit, or malformed corrected EvidenceItem records before rendering report or graph outputs.",
+      "status": "accepted",
+      "date": "2026-08-17"
+    },
+    {
+      "id": "D-021",
+      "decision": "Terminal reviewer decisions require a non-blank reviewer identity, and projection guards reject forged reviewer audit events with blank reviewer ids.",
+      "rationale": "R-3 requires a reviewer-audited terminal decision, not merely a truthy reviewer object or structurally forged reviewer actor. Blank reviewer ids could otherwise produce terminal audit events or projectable forged claims without accountable reviewer identity.",
+      "status": "accepted",
+      "date": "2026-08-17"
+    },
+    {
+      "id": "D-022",
+      "decision": "v0 projection eligibility requires exactly one matching reviewer terminal decision audit; duplicate forged terminal decision events are not projectable.",
+      "rationale": "The normal in-memory state machine already has no outgoing transitions from verified/corrected/rejected states. Projection guards must enforce the same single-terminal-decision invariant for structurally forged Claim objects because JavaScript callers can construct objects outside transitionClaim.",
+      "status": "accepted",
+      "date": "2026-08-17"
+    },
+    {
+      "id": "D-023",
+      "decision": "No Anchor, No Claim treats malformed SourceAnchor objects as no anchor; sourceId and variant coordinates must be valid before attachment, terminal verification, Claim projection, or EvidencePack projector output.",
+      "rationale": "R-2 requires a real Source Anchor, not merely an object in the anchor field. Blank source identities could otherwise pass transition/projector guards as if they were anchored evidence.",
+      "status": "accepted",
+      "date": "2026-08-17"
+    },
+    {
+      "id": "D-024",
+      "decision": "Extractor outputs are normalized and frozen at the CandidateClaim boundary; proposedAnchor remains immutable proposal data and createExtractedClaimFromCandidate never attaches it to Claim.anchor.",
+      "rationale": "R-9 requires proposedAnchor to remain separate from accepted Source Anchor. Future adapters could otherwise return mutable proposedAnchor objects whose coordinates change before a source anchoring workflow reviews them.",
+      "status": "accepted",
+      "date": "2026-08-17"
+    },
+    {
+      "id": "D-025",
+      "decision": "v0 rejects multi-anchor-shaped Claim and CandidateClaim inputs; composite claims must be decomposed into atomic subclaims rather than silently choosing or ignoring anchors.",
+      "rationale": "R-11 allows one primary Source Anchor only. Extra anchor collections such as anchors/sourceAnchors/evidenceAnchors/proposedAnchors could otherwise hide composite claims or let forged Claims project with multiple anchors.",
+      "status": "accepted",
+      "date": "2026-08-17"
+    },
+    {
+      "id": "D-026",
+      "decision": "CandidateClaim normalization is allowlist-based and proposed Source Anchor objects are strict-shape validated; hidden metadata or nested authority fields are rejected instead of silently dropped.",
+      "rationale": "R-1 requires AI/LLM extractors to propose candidates only. Silently discarding unknown candidate fields or preserving unsupported proposedAnchor fields could hide reviewer, risk, verification, or projection authority in adapter output.",
+      "status": "accepted",
+      "date": "2026-08-17"
+    },
+    {
+      "id": "D-027",
+      "decision": "DomainPack conformance treats risk decisions as closed-shape deterministic outputs: AI risk authority fields are forbidden, trace entries must use allowed levels, and at least one trace entry must explain the produced risk level.",
+      "rationale": "R-5 applies to pack-owned risk rules as well as core risk evaluation. A pack returning aiRiskScore or a red decision with only green traces would preserve an apparent deterministic result while hiding AI scoring authority or an unexplained rule trace.",
+      "status": "accepted",
+      "date": "2026-08-17"
+    },
+    {
+      "id": "D-028",
+      "decision": "Core green sampling has no implicit sampling-rate/minimum policy; green claims are sampled only when DomainPack or host application supplies explicit greenSampleRate or minGreenSampleCount.",
+      "rationale": "R-15/D-012 separate mechanism ownership from policy ownership. A core default of 10% plus minimum one review was a hidden policy choice and could overstate domain false-negative tolerance.",
+      "status": "accepted",
+      "date": "2026-08-17"
+    },
+    {
+      "id": "D-029",
+      "decision": "Local Gemma demo execution is fail-closed to local Ollama HTTP endpoints and non-URL local model tags, and demo output explicitly discloses lexical fixture RAG plus absence of repo fine-tuning artifacts.",
+      "rationale": "R-6/R-7/R-8 require honest contest/demo boundaries. Without local endpoint validation the Ollama path could call hosted APIs; without output disclosure the demo could overclaim production vector RAG or fine-tuned Gemma artifacts that are not implemented.",
+      "status": "accepted",
+      "date": "2026-08-17"
+    },
+    {
+      "id": "D-030",
+      "decision": "Local Gemma/RAG demo Evidence Pack metadata must carry demo RAG mode and tuning artifact status as provenance while preserving aiAuthority=candidate-only.",
+      "rationale": "R-7/R-8/R-12 require contest demos to disclose lexical fixture retrieval and absence of fine-tuned Gemma artifacts in the generated artifact, not only terminal prose.",
+      "status": "accepted",
+      "date": "2026-08-17"
+    },
+    {
+      "id": "D-031",
+      "decision": "The MOFA Local Gemma demo fails closed when extracted candidates do not match the MOFA safety scenario; it must not attach the MOFA safety fixture Source Anchor to an unrelated AI candidate.",
+      "rationale": "R-14 requires RAG conflicts to remain candidate input resolved by deterministic risk/reviewer workflow. Falling back to candidates[0] could force a fixture conflict onto unrelated model output.",
+      "status": "accepted",
+      "date": "2026-08-17"
+    },
+    {
+      "id": "D-032",
+      "decision": "DomainPack conformance now requires every declared riskRule to be exercised by at least one fixture.",
+      "rationale": "R-5 deterministic rule trace is weaker if a pack can declare untested rules. Contest extensibility should claim exercised offline pack rules, not dormant community ecosystem coverage.",
+      "status": "accepted",
+      "date": "2026-08-17"
+    },
+    {
+      "id": "D-033",
+      "decision": "Contest-facing docs must distinguish current offline fixtures and RTX 4090 local Ollama/Gemma candidate extraction from future live OpenAPI adapters, production vector RAG, and fine-tuned model artifacts.",
+      "rationale": "Submission materials are evidence surfaces and must not overclaim current implementation. kbctl remains the SSOT; docs are bounded views that must not present AI mock as the product demo.",
+      "status": "accepted",
+      "date": "2026-08-17"
+    },
+    {
+      "id": "D-034",
+      "decision": "Submission video target is the real RTX 4090 local Ollama/Gemma candidate-extraction path; public demo scripts and docs must not present an AI test double path as the product demo.",
+      "rationale": "The project is still in design/review hardening, but the intended contest demonstration will use the available RTX 4090 node. Test doubles may remain inside automated tests only and must not be described as the product AI path.",
+      "status": "accepted",
+      "date": "2026-08-17"
+    },
+    {
+      "id": "D-035",
+      "decision": "RTX 4090 local Ollama/Gemma smoke uses model tag gemma4:12b on the default local endpoint and is the accepted submission-video AI path.",
+      "rationale": "pnpm demo:ai:gemma passed on 2026-08-17 and produced candidate-only Evidence Pack output with provider=ollama, model=gemma4:12b, aiAuthority=candidate-only, lexical fixture RAG disclosure, and no fine-tuned artifact claim.",
+      "status": "accepted",
+      "date": "2026-08-17"
+    },
+    {
+      "id": "D-036",
+      "decision": "Local Gemma/RAG adapter and demo-grade lexical retrieval now live in @claimgate/ai-local outside @claimgate/core; scripts/ai-claim-demo.ts is only the MOFA ODA application composition slice.",
+      "rationale": "DDD refactoring requires the model runtime and RAG boundary to be explicit without contaminating core trust invariants. The adapter package can guard local Ollama endpoints, model tags, prompt/RAG provenance, and CandidateClaim-only output while core remains framework/model independent.",
+      "status": "accepted",
+      "date": "2026-08-17"
+    },
+    {
+      "id": "D-037",
+      "decision": "Source Anchor acceptance is now a first-class core workflow: reviewer/source authority must call acceptSourceAnchor or acceptProposedSourceAnchor before an anchor becomes the Claim primary SourceAnchor; rejectProposedSourceAnchor records rejected proposals without attaching them.",
+      "rationale": "R-9/INV-6 needed executable behavior, not script-local convention. This preserves AI Curator, Not Judge while allowing the Local Gemma/RAG demo to show a reviewed Source Anchor acceptance step.",
+      "status": "accepted",
+      "date": "2026-08-17"
+    },
+    {
+      "id": "D-038",
+      "decision": "Evidence Pack lifecycle is now explicit: generated packs remain immutable; supersedeEvidencePack and reissueEvidencePack create new generated-with-supersedes snapshots; revokeEvidencePack creates a separate immutable revocation record without mutating the original pack.",
+      "rationale": "KG-5/R-13 require audit-safe reproducibility. Later claim/source changes must not rewrite prior Evidence Pack JSON; lifecycle changes are represented by new snapshots or separate revocation records.",
+      "status": "accepted",
+      "date": "2026-08-17"
+    },
+    {
+      "id": "D-039",
+      "decision": "Atomic Claim decomposition is now explicit: composite multi-fact drafts must be decomposed with decomposeCompositeClaimDraft into extracted atomic CandidateClaim[] entries before Claim review; each atom may carry at most one proposedAnchor and no review/risk/projection authority.",
+      "rationale": "KG-7/R-11/INV-7 require preserving the v0 single-primary-Source-Anchor Claim model without pretending one anchor proves a composite public-data statement. Decomposition happens before source-anchor acceptance and reviewer decisions.",
+      "status": "accepted",
+      "date": "2026-08-17"
+    },
+    {
+      "id": "D-040",
+      "decision": "RAG grounding policy is now explicit in @claimgate/ai-local: assessRagGrounding classifies hit, no-hit, and conflict; no-hit either fails extraction or creates an extracted needs-evidence candidate without proposed anchors; RAG conflict remains extracted candidate input for deterministic risk/reviewer workflow.",
+      "rationale": "KG-2/R-14/INV-10 require avoiding silent evidence fabrication while still preserving candidate input for conflicts. This keeps RAG as retrieval/provenance, not verification authority.",
+      "status": "accepted",
+      "date": "2026-08-17"
+    },
+    {
+      "id": "D-041",
+      "decision": "Reviewer terminal decision concurrency is now explicit in core: claimReviewVersion exposes the append-only audit length and applyTerminalReviewerDecision rejects stale expected versions before applying verified/corrected/rejected decisions.",
+      "rationale": "KG-3/R-10 needed executable policy beyond the implicit terminal-state transition table. The v0 in-memory slice still permits only one terminal reviewer decision, and future repository/server code can use expectedVersion as an optimistic concurrency check.",
+      "status": "accepted",
+      "date": "2026-08-17"
+    },
+    {
+      "id": "D-042",
+      "decision": "Extraction provenance is now a reusable core contract: buildExtractionProvenanceMetadata writes candidate-only Evidence Pack metadata, and extractionProvenanceActorId/extractionProvenanceAuditReason preserve provider/model/adapter/prompt/RAG/tuning-card provenance in Claim creation audit without granting AI authority.",
+      "rationale": "KG-4/R-12 required provenance to be visible in both audit and Evidence Pack output while preserving AI Curator, Not Judge. The demo now uses the same core helpers instead of hand-built metadata strings.",
+      "status": "accepted",
+      "date": "2026-08-17"
+    },
+    {
+      "id": "D-043",
+      "decision": "Green sampling ownership is explicit: core owns the deterministic buildRiskQueue mechanism; DomainPack may publish greenSamplingPolicyRecommendation; host code must intentionally pass greenSamplingOptionsFromDomainPack or its own options.",
+      "rationale": "KG-6/R-15 required avoiding a hidden global default while still allowing packs such as mofa-oda to recommend false-negative sampling policy.",
+      "status": "accepted",
+      "date": "2026-08-17"
+    },
+    {
+      "id": "D-044",
+      "decision": "Future repository/server concurrency is represented by a pure ClaimRepository port and in-memory contract: snapshots carry claimReviewVersion, save(expectedVersion) rejects stale writes, and terminal reviewer decisions remain single-winner.",
+      "rationale": "KG-3/R-10 can now be tested at the repository boundary without adding a server or database to v0. A future DB adapter must implement the same compare-and-set semantics with append-only event ordering.",
+      "status": "accepted",
+      "date": "2026-08-17"
+    },
+    {
+      "id": "D-045",
+      "decision": "MOFA ODA RAG is now a repo-local persistent sparse-vector index: @claimgate/ai-local can build/search/round-trip RagIndex JSON, scripts/build-local-rag-index.ts writes artifacts/local-ai/mofa-oda-rag-index.json, and the Local Gemma demo uses this index instead of the previous lexical-only retrieval.",
+      "rationale": "R-7 previously said RAG was demo-grade lexical only. The contest/local path now has a durable local retrieval artifact without introducing an external vector DB or granting RAG verification authority.",
+      "status": "accepted",
+      "date": "2026-08-17"
+    },
+    {
+      "id": "D-046",
+      "decision": "Gemma tuning preparation is now implemented as a candidate-only dataset and training preflight: scripts/build-gemma-tuning-dataset.ts writes JSONL, scripts/gemma-tuning-preflight.ts verifies RTX 4090 plus dataset readiness, and scripts/train-gemma-candidate-lora.py is the optional LoRA training entrypoint. No trained LoRA/checkpoint artifact is claimed until that training command is run.",
+      "rationale": "The user wants real local Gemma tuning, but ClaimGate must not overclaim a model artifact. The repo now contains the reproducible dataset/preflight/training entrypoint while preserving AI Curator, Not Judge.",
+      "status": "accepted",
+      "date": "2026-08-17"
+    },
+    {
+      "id": "D-047",
+      "decision": "Gemma tuning preflight is now strict: it validates candidate-only JSONL, RTX 4090 identity, roughly 24GB VRAM, at least 18GB free VRAM, required Python training modules, and explicit Gemma 12B base-model selection before reporting trainingReady=ready.",
+      "rationale": "The earlier preflight proved only prerequisites and could overstate readiness while Ollama processes occupied VRAM, transformers/peft were broken, or no base model was selected. The preflight must fail closed until the node can actually start a Gemma 12B LoRA run.",
+      "status": "accepted",
+      "date": "2026-08-17"
+    },
+    {
+      "id": "D-048",
+      "date": "2026-08-17",
+      "status": "accepted",
+      "decision": "Gemma 4 12B candidate-only one-step LoRA smoke training completed locally on RTX 4090; the adapter lives under ignored local artifacts and is only pipeline evidence, not a production-quality tuned checkpoint.",
+      "rationale": "The contest/demo path needs evidence that the RTX 4090 tuning pipeline can actually run while preserving AI Curator, Not Judge. The artifact proves local training mechanics only; review, risk, source anchoring, and projection authority remain deterministic/reviewer-owned."
+    },
+    {
+      "id": "D-049",
+      "date": "2026-08-17",
+      "status": "accepted",
+      "decision": "Actual RTX 4090 local Ollama/Gemma demo command passed with model gemma4:12b on local port 29134, producing one candidate, MOFA sparse-vector RAG hits, deterministic red/conflict risk, reviewer correction, Evidence Pack JSON, Markdown report, and graph projection.",
+      "rationale": "The contest video path now has real local Gemma runtime evidence instead of only test doubles. The output still preserves AI authority as candidate-only and discloses that the local LoRA smoke adapter is pipeline evidence, not production-quality tuning."
+    },
+    {
+      "id": "D-050",
+      "date": "2026-08-17",
+      "status": "accepted",
+      "decision": "Gemma 4 12B candidate-only LoRA prototype training completed locally on RTX 4090 with 20 max steps and passed artifact validation; the adapter remains local pipeline evidence only, not production-quality tuning and not connected to Ollama serving.",
+      "rationale": "The tuning lane has moved beyond 1-step smoke to a bounded prototype, while preserving the ClaimGate authority boundary. Because the dataset has only 3 examples and no quality eval corpus, the result must not be presented as a production extractor."
+    },
+    {
+      "id": "D-051",
+      "date": "2026-08-18",
+      "status": "accepted",
+      "decision": "Gemma 4 12B prototype LoRA adapter inference eval ran on RTX 4090 and produced BOUNDARY_PASS_SERVING_BLOCKED: first JSON candidate extraction parsed and matched 3/3 tiny examples with candidate-only authority, but strict JSON-only output passed 0/3, so the adapter is not serving-ready.",
+      "rationale": "This separates useful tuning progress from demo/product overclaim. The adapter demonstrates local PEFT inference and candidate-boundary behavior, but extra generated JSON/text means it cannot be wired into the Ollama/demo path without a stricter decoder, stop condition, or additional format tuning."
+    },
+    {
+      "id": "D-052",
+      "date": "2026-08-18",
+      "status": "accepted",
+      "decision": "Local Gemma/Ollama candidate parser now uses a safe first-JSON postprocessor: it extracts the first complete JSON object, validates candidates[] through core CandidateClaim authority guards, flags trailing text diagnostics, and ignores extra model chatter without granting reviewer/risk/projection authority.",
+      "rationale": "The prototype LoRA adapter can generate valid candidate JSON followed by extra text. Treating the first JSON object as a candidate-only boundary artifact lets the demo path consume candidates safely while still reporting raw strict JSON serving as blocked and non-production-quality."
+    },
+    {
+      "id": "D-053",
+      "date": "2026-08-24",
+      "status": "accepted",
+      "decision": "ClaimGate adopts the IGNIS FMON CQRS/fail-closed Bubble Tea dashboard and the missing kbctl Human Review Gate plus atomic workpacket planning contracts, localized to the ClaimGate module, brand, default KB path, and schema namespace.",
+      "rationale": "The requested migration should preserve the proven read-model and validation behavior without importing IGNIS domain records or project-only harness checks that do not exist in ClaimGate."
+    }
+  ],
+  "incidents": [],
+  "open_issues": [
+    {
+      "id": "OI-001",
+      "status": "open",
+      "description": "Public export is still blocked until private agent/runtime surfaces and private endpoint references are removed or isolated from the source submission tree.",
+      "next_step": "Create a sanitized export branch or script and run release-readiness scans."
+    },
+    {
+      "id": "OI-002",
+      "status": "open",
+      "description": "OSSContest final report, 3-minute video artifact, source URL, and portal submission remain human/operator actions.",
+      "next_step": "After public export hygiene, update competition report and capture video evidence."
+    },
+    {
+      "id": "OI-003",
+      "status": "open",
+      "description": "ClaimGate 구현 브리프는 정리되었지만 공개 출품 전에는 sanitized export branch 또는 export script로 내부 운영 표면을 제거해야 한다.",
+      "next_step": "public export hygiene lane에서 private agent/runtime files, internal instructions, private endpoint references를 분리하고 clean source package를 검증한다."
+    }
+  ],
+  "lessons": [
+    {
+      "id": "L-1",
+      "status": "verified",
+      "lesson": "Project-local context tools must not reuse another project's KB as authority.",
+      "reuse": "When migrating kbctl, copy the tool and create a fresh project-specific KB seeded from ClaimGate evidence.",
+      "evidence": "governance/knowledge/claimgate-kb.json meta.name=warvis-claimgate and D-002"
+    },
+    {
+      "id": "L-2",
+      "status": "distilled",
+      "lesson": "Submission language must stay below implemented offline deterministic behavior.",
+      "reuse": "Search document records for AI boundary, verification, and no-go wording before editing report or video scripts."
+    },
+    {
+      "id": "L-3",
+      "lesson": "컨텍스트를 잃으면 먼저 kbctl에서 Project Brief와 결정/이슈를 검색해 공개 출품 언어와 구현 상태를 재구성한다.",
+      "status": "verified",
+      "reuse": "pnpm test:kbctl 후 ./kbctl get document DOC-CLAIMGATE-PROJECT-BRIEF, ./kbctl search 본질 --kind document,decision,lesson, ./kbctl search 현재 --kind document,decision,open_issue를 실행한다.",
+      "evidence": "docs/claimgate-project-brief.md and governance/knowledge/claimgate-kb.json records DOC-CLAIMGATE-PROJECT-BRIEF, D-004, D-005, D-006"
+    }
+  ],
+  "ddd_scenarios": [
+    {
+      "id": "S-1",
+      "title": "Local Gemma/RAG 후보 주장 → Evidence Pack 검토",
+      "status": "ACTIVE",
+      "actor": "공공데이터 검토자",
+      "trigger": "사용자가 AI 답변 또는 문서에서 후보 주장 추출을 요청한다.",
+      "outcome": "출처 앵커와 사람 검토를 통과한 주장만 Evidence Pack, report, graph로 투영된다.",
+      "importance": "OSSContest 데모의 핵심 시나리오이며 ClaimGate의 AI Curator Not Judge, No Anchor No Claim, Evidence Pack First 원칙을 동시에 검증한다.",
+      "story": "사용자가 AI 답변을 입력한다. Local Gemma 4 12B RAG 추출기는 공공데이터 RAG 문맥을 참고해 후보 주장만 제안한다. 후보는 extracted 상태의 Claim으로 변환된다. 검토 워크플로는 후보에 원문 Source Anchor를 연결한다. 결정론적 도메인 규칙은 AI 값과 출처 값을 비교해 risk disposition을 만든다. 충돌하면 검토자가 출처 값을 기준으로 정정한다. verified 또는 corrected 상태와 reviewer audit을 가진 주장만 Evidence Pack에 들어간다. Evidence Pack에서만 report와 graph가 파생된다."
+    }
+  ],
+  "ddd_rules": [
+    {
+      "id": "R-1",
+      "statement": "AI/LLM extractor는 CandidateClaim[] 후보만 제안할 수 있고 verify, risk scoring, final anchor attach, reviewer decision, projection 권한을 갖지 않는다.",
+      "scenario": "S-1",
+      "status": "KNOWN",
+      "spec_key": "INV-1",
+      "evidence": "D-026; packages/core/src/extraction.ts:32-60,74-116,119-157,160-179,186-206; packages/core/src/source-anchor.ts:70-77,110-121,124-166,168-199; packages/core/test/extraction.test.ts:58-64,116-152,155-184,187-229"
+    },
+    {
+      "id": "R-2",
+      "statement": "Claim은 Source Anchor 없이 verified 또는 corrected terminal state가 될 수 없다.",
+      "scenario": "S-1",
+      "status": "KNOWN",
+      "spec_key": "INV-2",
+      "evidence": "D-023; packages/core/src/source-anchor.ts:58-154; packages/core/src/claim.ts:96-129; packages/core/src/verification.ts:52-67; packages/core/src/projection-guards.ts:29-83; packages/core/src/evidence.ts:152-184; packages/core/test/verification-state-machine.test.ts:79-114; packages/core/test/projection-guards.test.ts:178-223; packages/core/test/projectors.test.ts:234-260"
+    },
+    {
+      "id": "R-3",
+      "statement": "terminal verification decision은 reviewer를 필요로 하며 reviewer audit이 없는 verified/corrected claim은 projectable하지 않다.",
+      "scenario": "S-1",
+      "status": "KNOWN",
+      "spec_key": "INV-3",
+      "evidence": "D-021; packages/core/src/verification.ts:52-71,94-105; packages/core/src/projection-guards.ts:29-80; packages/core/test/verification-state-machine.test.ts:105-134; packages/core/test/projection-guards.test.ts:132-270"
+    },
+    {
+      "id": "R-4",
+      "statement": "Evidence Pack, report, graph projection에는 reviewer-audited verified/corrected claim만 들어갈 수 있다.",
+      "scenario": "S-1",
+      "status": "KNOWN",
+      "spec_key": "INV-4",
+      "evidence": "D-020; packages/core/src/projection-guards.ts:25-51; packages/core/src/evidence.ts:78-102,130-184; packages/core/src/projectors/graph.ts:1-27; packages/core/src/projectors/report.ts:1-12,49-50; packages/core/test/evidence-pack.test.ts:60-142; packages/core/test/projectors.test.ts:166-232"
+    },
+    {
+      "id": "R-5",
+      "statement": "Risk result는 비어 있지 않은 결정론적 rule trace를 가져야 하며 AI-provided risk score는 금지된다.",
+      "scenario": "S-1",
+      "status": "KNOWN",
+      "spec_key": "INV-5",
+      "evidence": "D-027; D-032; packages/core/src/risk/index.ts:18-51,130-194,196-221; packages/core/test/risk/risk-engine.test.ts:21-76; packages/conformance/src/index.ts:28-30,57-107,135-180; packages/conformance/test/conformance.test.ts:115-180"
+    },
+    {
+      "id": "R-6",
+      "statement": "Local Gemma 4 12B RAG 데모의 실제 모델 호출은 Ollama-compatible endpoint와 local model tag를 통해서만 수행된다.",
+      "scenario": "S-1",
+      "status": "VERIFIED",
+      "spec_key": "CON-1",
+      "evidence": "D-029; D-034; D-035; D-036; nvidia-smi RTX 4090 probe 2026-08-17; pnpm demo:ai:gemma PASS 2026-08-17; packages/ai-local/src/index.ts; packages/ai-local/test/adapter.test.ts; scripts/ai-claim-demo.ts; scripts/ai-claim-demo.test.mjs"
+    },
+    {
+      "id": "R-7",
+      "statement": "RAG retrieval now uses a repo-local persistent sparse-vector index over MOFA ODA fixtures; it is durable local RAG, not an external vector DB or neural embedding service.",
+      "scenario": "S-1",
+      "status": "VERIFIED",
+      "spec_key": "CON-2",
+      "evidence": "D-045; packages/ai-local/src/index.ts; packages/ai-local/test/adapter.test.ts; scripts/build-local-rag-index.ts; scripts/local-gemma-pipeline.test.mjs; artifacts/local-ai/mofa-oda-rag-index.json; pnpm rag:build:mofa PASS 2026-08-17; pnpm demo:ai:gemma PASS 2026-08-17"
+    },
+    {
+      "id": "R-8",
+      "statement": "Gemma 4 12B candidate-only tuning pipeline is runnable locally: dataset, strict RTX 4090/free-VRAM/Python/base-model preflight, dry-run loader check, smoke/prototype LoRA training, artifact validation, PEFT prototype inference eval, and safe first-JSON candidate parser have run/been implemented. The prototype adapter passes candidate-boundary eval on the tiny local dataset through postprocessing, but raw strict JSON serving remains blocked; it is not production-quality and not connected to Ollama serving.",
+      "scenario": "S-1",
+      "status": "VERIFIED",
+      "spec_key": "OPEN-1",
+      "evidence": "D-046; D-047; D-048; D-050; D-051; D-052; packages/ai-local/src/index.ts; packages/ai-local/test/adapter.test.ts; scripts/build-gemma-tuning-dataset.ts; scripts/gemma-tuning-preflight.ts; scripts/train-gemma-candidate-lora.py; scripts/validate-gemma-lora-artifact.mjs; scripts/eval-gemma-lora-candidate.py; scripts/local-gemma-pipeline.test.mjs; artifacts/local-ai/gemma-candidate-tuning.jsonl; artifacts/local-ai/gemma-tuning-preflight-latest.json; artifacts/local-ai/gemma-tuning-dry-run.json; artifacts/local-ai/gemma-candidate-lora-smoke-report.json; artifacts/local-ai/gemma-candidate-lora-prototype-report.json; artifacts/local-ai/gemma-candidate-lora-prototype-eval.json; artifacts/local-ai/gemma-candidate-lora-prototype-infer-dry-run.json; artifacts/local-ai/gemma-candidate-lora-prototype-infer-eval.json; ignored adapter dirs artifacts/local-ai/gemma-candidate-lora-smoke/ and artifacts/local-ai/gemma-candidate-lora-prototype/; 20-step prototype train_loss=1.8908213555812836; inference eval status=BOUNDARY_PASS_SERVING_BLOCKED with parsePass=3/3, candidateOnlyPass=3/3, exactTextMatch=3/3, strictJsonOnlyPass=0/3, postprocessedCandidateBoundaryReady=true, rawStrictJsonServingReady=false, servingReady=false; parseCandidateJsonResponse tests pass for strict JSON, trailing-output first JSON, no-JSON rejection, and authority-field rejection."
+    },
+    {
+      "id": "R-9",
+      "statement": "proposedAnchor는 자동으로 Source Anchor가 되지 않으며, source anchoring workflow가 accept한 경우에만 AttachSourceAnchor command가 실제 Source Anchor를 붙인다.",
+      "scenario": "S-1",
+      "status": "KNOWN",
+      "question": "KG-1",
+      "spec_key": "INV-6",
+      "evidence": "D-007; D-037; packages/core/src/extraction.ts; packages/core/src/source-anchor-workflow.ts; packages/core/test/source-anchor-workflow.test.ts; scripts/ai-claim-demo.ts"
+    },
+    {
+      "id": "R-10",
+      "statement": "v0 in-memory slice에서는 단일 reviewer terminal decision만 허용하고, repository/server 도입 시 optimistic concurrency와 append-only event ordering을 추가한다.",
+      "scenario": "S-1",
+      "status": "KNOWN",
+      "question": "KG-3",
+      "spec_key": "CON-3",
+      "evidence": "D-013; D-022; D-041; D-044; packages/core/src/verification.ts:34-88; packages/core/src/claim-repository.ts; packages/core/test/verification-state-machine.test.ts:217-326; packages/core/test/claim-repository.test.ts; packages/core/src/projection-guards.ts:29-82; packages/core/test/projection-guards.test.ts:249-273"
+    },
+    {
+      "id": "R-11",
+      "statement": "v0 Claim은 single primary Source Anchor를 유지하고 복합 주장은 atomic subclaims로 분해한다.",
+      "scenario": "S-1",
+      "status": "KNOWN",
+      "question": "KG-7",
+      "spec_key": "INV-7",
+      "evidence": "D-010; D-039; packages/core/src/claim.ts; packages/core/src/atomic-claim.ts; packages/core/test/atomic-claim.test.ts; packages/core/test/extraction.test.ts; packages/core/test/verification-state-machine.test.ts; packages/core/test/projection-guards.test.ts"
+    },
+    {
+      "id": "R-12",
+      "statement": "Local Gemma/RAG model tag, adapter id, prompt/tuning-card version, and RAG corpus ids are provenance metadata, not verification authority.",
+      "scenario": "S-1",
+      "status": "KNOWN",
+      "spec_key": "INV-8",
+      "evidence": "D-008; D-019; D-030; D-031; D-035; D-036; D-042; D-045; D-046; D-048; D-049; pnpm demo:ai:gemma PASS 2026-08-17 with OLLAMA_BASE_URL=http://127.0.0.1:29134 and CLAIMGATE_LOCAL_LLM_MODEL=gemma4:12b; artifacts/local-ai/gemma4-12b-demo-run-latest.txt; artifacts/local-ai/gemma-candidate-lora-smoke-report.json; packages/core/src/extraction-provenance.ts; packages/core/test/extraction-provenance.test.ts; packages/ai-local/src/index.ts; packages/ai-local/test/adapter.test.ts; scripts/ai-claim-demo.ts; scripts/build-local-rag-index.ts; scripts/build-gemma-tuning-dataset.ts; packages/core/src/evidence.ts; packages/core/test/evidence-pack.test.ts; scripts/ai-claim-demo.test.mjs"
+    },
+    {
+      "id": "R-13",
+      "statement": "EvidencePack is an immutable snapshot of projectable claims at generation time; later changes require a new pack or supersede relation.",
+      "scenario": "S-1",
+      "status": "KNOWN",
+      "spec_key": "INV-9",
+      "evidence": "D-009; D-038; packages/core/src/evidence.ts; packages/core/test/evidence-pack.test.ts"
+    },
+    {
+      "id": "R-14",
+      "statement": "RAG no-hit must not be silently treated as verified evidence; RAG conflict remains candidate input and is resolved by deterministic risk/reviewer workflow.",
+      "scenario": "S-1",
+      "status": "KNOWN",
+      "spec_key": "INV-10",
+      "evidence": "D-011; D-029; D-031; D-036; D-040; packages/ai-local/src/index.ts; packages/ai-local/test/adapter.test.ts; scripts/ai-claim-demo.ts; scripts/ai-claim-demo.test.mjs"
+    },
+    {
+      "id": "R-15",
+      "statement": "Core owns green sampling mechanism, while DomainPack or host application owns the default sampling policy.",
+      "scenario": "S-1",
+      "status": "KNOWN",
+      "spec_key": "CON-4",
+      "evidence": "D-012; D-028; D-043; packages/core/src/domain-pack.ts; packages/core/src/risk/index.ts:67-90,196-240,360-390; packages/core/test/risk/risk-queue.test.ts; packages/conformance/src/index.ts; packages/conformance/test/conformance.test.ts; packs/mofa-oda/src/index.ts; packs/mofa-oda/test/pack.test.ts"
+    }
+  ],
+  "ddd_questions": [
+    {
+      "id": "KG-1",
+      "question": "Gemma가 제안한 proposedAnchor를 어떤 조건에서 실제 Source Anchor로 승격할 수 있는가?",
+      "source": "S-1",
+      "status": "ANSWERED",
+      "blocks": "S-1",
+      "priority": "P0",
+      "recommendation": "proposedAnchor는 절대 자동 승격하지 않는다. Source anchoring workflow가 sourceId/kind/locator/excerpt를 검토해 accept하면 AttachSourceAnchor command가 실제 Source Anchor를 붙인다.",
+      "recommendation_reason": "AI Curator Not Judge와 No Anchor No Claim을 동시에 지키려면 제안과 부착 권한을 분리해야 한다.",
+      "options": "A: reviewer/source workflow acceptance required; B: deterministic exact-match auto-accept for fixture only; C: never use proposedAnchor",
+      "answer": "D-007: proposedAnchor는 자동 승격되지 않고 source anchoring workflow가 accept할 때만 실제 Source Anchor가 된다."
+    },
+    {
+      "id": "KG-2",
+      "question": "RAG 검색 결과가 없거나 서로 충돌할 때 후보 주장은 rejected가 되는가, needs-evidence가 되는가, 아니면 추출 단계에서 제외되는가?",
+      "source": "S-1",
+      "status": "ANSWERED",
+      "blocks": "S-1",
+      "priority": "P1",
+      "recommendation": "RAG no-hit은 extraction failure 또는 needs-evidence candidate로 분리하고, RAG conflict는 extracted candidate 유지 후 deterministic risk에서 conflict로 보낸다.",
+      "recommendation_reason": "추출 단계에서 truth judgment를 하지 않으면서도 출처 부족과 출처 충돌을 다르게 관찰할 수 있다.",
+      "options": "A: no-hit rejects extraction; B: no-hit creates needs-evidence candidate; C: no-hit/conflict both enter review queue",
+      "answer": "D-011: RAG no-hit은 extraction failure 또는 needs-evidence candidate, RAG conflict는 extracted 유지 후 deterministic risk conflict."
+    },
+    {
+      "id": "KG-3",
+      "question": "동일 claim id 또는 동일 source anchor에 대해 두 검토자가 동시에 다른 terminal decision을 내리면 어떤 결정이 정본인가?",
+      "source": "S-1",
+      "status": "ANSWERED",
+      "blocks": "S-1",
+      "priority": "P0-after-server",
+      "recommendation": "현재 v0 in-memory slice에서는 단일 reviewer terminal decision만 허용한다고 문서화한다. repository/server가 생기면 optimistic concurrency와 append-only decision event ordering을 도입한다.",
+      "recommendation_reason": "현재 제품에는 서버/DB가 없으므로 정책을 과하게 구현하지 않되, future persistence가 생길 때 aggregate version이 필요함을 숨기지 않는다.",
+      "options": "A: single terminal decision invariant; B: latest reviewer wins; C: quorum/appeal workflow",
+      "answer": "D-013/D-041/D-044: v0는 단일 reviewer terminal decision만 허용한다. core는 claimReviewVersion + applyTerminalReviewerDecision(expectedVersion)로 optimistic concurrency hook을 제공하고, ClaimRepository.save(expectedVersion)로 future repository/server compare-and-set 경계를 모델링한다. 실제 persistence adapter는 append-only decision event ordering을 보존해야 한다."
+    },
+    {
+      "id": "KG-4",
+      "question": "튜닝된 Gemma 모델 산출물의 버전, 데이터셋, 프롬프트/어댑터 버전은 Claim audit 또는 Evidence Pack metadata 중 어디에 보존해야 하는가?",
+      "source": "S-1",
+      "status": "ANSWERED",
+      "blocks": "S-1",
+      "priority": "P0",
+      "recommendation": "Gemma model tag, adapter id, prompt/tuning-card version, RAG corpus ids는 EvidencePack metadata와 Claim create audit reason/actor id에 보존한다. 단, 이 metadata는 authority가 아니라 provenance다.",
+      "recommendation_reason": "출품 영상에서는 local model provenance를 보여줘야 하지만 AI가 검증 주체로 오해되면 안 된다.",
+      "options": "A: EvidencePack metadata only; B: Claim audit only; C: both metadata and audit with authority disclaimer",
+      "answer": "D-008/D-042: model tag, adapter id, prompt/tuning-card version, RAG corpus ids, retrieval mode, tuning artifact status, and aiAuthority=candidate-only are preserved via core ExtractionProvenance helpers in EvidencePack metadata and Claim creation audit reason/actor id. They remain provenance, never verification authority."
+    },
+    {
+      "id": "KG-5",
+      "question": "Evidence Pack 생성 후 Claim이 수정되면 기존 pack은 불변 snapshot으로 남는가, 아니면 pack 재발행/폐기 이벤트가 필요한가?",
+      "source": "S-1",
+      "status": "ANSWERED",
+      "blocks": "S-1",
+      "priority": "P1",
+      "recommendation": "EvidencePack은 생성 시점의 immutable snapshot으로 취급한다. Claim이 이후 바뀌면 새 pack을 발행하고 이전 pack을 수정하지 않는다.",
+      "recommendation_reason": "Evidence Pack First 원칙은 재현 가능한 감사 산출물이 핵심이므로 과거 pack mutation은 피해야 한다.",
+      "options": "A: immutable snapshot and supersede; B: mutable latest pack; C: regenerate without history",
+      "answer": "D-009: EvidencePack은 immutable snapshot이며 이후 변경은 새 pack 발행 또는 supersede 관계로 표현한다."
+    },
+    {
+      "id": "KG-6",
+      "question": "green으로 분류된 후보의 샘플링 비율은 pack별 정책인가, 전체 ClaimGate 정책인가?",
+      "source": "S-1",
+      "status": "ANSWERED",
+      "blocks": "S-1",
+      "priority": "P2",
+      "recommendation": "core는 sampling mechanism만 제공하고 sampling policy default는 DomainPack 또는 host application이 정한다.",
+      "recommendation_reason": "도메인마다 false-negative risk tolerance가 다르므로 core에 단일 비율을 박으면 도메인 정책이 core로 새어 들어온다.",
+      "options": "A: core-owned fixed default; B: DomainPack policy; C: host app policy with pack recommendation",
+      "answer": "D-012/D-043: core owns deterministic sampling mechanism only. DomainPack may publish greenSamplingPolicyRecommendation, and host application must intentionally pass pack or host options into buildRiskQueue; no hidden global green sampling default exists."
+    },
+    {
+      "id": "KG-7",
+      "question": "Claim이 여러 Source Anchor를 필요로 하는 복합 주장일 때 하나의 anchor만으로 verified/corrected를 허용할 수 있는가?",
+      "source": "S-1",
+      "status": "ANSWERED",
+      "blocks": "S-1",
+      "priority": "P0",
+      "recommendation": "v0 Claim은 single primary Source Anchor를 유지하되, composite claim은 Claim을 atomic subclaims로 분해한다. multi-anchor aggregate는 별도 scenario에서 다룬다.",
+      "recommendation_reason": "현재 SourceAnchor/Claim model과 demo를 보존하면서 복합 주장의 허위 단일 앵커 문제를 피할 수 있다.",
+      "options": "A: single primary anchor only; B: multi-anchor Claim now; C: decompose composite claim into atomic claims",
+      "answer": "D-010: v0는 single primary Source Anchor와 atomic subclaim decomposition을 사용하고 multi-anchor aggregate는 별도 scenario로 미룬다."
+    },
+    {
+      "id": "KG-9",
+      "question": "RTX 4090 node에서 Ollama-compatible Gemma 4 12B endpoint를 어떤 model tag와 port로 실행·고정하고 영상 전 smoke evidence를 남길 것인가?",
+      "source": "S-1",
+      "status": "ANSWERED",
+      "blocks": "S-1",
+      "priority": "P0",
+      "recommendation": "Use pnpm demo:ai:gemma as the video AI path on the RTX 4090 node. Capture terminal output showing provider=ollama, model=gemma4:12b, aiAuthority=candidate-only, RAG retrieval mode, and correction Evidence Pack.",
+      "recommendation_reason": "The product demo is no longer mock-based; actual local model runtime readiness must be proven before recording.",
+      "options": "A: Ollama default 127.0.0.1:11434 with gemma4:12b tag; B: documented alternate local port/model tag via env vars",
+      "answer": "D-035: use CLAIMGATE_LOCAL_LLM_MODEL=gemma4:12b with pnpm demo:ai:gemma on the RTX 4090 node; the smoke passed and produced provider=ollama/model=gemma4:12b Evidence Pack metadata."
+    }
+  ],
+  "ddd_metaphor_deltas": [
+    {
+      "id": "M-1",
+      "metaphor": "검문소",
+      "domain": "Evidence Pack projection",
+      "mismatch": "검문소는 통과 후 문서의 불변 snapshot과 재발행 생명주기를 설명하지 못한다.",
+      "axis": "시간",
+      "question": "KG-5"
+    },
+    {
+      "id": "M-2",
+      "metaphor": "검문소",
+      "domain": "Source Anchor attachment",
+      "mismatch": "검문소는 후보가 제안한 앵커와 검토자가 실제로 부착한 앵커의 권한 차이를 흐리게 만든다.",
+      "axis": "권한",
+      "question": "KG-1"
+    },
+    {
+      "id": "M-3",
+      "metaphor": "검문소",
+      "domain": "Reviewer terminal decision",
+      "mismatch": "검문소는 여러 검토자가 동시에 판단하거나 충돌하는 audit/event ordering 문제를 설명하지 못한다.",
+      "axis": "동시성",
+      "question": "KG-3"
+    },
+    {
+      "id": "M-4",
+      "metaphor": "검문소",
+      "domain": "Composite public-data claim",
+      "mismatch": "검문소의 단일 확인증 이미지는 하나의 Claim이 여러 출처 앵커를 요구할 수 있는 경우를 설명하지 못한다.",
+      "axis": "일관성",
+      "question": "KG-7"
+    }
+  ],
+  "ddd_terms": [
+    {
+      "id": "T-1",
+      "doc": "Candidate Claim",
+      "go": "CandidateClaim",
+      "kind": "value-object/adapter-output",
+      "definition": "AI 또는 fixture extractor가 제안한 extracted 상태 후보 주장. ClaimGate core Claim으로 전환되기 전에는 권한 있는 검토 산출물이 아니다.",
+      "not_a": "Verified Claim, reviewer decision, Evidence Pack item"
+    },
+    {
+      "id": "T-2",
+      "doc": "Claim",
+      "go": "Claim",
+      "kind": "aggregate-root-candidate",
+      "definition": "ClaimGate 검토 생명주기를 가진 주장 단위. 상태, 값, source anchor, correction, audit trail을 함께 가진다.",
+      "not_a": "AI answer 전체, Source, Evidence Pack"
+    },
+    {
+      "id": "T-3",
+      "doc": "Source Anchor",
+      "go": "SourceAnchor",
+      "kind": "value-object",
+      "definition": "Claim이 참조하는 원문 근거 위치. dataset row, text span, PDF page, web link 등으로 식별된다.",
+      "not_a": "AI proposedAnchor 자체, source value 전체, reviewer decision"
+    },
+    {
+      "id": "T-4",
+      "doc": "Risk Disposition",
+      "go": "RiskResult",
+      "kind": "value-object/domain-decision",
+      "definition": "결정론적 risk rule trace가 만든 level, queue bucket, recommended review state.",
+      "not_a": "AI score, reviewer terminal decision"
+    },
+    {
+      "id": "T-5",
+      "doc": "Reviewer Decision",
+      "go": "Reviewer",
+      "kind": "actor",
+      "definition": "verified, corrected, rejected 같은 terminal transition을 발생시키는 사람 검토 행위자.",
+      "not_a": "LLM output, deterministic risk engine"
+    },
+    {
+      "id": "T-6",
+      "doc": "Evidence Pack",
+      "go": "EvidencePack",
+      "kind": "aggregate/snapshot",
+      "definition": "projectable claim item과 source metadata를 포함하는 재사용 가능한 근거 묶음.",
+      "not_a": "Report, Graph, raw AI answer"
+    },
+    {
+      "id": "T-7",
+      "doc": "Domain Pack",
+      "go": "DomainPack",
+      "kind": "bounded-context-extension",
+      "definition": "도메인별 labels, entity types, anchor kinds, risk rules, report templates, fixtures를 제공하는 교체 가능 판단 팩.",
+      "not_a": "Core invariant implementation, UI component"
+    },
+    {
+      "id": "T-8",
+      "doc": "Proposed Anchor",
+      "go": "proposedAnchor",
+      "kind": "value-object/proposal",
+      "definition": "AI extractor가 후보 claim과 함께 제안한 근거 위치 후보. Source anchoring workflow가 accept하기 전에는 권한 있는 Source Anchor가 아니다.",
+      "not_a": "Source Anchor, reviewer accepted evidence, projection input",
+      "spec": "INV-6"
+    },
+    {
+      "id": "T-9",
+      "doc": "Extraction Provenance",
+      "go": "ExtractionProvenance",
+      "kind": "value-object/metadata",
+      "definition": "후보 추출에 사용된 local model tag, adapter id, prompt 또는 tuning card version, RAG corpus id 목록을 기록한 추적 정보.",
+      "not_a": "truth score, reviewer decision, risk trace",
+      "spec": "INV-8"
+    },
+    {
+      "id": "T-10",
+      "doc": "Atomic Claim",
+      "go": "AtomicClaim",
+      "kind": "modelling-rule",
+      "definition": "하나의 primary Source Anchor로 검토 가능한 최소 주장 단위. 복합 주장은 여러 Atomic Claim으로 분해되어야 한다.",
+      "not_a": "long AI answer, multi-fact paragraph, Evidence Pack",
+      "spec": "INV-7"
+    },
+    {
+      "id": "T-11",
+      "doc": "Evidence Pack Snapshot",
+      "go": "EvidencePackSnapshot",
+      "kind": "aggregate/snapshot",
+      "definition": "생성 시점의 projectable claim과 source metadata를 고정한 불변 근거 묶음. 이후 변경은 새 snapshot 또는 supersede 관계로 표현한다.",
+      "not_a": "mutable report draft, current claim database, graph view",
+      "spec": "INV-9"
+    },
+    {
+      "id": "T-12",
+      "doc": "Sampling Policy",
+      "go": "RiskQueueOptions",
+      "kind": "policy",
+      "definition": "green claim false-negative 방어를 위해 어느 비율/최소 건수를 샘플 검토할지 정하는 정책. mechanism은 core, default ownership은 pack 또는 host app이다.",
+      "not_a": "risk rule trace, AI risk score",
+      "spec": "CON-4"
+    },
+    {
+      "id": "T-13",
+      "doc": "Source Anchoring Workflow",
+      "go": "AttachAnchorInput",
+      "kind": "application/domain workflow",
+      "definition": "CandidateClaim 또는 Claim의 근거 후보를 검토해 권한 있는 Source Anchor로 부착할지 결정하는 workflow.",
+      "not_a": "LLM extraction, risk scoring, terminal reviewer decision",
+      "spec": "INV-6"
+    }
+  ],
+  "ddd_metaphors": [
+    {
+      "id": "MET-1",
+      "area": "검문소 / 게이트",
+      "status": "PARTIAL",
+      "valid_for": "후보 주장을 통과/보류/기각시키는 흐름, 권한 없는 AI 후보와 책임 있는 reviewer decision의 분리",
+      "invalid_for": "Evidence Pack snapshot 재발행, 동시 reviewer 충돌, multi-anchor composite claim, tuning/model provenance 보존",
+      "deltas": "M-1 M-2 M-3 M-4"
+    }
+  ],
+  "ddd_events": [
+    {
+      "id": "EVT-1",
+      "name": "CandidateClaimsExtracted",
+      "scenario": "S-1",
+      "command": "CMD-1",
+      "meaning": "Local Gemma/RAG 또는 fixture extractor가 CandidateClaim[]을 반환했다.",
+      "description": "Local Gemma/RAG 또는 fixture extractor가 CandidateClaim[]을 반환했다."
+    },
+    {
+      "id": "EVT-2",
+      "name": "ClaimCreatedAsExtracted",
+      "scenario": "S-1",
+      "command": "CMD-2",
+      "meaning": "CandidateClaim이 core Claim extracted 상태로 변환됐다.",
+      "description": "CandidateClaim이 core Claim extracted 상태로 변환됐다."
+    },
+    {
+      "id": "EVT-3",
+      "name": "SourceAnchorAttached",
+      "scenario": "S-1",
+      "command": "CMD-3",
+      "meaning": "검토 워크플로가 Claim에 권한 있는 Source Anchor를 연결했다.",
+      "description": "검토 워크플로가 Claim에 권한 있는 Source Anchor를 연결했다."
+    },
+    {
+      "id": "EVT-4",
+      "name": "RiskDispositionApplied",
+      "scenario": "S-1",
+      "command": "CMD-4",
+      "meaning": "결정론적 risk rule trace가 Claim을 needs-evidence/conflict/aggregate-only 상태로 이동시켰다.",
+      "description": "결정론적 risk rule trace가 Claim을 needs-evidence/conflict/aggregate-only 상태로 이동시켰다."
+    },
+    {
+      "id": "EVT-5",
+      "name": "ClaimCorrectedByReviewer",
+      "scenario": "S-1",
+      "command": "CMD-5",
+      "meaning": "Reviewer가 source value 기준으로 Claim을 corrected terminal state로 전환했다.",
+      "description": "Reviewer가 source value 기준으로 Claim을 corrected terminal state로 전환했다."
+    },
+    {
+      "id": "EVT-6",
+      "name": "EvidencePackCreated",
+      "scenario": "S-1",
+      "command": "CMD-6",
+      "meaning": "projectable claim만 Evidence Pack item으로 포함됐다.",
+      "description": "projectable claim만 Evidence Pack item으로 포함됐다."
+    }
+  ],
+  "ddd_commands": [
+    {
+      "id": "CMD-1",
+      "name": "ExtractCandidateClaims",
+      "actor": "Local Gemma/RAG extractor",
+      "scenario": "S-1",
+      "produces": "EVT-1",
+      "preconditions": "source text exists; RAG corpus exists",
+      "rules": "R-1 R-6 R-7 R-8",
+      "precondition": "source text exists; RAG corpus exists"
+    },
+    {
+      "id": "CMD-2",
+      "name": "CreateExtractedClaimFromCandidate",
+      "actor": "ClaimGate core",
+      "scenario": "S-1",
+      "produces": "EVT-2",
+      "preconditions": "CandidateClaim passes authority boundary",
+      "rules": "R-1",
+      "precondition": "CandidateClaim passes authority boundary"
+    },
+    {
+      "id": "CMD-3",
+      "name": "AttachSourceAnchor",
+      "actor": "Source anchoring workflow",
+      "scenario": "S-1",
+      "produces": "EVT-3",
+      "preconditions": "Claim is extracted; accepted Source Anchor exists",
+      "rules": "R-2 R-9 R-11",
+      "precondition": "Claim is extracted; accepted Source Anchor exists"
+    },
+    {
+      "id": "CMD-4",
+      "name": "ApplyRiskDisposition",
+      "actor": "Deterministic risk engine",
+      "scenario": "S-1",
+      "produces": "EVT-4",
+      "preconditions": "Claim is anchored; domain risk rule selected",
+      "rules": "R-5",
+      "precondition": "Claim is anchored; domain risk rule selected"
+    },
+    {
+      "id": "CMD-5",
+      "name": "ApplyReviewerCorrection",
+      "actor": "Reviewer",
+      "scenario": "S-1",
+      "produces": "EVT-5",
+      "preconditions": "Claim is conflict or can be dispositioned to conflict; reviewer exists",
+      "rules": "R-2 R-3 R-10",
+      "precondition": "Claim is conflict or can be dispositioned to conflict; reviewer exists"
+    },
+    {
+      "id": "CMD-6",
+      "name": "CreateEvidencePack",
+      "actor": "ClaimGate projection boundary",
+      "scenario": "S-1",
+      "produces": "EVT-6",
+      "preconditions": "Claims and referenced Sources are available",
+      "rules": "R-4 R-5",
+      "precondition": "Claims and referenced Sources are available"
+    }
+  ],
+  "ddd_aggregates": [
+    {
+      "id": "AGG-1",
+      "name": "Claim",
+      "context": "Claim Review Context",
+      "consistency": "Claim lifecycle state, one primary Source Anchor, correction record, extraction provenance references, audit trail, and reviewer decision version must move through allowed transitions together; composite drafts are decomposed into atomic CandidateClaim entries before Claim review.",
+      "protects": "R-1 R-2 R-3 R-5 R-9 R-10 R-11 R-12 R-14",
+      "states": "extracted anchored needs-evidence conflict aggregate-only verified corrected rejected"
+    },
+    {
+      "id": "AGG-2",
+      "name": "EvidencePack",
+      "context": "Evidence Projection Context",
+      "consistency": "Only projectable reviewer-audited verified/corrected claims with referenced sources and candidate-only extraction provenance may be snapshotted into immutable pack items; later lifecycle changes use new superseding/reissued snapshots or separate revocation records.",
+      "protects": "R-4 R-12 R-13",
+      "states": "generated generated-with-supersedes revoked-recorded-separately"
+    },
+    {
+      "id": "AGG-3",
+      "name": "DomainPackPolicy",
+      "context": "Domain Pack Policy Context",
+      "consistency": "Domain risk rule semantics, fixture expectations, and green sampling policy recommendations must stay pack-owned while core enforces generic trace, queue mechanism, and authority invariants.",
+      "protects": "R-5 R-15",
+      "states": "draft active retired"
+    }
+  ],
+  "ddd_usecases": [
+    {
+      "id": "UC-1",
+      "name": "ReviewLocalGemmaCandidateIntoEvidencePack",
+      "command": "CMD-1",
+      "scenario": "S-1",
+      "aggregate": "AGG-1",
+      "invariants": "R-1 R-2 R-3 R-4 R-5",
+      "given": "AI answer text, MOFA ODA RAG fixture corpus, RTX 4090 local Ollama/Gemma candidate extractor",
+      "when": "Extractor proposes candidates, ClaimGate anchors selected claim, applies deterministic risk, reviewer corrects conflict, then creates Evidence Pack",
+      "then": "Only corrected reviewer-audited anchored claim appears in Evidence Pack/report/graph",
+      "failure": "authority leak from candidate; no source anchor; no reviewer; missing source metadata; empty rule trace; unavailable local Ollama/Gemma endpoint; unrelated model candidate"
+    }
+  ],
+  "ddd_metaphor_mappings": [
+    {
+      "id": "MAP-1",
+      "metaphor_id": "MET-1",
+      "metaphor": "검문 대상",
+      "domain": "CandidateClaim",
+      "meaning": "아직 통과하지 못한 AI 제안 후보",
+      "confidence": "HIGH",
+      "mismatch": "후보는 source anchor proposal을 포함할 수 있지만 권한 있는 anchor는 아니다.",
+      "question": "KG-1"
+    },
+    {
+      "id": "MAP-2",
+      "metaphor_id": "MET-1",
+      "metaphor": "신분증/증빙",
+      "domain": "Source Anchor",
+      "meaning": "claim이 참조하는 원문 근거 위치",
+      "confidence": "HIGH",
+      "mismatch": "복합 claim은 여러 근거를 요구할 수 있다.",
+      "question": "KG-7"
+    },
+    {
+      "id": "MAP-3",
+      "metaphor_id": "MET-1",
+      "metaphor": "검문 규칙",
+      "domain": "Deterministic Risk Rule",
+      "meaning": "출처와 후보 값을 비교해 review queue 상태를 추천하는 규칙",
+      "confidence": "HIGH",
+      "mismatch": "도메인팩별 규칙/green sampling 정책의 소유권은 더 쪼개야 한다.",
+      "question": "KG-6"
+    },
+    {
+      "id": "MAP-4",
+      "metaphor_id": "MET-1",
+      "metaphor": "검문관",
+      "domain": "Reviewer",
+      "meaning": "terminal decision을 남길 수 있는 사람 행위자",
+      "confidence": "MEDIUM",
+      "mismatch": "동시 검토자 충돌, reviewer 권한/역할 모델은 아직 없다.",
+      "question": "KG-3"
+    },
+    {
+      "id": "MAP-5",
+      "metaphor_id": "MET-1",
+      "metaphor": "통과 기록",
+      "domain": "Evidence Pack",
+      "meaning": "검토된 claim과 source/audit를 묶은 재사용 가능한 산출물",
+      "confidence": "MEDIUM",
+      "mismatch": "pack은 통과 순간의 불변 snapshot인지 재발행 대상인지 정책이 필요하다.",
+      "question": "KG-5"
+    }
+  ],
+  "design_changes": []
+}

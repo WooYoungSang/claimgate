@@ -36,6 +36,10 @@ describe('@claimgate/pack-mofa-oda', () => {
   it('publishes stable MOFA/KOICA fixture identities and expected outcomes', () => {
     expect(mofaOdaPack.packageName).toBe('@claimgate/pack-mofa-oda');
     expect(mofaOdaPack.fixtures).toHaveLength(3);
+    expect(mofaOdaPack.greenSamplingPolicyRecommendation).toMatchObject({
+      owner: 'domain-pack',
+      minGreenSampleCount: 1
+    });
 
     for (const expected of expectedFixtures) {
       const fixture = mofaOdaPack.fixtures.find((candidate) => candidate.id === expected.id);

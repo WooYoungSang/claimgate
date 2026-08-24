@@ -1,0 +1,21 @@
+{
+  "status": "TRAINED",
+  "trainedAt": "2026-08-17T14:15:06.292044Z",
+  "baseModel": "google/gemma-4-12B-it",
+  "dataset": "artifacts/local-ai/gemma-candidate-tuning.jsonl",
+  "output": "artifacts/local-ai/gemma-candidate-lora-prototype",
+  "examples": 3,
+  "maxSteps": 20,
+  "maxSeqLength": 768,
+  "authority": "candidate-only",
+  "productionQuality": false,
+  "metrics": {
+    "train_runtime": 26.9283,
+    "train_samples_per_second": 2.971,
+    "train_steps_per_second": 0.743,
+    "total_flos": 899123144294400.0,
+    "train_loss": 1.8908213555812836,
+    "epoch": 20.0
+  },
+  "notes": "Candidate-only LoRA training artifact. This does not grant verification, risk, anchoring, reviewer, or projection authority."
+}

@@ -8,6 +8,7 @@ import {
   renderEvidenceReportMarkdown,
   transitionClaim,
   type Claim,
+  type EvidencePack,
   type Reviewer,
   type Source
 } from '../src/index.js';
@@ -200,6 +201,64 @@ describe('Evidence Pack projectors', () => {
     expect(html).not.toContain('This must not leak');
     expect(markdown).not.toEqual(html);
   });
+
+  it('rejects forged Evidence Pack inputs before report or graph projection', () => {
+    const valid = createEvidencePack({
+      id: 'pack-forged-projector-input',
+      title: 'Forged Input Pack',
+      claims: [reviewedClaim('verified', 'verified')],
+      sources,
+      generatedAt: now()
+    });
+    const forged = {
+      ...valid,
+      items: Object.freeze([
+        Object.freeze({
+          ...valid.items[0]!,
+          reviewerDecision: 'rejected'
+        })
+      ])
+    } as unknown as EvidencePack;
+
+    expect(() => projectEvidencePackToGraph(forged)).toThrow(
+      'Evidence Pack projector requires verified/corrected reviewer-audited items with matching Source Anchors.'
+    );
+    expect(() => renderEvidenceReportMarkdown(forged)).toThrow(
+      'Evidence Pack projector requires verified/corrected reviewer-audited items with matching Source Anchors.'
+    );
+    expect(() => renderEvidenceReportHtml(forged)).toThrow(
+      'Evidence Pack projector requires verified/corrected reviewer-audited items with matching Source Anchors.'
+    );
+  });
+
+  it('rejects forged Evidence Pack items whose Source Anchor has no source identity', () => {
+    const valid = createEvidencePack({
+      id: 'pack-forged-blank-source-id',
+      title: 'Forged Blank Source Pack',
+      claims: [reviewedClaim('verified', 'verified')],
+      sources,
+      generatedAt: now()
+    });
+    const forged = {
+      ...valid,
+      sources: Object.freeze([{ id: '   ', kind: 'text', title: 'Blank source', locator: 'fixture://blank-source' }]),
+      items: Object.freeze([
+        Object.freeze({
+          ...valid.items[0]!,
+          sourceAnchor: { kind: 'text-span', sourceId: '   ', startOffset: 0, endOffset: 4, excerpt: 'bad' },
+          sourceAnchorId: '%20%20%20:text:start=0:end=4'
+        })
+      ])
+    } as unknown as EvidencePack;
+
+    expect(() => projectEvidencePackToGraph(forged)).toThrow(
+      'Evidence Pack projector requires verified/corrected reviewer-audited items with matching Source Anchors.'
+    );
+    expect(() => renderEvidenceReportMarkdown(forged)).toThrow(
+      'Evidence Pack projector requires verified/corrected reviewer-audited items with matching Source Anchors.'
+    );
+  });
+
   it('encodes graph node and edge id parts deterministically', () => {
     const pack = createEvidencePack({
       id: 'pack->source:tricky',

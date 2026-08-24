@@ -118,6 +118,13 @@ export const mofaOdaPack: DomainPack = {
       sections: ['ODA 주장', '공공데이터 출처 근거', '위험 규칙 추적', '검토자 조치']
     }
   ],
+  greenSamplingPolicyRecommendation: {
+    owner: 'domain-pack',
+    greenSampleRate: 0,
+    minGreenSampleCount: 1,
+    seed: 'mofa-oda-green-sampling-v0',
+    reason: 'ODA public-data review should sample at least one green claim to defend against false negatives in the demo pack.'
+  },
   fixtures: [
     {
       id: 'mofa-country-safety-mismatch',

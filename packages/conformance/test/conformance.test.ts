@@ -26,6 +26,13 @@ const inlinePack: DomainPack = {
     }
   ],
   reportTemplates: [{ id: 'inline-summary', title: 'Inline Summary', sections: ['claim', 'source'] }],
+  greenSamplingPolicyRecommendation: {
+    owner: 'domain-pack',
+    greenSampleRate: 0.25,
+    minGreenSampleCount: 1,
+    seed: 'inline-green-sampling',
+    reason: 'Inline pack recommends sampling greens for false-negative checks.'
+  },
   fixtures: [
     {
       id: 'inline-green',
@@ -52,6 +59,19 @@ describe('@claimgate/conformance', () => {
     expect(report.failures).toEqual([]);
     expect(report.fixtureResults).toHaveLength(1);
     expect(() => assertDomainPackConformance(inlinePack)).not.toThrow();
+  });
+
+  it('reports invalid pack-owned green sampling policy recommendations', () => {
+    const report = runDomainPackConformance({
+      ...inlinePack,
+      greenSamplingPolicyRecommendation: {
+        ...inlinePack.greenSamplingPolicyRecommendation!,
+        greenSampleRate: 1.5
+      }
+    });
+
+    expect(report.passed).toBe(false);
+    expect(report.failures).toContain('greenSamplingPolicyRecommendation.greenSampleRate must be between 0 and 1');
   });
 
   it('reports incomplete packs instead of silently passing', () => {
@@ -110,5 +130,81 @@ describe('@claimgate/conformance', () => {
     expect(report.passed).toBe(false);
     expect(report.failures).toContain('fixture inline-green expected invalid recommendedState verified');
     expect(report.failures).toContain('fixture inline-green produced invalid recommendedState verified');
+  });
+
+  it('reports risk decisions that smuggle AI-provided risk score authority', () => {
+    const aiScoredPack = {
+      ...inlinePack,
+      riskRules: [
+        {
+          ...inlinePack.riskRules[0]!,
+          evaluate() {
+            return {
+              level: 'green',
+              recommendedState: 'needs-evidence',
+              aiRiskScore: 0.99,
+              trace: [{ ruleId: 'inline.match', level: 'green', message: 'stable equality rule' }]
+            };
+          }
+        }
+      ]
+    } as unknown as DomainPack;
+
+    const report = runDomainPackConformance(aiScoredPack);
+
+    expect(report.passed).toBe(false);
+    expect(report.failures).toContain('fixture inline-green produced forbidden risk authority field aiRiskScore');
+  });
+
+  it('reports declared risk rules that are not exercised by fixtures', () => {
+    const report = runDomainPackConformance({
+      ...inlinePack,
+      riskRules: [
+        ...inlinePack.riskRules,
+        {
+          id: 'inline.unused',
+          description: 'Unused rule should not pass conformance coverage.',
+          evaluate() {
+            return {
+              level: 'yellow',
+              recommendedState: 'needs-evidence',
+              trace: [{ ruleId: 'inline.unused', level: 'yellow', message: 'unused rule' }]
+            };
+          }
+        }
+      ]
+    });
+
+    expect(report.passed).toBe(false);
+    expect(report.failures).toContain('riskRule inline.unused is not exercised by any fixture');
+  });
+
+  it('reports traces that do not explain the produced deterministic risk level', () => {
+    const inconsistentTracePack = {
+      ...inlinePack,
+      riskRules: [
+        {
+          ...inlinePack.riskRules[0]!,
+          evaluate() {
+            return {
+              level: 'red',
+              recommendedState: 'conflict',
+              trace: [{ ruleId: 'inline.match', level: 'green', message: 'trace contradicts produced risk level' }]
+            };
+          }
+        }
+      ],
+      fixtures: [
+        {
+          ...inlinePack.fixtures[0]!,
+          expected: { ...inlinePack.fixtures[0]!.expected, level: 'red', recommendedState: 'conflict' }
+        }
+      ]
+    } as unknown as DomainPack;
+
+    const report = runDomainPackConformance(inconsistentTracePack);
+
+    expect(report.passed).toBe(false);
+    expect(report.failures).toContain('fixture inline-green trace does not explain produced level red');
   });
 });

@@ -31,6 +31,14 @@ export interface DomainRiskDecision {
   readonly trace: readonly DomainRiskTraceEntry[];
 }
 
+export interface DomainGreenSamplingPolicyRecommendation {
+  readonly owner: 'domain-pack' | 'host-application';
+  readonly greenSampleRate?: number;
+  readonly minGreenSampleCount?: number;
+  readonly seed?: string;
+  readonly reason: string;
+}
+
 export interface DomainRiskInput {
   readonly packId: DomainPackId;
   readonly fixtureId?: string;
@@ -84,6 +92,7 @@ export interface DomainPack {
   readonly anchorKinds: readonly SourceAnchorKind[];
   readonly riskRules: readonly DomainRiskRule[];
   readonly reportTemplates: readonly DomainReportTemplate[];
+  readonly greenSamplingPolicyRecommendation?: DomainGreenSamplingPolicyRecommendation;
   readonly fixtures: readonly DomainPackFixture[];
 }
 

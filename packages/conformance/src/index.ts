@@ -25,6 +25,10 @@ export class DomainPackConformanceError extends Error {
   }
 }
 
+const allowedRiskDecisionKeys = new Set(['level', 'recommendedState', 'trace']);
+const forbiddenRiskAuthorityKeys = new Set(['aiRiskScore', 'aiRiskLevel', 'riskScore', 'riskLevel', 'score']);
+const allowedRiskTraceKeys = new Set(['ruleId', 'level', 'message', 'evidenceRef']);
+
 export function assertDomainPackConformance(pack: DomainPack): DomainPackConformanceReport {
   const report = runDomainPackConformance(pack);
   if (!report.passed) {
@@ -49,10 +53,12 @@ export function runDomainPackConformance(pack: DomainPack): DomainPackConformanc
   requireNonEmpty(pack.labels.claimSingular, 'labels.claimSingular', failures);
   requireNonEmpty(pack.labels.claimPlural, 'labels.claimPlural', failures);
   requireNonEmpty(pack.labels.reviewerNoun, 'labels.reviewerNoun', failures);
+  validateGreenSamplingPolicyRecommendation(pack.greenSamplingPolicyRecommendation, failures);
 
   const entityIds = new Set(pack.entityTypes.map((entity) => entity.id));
   const anchorKinds = new Set(pack.anchorKinds);
   const ruleById = new Map(pack.riskRules.map((rule) => [rule.id, rule]));
+  const exercisedRuleIds = new Set<string>();
 
   for (const fixture of pack.fixtures) {
     validateFixtureShape(fixture, entityIds, anchorKinds, failures);
@@ -61,12 +67,14 @@ export function runDomainPackConformance(pack: DomainPack): DomainPackConformanc
       failures.push(`fixture ${fixture.id} references missing rule ${fixture.expected.ruleId}`);
       continue;
     }
+    exercisedRuleIds.add(rule.id);
 
     const first = rule.evaluate({ packId: pack.id, fixtureId: fixture.id, claim: fixture.claim });
     const second = rule.evaluate({ packId: pack.id, fixtureId: fixture.id, claim: fixture.claim });
     if (stableSerialize(first) !== stableSerialize(second)) {
       failures.push(`rule ${rule.id} is not deterministic for fixture ${fixture.id}`);
     }
+    validateRiskDecisionShape(first, fixture.id, failures);
     if (first.level !== fixture.expected.level) {
       failures.push(`fixture ${fixture.id} expected level ${fixture.expected.level}, got ${first.level}`);
     }
@@ -76,17 +84,27 @@ export function runDomainPackConformance(pack: DomainPack): DomainPackConformanc
     if (first.recommendedState !== fixture.expected.recommendedState) {
       failures.push(`fixture ${fixture.id} expected state ${fixture.expected.recommendedState}, got ${first.recommendedState}`);
     }
-    if (first.trace.length === 0) {
+    if (Array.isArray(first.trace) && first.trace.length === 0) {
       failures.push(`fixture ${fixture.id} produced no rule trace`);
     }
-    if (!first.trace.some((entry) => entry.ruleId === fixture.expected.ruleId)) {
+    if (Array.isArray(first.trace) && !first.trace.some((entry) => entry.ruleId === fixture.expected.ruleId)) {
       failures.push(`fixture ${fixture.id} trace does not include ${fixture.expected.ruleId}`);
     }
-    for (const entry of first.trace) {
+    if (Array.isArray(first.trace) && !first.trace.some((entry) => isRecord(entry) && entry.level === first.level)) {
+      failures.push(`fixture ${fixture.id} trace does not explain produced level ${String(first.level)}`);
+    }
+    for (const entry of Array.isArray(first.trace) ? first.trace : []) {
+      validateRiskTraceEntryShape(entry, fixture.id, failures);
       requireNonEmpty(entry.ruleId, `fixture ${fixture.id} trace.ruleId`, failures);
       requireNonEmpty(entry.message, `fixture ${fixture.id} trace.message`, failures);
     }
     fixtureResults.push({ fixtureId: fixture.id, ruleId: rule.id, decision: first });
+  }
+
+  for (const rule of pack.riskRules) {
+    if (!exercisedRuleIds.has(rule.id)) {
+      failures.push(`riskRule ${rule.id} is not exercised by any fixture`);
+    }
   }
 
   return Object.freeze({
@@ -114,18 +132,86 @@ function validateFixtureShape(
   if (fixture.claim.anchor.sourceId !== fixture.source.id) {
     failures.push(`fixture ${fixture.id} anchor sourceId ${fixture.claim.anchor.sourceId} does not match source id ${fixture.source.id}`);
   }
+  if (!isAllowedRiskLevel(fixture.expected.level)) {
+    failures.push(`fixture ${fixture.id} expected invalid level ${String(fixture.expected.level)}`);
+  }
   if (!isAllowedRecommendedState(fixture.expected.recommendedState)) {
     failures.push(`fixture ${fixture.id} expected invalid recommendedState ${String(fixture.expected.recommendedState)}`);
   }
   if (fixture.claim.entityType && !entityIds.has(fixture.claim.entityType)) failures.push(`fixture ${fixture.id} entityType ${fixture.claim.entityType} is not declared`);
 }
 
+function validateRiskDecisionShape(decision: DomainRiskDecision, fixtureId: string, failures: string[]): void {
+  if (!isRecord(decision)) {
+    failures.push(`fixture ${fixtureId} produced invalid risk decision`);
+    return;
+  }
+
+  for (const key of Object.keys(decision)) {
+    if (forbiddenRiskAuthorityKeys.has(key)) {
+      failures.push(`fixture ${fixtureId} produced forbidden risk authority field ${key}`);
+    } else if (!allowedRiskDecisionKeys.has(key)) {
+      failures.push(`fixture ${fixtureId} produced unsupported risk decision field ${key}`);
+    }
+  }
+
+  if (!isAllowedRiskLevel(decision.level)) {
+    failures.push(`fixture ${fixtureId} produced invalid level ${String(decision.level)}`);
+  }
+
+  if (!Array.isArray(decision.trace)) {
+    failures.push(`fixture ${fixtureId} produced invalid rule trace`);
+  }
+}
+
+function validateRiskTraceEntryShape(entry: unknown, fixtureId: string, failures: string[]): void {
+  if (!isRecord(entry)) {
+    failures.push(`fixture ${fixtureId} produced invalid trace entry`);
+    return;
+  }
+
+  for (const key of Object.keys(entry)) {
+    if (!allowedRiskTraceKeys.has(key)) {
+      failures.push(`fixture ${fixtureId} trace produced unsupported field ${key}`);
+    }
+  }
+
+  if (!isAllowedRiskLevel(entry.level)) {
+    failures.push(`fixture ${fixtureId} trace produced invalid level ${String(entry.level)}`);
+  }
+}
+
+function validateGreenSamplingPolicyRecommendation(policy: DomainPack['greenSamplingPolicyRecommendation'], failures: string[]): void {
+  if (policy === undefined) return;
+
+  if (policy.owner !== 'domain-pack' && policy.owner !== 'host-application') {
+    failures.push('greenSamplingPolicyRecommendation.owner must be domain-pack or host-application');
+  }
+  if (policy.greenSampleRate !== undefined && (!Number.isFinite(policy.greenSampleRate) || policy.greenSampleRate < 0 || policy.greenSampleRate > 1)) {
+    failures.push('greenSamplingPolicyRecommendation.greenSampleRate must be between 0 and 1');
+  }
+  if (
+    policy.minGreenSampleCount !== undefined &&
+    (!Number.isFinite(policy.minGreenSampleCount) || policy.minGreenSampleCount < 0 || !Number.isInteger(policy.minGreenSampleCount))
+  ) {
+    failures.push('greenSamplingPolicyRecommendation.minGreenSampleCount must be a non-negative integer');
+  }
+  if (policy.seed !== undefined) {
+    requireNonEmpty(policy.seed, 'greenSamplingPolicyRecommendation.seed', failures);
+  }
+  requireNonEmpty(policy.reason, 'greenSamplingPolicyRecommendation.reason', failures);
+}
+
+function isAllowedRiskLevel(value: unknown): value is DomainRiskDecision['level'] {
+  return value === 'red' || value === 'yellow' || value === 'green';
+}
+
 function isAllowedRecommendedState(value: unknown): value is DomainRecommendedState {
   return value === 'needs-evidence' || value === 'conflict' || value === 'aggregate-only';
 }
 
-function requireNonEmpty(value: string, label: string, failures: string[]): void {
-  if (value.trim().length === 0) failures.push(`${label} must not be empty`);
+function requireNonEmpty(value: unknown, label: string, failures: string[]): void {
+  if (typeof value !== 'string' || value.trim().length === 0) failures.push(`${label} must not be empty`);
 }
 
 function domainSignature(pack: DomainPack): string {
@@ -145,4 +231,8 @@ function stableSerialize(value: unknown): string {
     return `{${Object.entries(value).sort(([a], [b]) => a.localeCompare(b)).map(([key, child]) => `${JSON.stringify(key)}:${stableSerialize(child)}`).join(',')}}`;
   }
   return JSON.stringify(value);
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }

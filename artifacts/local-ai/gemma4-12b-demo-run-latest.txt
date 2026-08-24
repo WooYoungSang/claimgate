@@ -1,0 +1,99 @@
+
+> warvis-claimgate@0.0.0 demo:ai:gemma /home/jang/Workspace/warvis-claimgate
+> CLAIMGATE_LOCAL_LLM_PROVIDER=ollama CLAIMGATE_LOCAL_LLM_MODEL=${CLAIMGATE_LOCAL_LLM_MODEL:-gemma4:12b} tsx scripts/ai-claim-demo.ts --provider=ollama
+
+ClaimGate Local Gemma 4 12B RAG 데모
+로컬 후보 추출기: ollama (gemma4:12b)
+RAG 회수 문서: mofa-country-safety-information, koica-country-cooperation-projects, koica-oda-glossary
+RAG 구현: repo-local persistent sparse-vector RAG index; no external vector DB
+튜닝 산출물: committed production tuning artifact 없음; local smoke/prototype LoRA adapters are pipeline evidence only
+후보 주장 수: 1
+선택한 후보: 협력국 A는 2026년에 제한 없는 현장 활동이 가능한 안전·안정 상태입니다.
+출처 앵커: mofa-country-safety-information:dataset:name=%EC%99%B8%EA%B5%90%EB%B6%80_%EA%B5%AD%EA%B0%80%EB%B3%84%20%EC%95%88%EC%A0%84%EC%A0%95%EB%B3%B4:row=1:column=safety_notice:recordId=mofa-safety-fixture-country-a-202607
+결정론적 규칙: mofa.country-safety-mismatch => 위험/충돌
+AI 권한: 후보 제안 전용; 위험 판정, 검증, 투영 권한 없음
+검토자 판정: 정정 완료
+근거 묶음 항목: 1
+그래프 노드/엣지: 3/2
+Evidence Pack JSON과 Markdown report가 생성되었습니다.
+
+--- Evidence Pack JSON ---
+{
+  "id": "mofa-oda-local-gemma-rag-evidence-pack",
+  "title": "외교부 ODA 로컬 Gemma RAG 후보 추출 데모 근거 묶음",
+  "generatedAt": "2026-07-08T00:00:00.000Z",
+  "sources": [
+    {
+      "id": "mofa-country-safety-information",
+      "kind": "dataset",
+      "title": "외교부_국가별 안전정보",
+      "locator": "https://www.data.go.kr/data/15000760/openapi.do",
+      "metadata": {
+        "publicDataId": "DATA-001",
+        "portal": "공공데이터포털",
+        "accessMode": "offline-fixture-only",
+        "sourceBoundary": "공공데이터 출처 이력 · 실시간 OpenAPI 호출 없음"
+      }
+    }
+  ],
+  "items": [
+    {
+      "claimId": "ai-candidate-001",
+      "claimText": "협력국 A는 2026년에 제한 없는 현장 활동이 가능한 안전·안정 상태입니다.",
+      "reviewerDecision": "corrected",
+      "normalizedValue": "특별여행주의보·신변안전 유의",
+      "sourceAnchorId": "mofa-country-safety-information:dataset:name=%EC%99%B8%EA%B5%90%EB%B6%80_%EA%B5%AD%EA%B0%80%EB%B3%84%20%EC%95%88%EC%A0%84%EC%A0%95%EB%B3%B4:row=1:column=safety_notice:recordId=mofa-safety-fixture-country-a-202607",
+      "sourceAnchor": {
+        "kind": "dataset-row",
+        "sourceId": "mofa-country-safety-information",
+        "dataset": "외교부_국가별 안전정보",
+        "row": 1,
+        "recordId": "mofa-safety-fixture-country-a-202607",
+        "column": "safety_notice",
+        "excerpt": "특별여행주의보 및 신변안전 유의가 필요한 지역으로 안내됨."
+      },
+      "reviewerId": "demo-human-reviewer",
+      "correctionHistory": [
+        {
+          "originalAiValue": "안정",
+          "sourceValue": "특별여행주의보·신변안전 유의",
+          "correctedValue": "특별여행주의보·신변안전 유의",
+          "reason": "검토자가 AI 후보 값을 외교부 출처 근거 값으로 정정했습니다.",
+          "reviewerId": "demo-human-reviewer"
+        }
+      ],
+      "auditEventCount": 4
+    }
+  ],
+  "metadata": {
+    "provider": "ollama",
+    "model": "gemma4:12b",
+    "adapterId": "claimgate-local-gemma4-12b-rag-extractor",
+    "promptVersion": "claimgate-local-gemma-candidate-only-v0",
+    "ragDocumentIds": "mofa-country-safety-information,koica-country-cooperation-projects,koica-oda-glossary",
+    "ragRetrievalMode": "repo-local persistent sparse-vector RAG index; no external vector DB",
+    "tuningArtifactStatus": "committed production tuning artifact 없음; local smoke/prototype LoRA adapters are pipeline evidence only",
+    "aiAuthority": "candidate-only",
+    "packId": "mofa-oda",
+    "fixtureId": "mofa-country-safety-mismatch"
+  },
+  "lifecycle": {
+    "state": "generated"
+  }
+}
+
+--- Report Markdown ---
+# 외교부 ODA 주장 검토 요약
+
+Projection source: Evidence Pack
+Projection boundary: verified/corrected reviewer decisions only
+Generated: 2026-07-08T00:00:00.000Z
+Evidence items: 1
+
+## ODA 공공데이터 주장 1: corrected
+- Claim: 협력국 A는 2026년에 제한 없는 현장 활동이 가능한 안전·안정 상태입니다.
+- Value: 특별여행주의보·신변안전 유의
+- Source Anchor: mofa-country-safety-information:dataset:name=%EC%99%B8%EA%B5%90%EB%B6%80\_%EA%B5%AD%EA%B0%80%EB%B3%84%20%EC%95%88%EC%A0%84%EC%A0%95%EB%B3%B4:row=1:column=safety\_notice:recordId=mofa-safety-fixture-country-a-202607
+- Reviewer: demo-human-reviewer
+- Correction: 안정 → 특별여행주의보·신변안전 유의 (검토자가 AI 후보 값을 외교부 출처 근거 값으로 정정했습니다.)
+- Audit events: 4

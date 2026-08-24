@@ -1,0 +1,204 @@
+{
+  "meta": {
+    "name": "kbctl-test-fixture",
+    "purpose": "Self-contained store for cmd/kbctl tests. Deliberately synthetic: the tests used to copy the project's live knowledge base, which coupled the tool to the project's data and broke every wave/workpacket test the moment that data was reset. Nothing here refers to any real design record."
+  },
+  "_index": {
+    "top_level_keys": [
+      "meta",
+      "roadmap",
+      "mvp_v1_parallel_roadmap",
+      "decisions",
+      "incidents",
+      "open_issues",
+      "documents"
+    ],
+    "document_ids": [
+      "DOC-TEST"
+    ],
+    "decision_ids": [
+      "sample-decision-alpha",
+      "sample-decision-beta"
+    ],
+    "incident_ids": [
+      "sample-incident-alpha",
+      "sample-incident-beta"
+    ],
+    "open_issue_ids": [
+      "sample-open-issue-alpha",
+      "sample-open-issue-beta"
+    ],
+    "roadmap_stages": [
+      "P0",
+      "P2",
+      "P9"
+    ],
+    "mvp_v1_work_packet_ids": [
+      "PKT-WA-CONTRACT",
+      "PKT-WA-SECOND",
+      "PKT-WB-ALPHA",
+      "PKT-WB-BETA",
+      "PKT-WC-INTEGRATION",
+      "PKT-WC-LIVE"
+    ]
+  },
+  "roadmap": [
+    {
+      "stage": "P0",
+      "output": "first stage output",
+      "status": "complete",
+      "evidence": "fixture evidence"
+    },
+    {
+      "stage": "P2",
+      "output": "second stage output",
+      "status": "in_progress",
+      "evidence": ""
+    },
+    {
+      "stage": "P9",
+      "output": "third stage output",
+      "status": "not_started",
+      "evidence": ""
+    }
+  ],
+  "mvp_v1_parallel_roadmap": {
+    "waves": [
+      {
+        "wave": "WA",
+        "parallelism": "single lane",
+        "goal": "first wave goal",
+        "work_packets": [
+          {
+            "id": "PKT-WA-CONTRACT",
+            "status": "complete",
+            "depends_on": [],
+            "exclusive_file_lease": ["fixture/a.go"],
+            "delivers": "the contract every later packet reads",
+            "done_when": "the contract file exists and parses"
+          },
+          {
+            "id": "PKT-WA-SECOND",
+            "status": "not_started",
+            "depends_on": ["PKT-WA-CONTRACT"],
+            "exclusive_file_lease": ["fixture/b.go"],
+            "delivers": "a second packet in the same wave",
+            "done_when": "its own test passes"
+          }
+        ]
+      },
+      {
+        "wave": "WB",
+        "parallelism": "two disjoint lanes",
+        "goal": "second wave goal",
+        "work_packets": [
+          {
+            "id": "PKT-WB-ALPHA",
+            "status": "in_progress",
+            "depends_on": ["PKT-WA-CONTRACT"],
+            "exclusive_file_lease": ["fixture/c.go"],
+            "delivers": "the alpha lane",
+            "done_when": "alpha evidence is recorded"
+          },
+          {
+            "id": "PKT-WB-BETA",
+            "status": "not_started",
+            "depends_on": ["PKT-WA-CONTRACT"],
+            "exclusive_file_lease": ["fixture/d.go"],
+            "delivers": "the beta lane",
+            "done_when": "beta evidence is recorded"
+          }
+        ]
+      },
+      {
+        "wave": "WC",
+        "parallelism": "single integration lane",
+        "goal": "third wave goal",
+        "work_packets": [
+          {
+            "id": "PKT-WC-INTEGRATION",
+            "status": "not_started",
+            "depends_on": ["PKT-WB-ALPHA", "PKT-WB-BETA"],
+            "exclusive_file_lease": ["fixture/e.go"],
+            "delivers": "the integration of both lanes",
+            "done_when": "both lanes run end to end"
+          },
+          {
+            "id": "PKT-WC-LIVE",
+            "status": "not_started",
+            "depends_on": ["PKT-WC-INTEGRATION"],
+            "exclusive_file_lease": ["fixture/f.go"],
+            "delivers": "the live variant",
+            "done_when": "one live cycle completes"
+          }
+        ]
+      }
+    ]
+  },
+  "decisions": [
+    {
+      "id": "sample-decision-alpha",
+      "date": "2026-01-01",
+      "status": "superseded",
+      "decision": "A sample decision used by the tests to exercise get, list, search and update. It prevents the roster filter from being the only searchable narrative.",
+      "rationale": "Fixture data. Its only job is to have the shape a decision record has."
+    },
+    {
+      "id": "sample-decision-beta",
+      "date": "2026-01-02",
+      "status": "active",
+      "decision": "A second sample decision so list and filter have more than one row.",
+      "rationale": "Fixture data."
+    }
+  ],
+  "incidents": [
+    {
+      "id": "sample-incident-alpha",
+      "date": "2026-01-03",
+      "summary": "A sample incident used to exercise narrative-field updates.",
+      "resolution": "Resolved in the fixture.",
+      "timeline": [
+        "first thing happened",
+        "then the next thing"
+      ],
+      "lessons": [
+        "an array-valued field, so --field must refuse to target it"
+      ]
+    },
+    {
+      "id": "sample-incident-beta",
+      "date": "2026-01-04",
+      "summary": "A second sample incident so index regeneration has more than one id to write.",
+      "resolution": "Resolved in the fixture.",
+      "timeline": [
+        "one event"
+      ],
+      "lessons": [
+        "a second array-valued field"
+      ]
+    }
+  ],
+  "open_issues": [
+    {
+      "id": "sample-open-issue-alpha",
+      "status": "open",
+      "description": "A sample open issue used to exercise create-duplicate detection.",
+      "next_step": "Nothing; this is fixture data."
+    },
+    {
+      "id": "sample-open-issue-beta",
+      "status": "open",
+      "description": "A second sample open issue, used to exercise repeatable and file-backed --field input.",
+      "next_step": "Nothing; this is fixture data."
+    }
+  ],
+  "documents": [
+    {
+      "id": "DOC-TEST",
+      "path": "docs/test.md",
+      "title": "kbctl test document",
+      "summary": "Synthetic document record for kbctl document kind tests.",
+      "status": "fixture"
+    }
+  ]
+}

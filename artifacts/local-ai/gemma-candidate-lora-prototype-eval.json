@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "adapter": "artifacts/local-ai/gemma-candidate-lora-prototype",
+  "dataset": "artifacts/local-ai/gemma-candidate-tuning.jsonl",
+  "examples": 3,
+  "authority": "candidate-only",
+  "productionQuality": false,
+  "trainingStatus": "TRAINED",
+  "maxSteps": 20,
+  "baseModel": "google/gemma-4-12B-it",
+  "errors": []
+}

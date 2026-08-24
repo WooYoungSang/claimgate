@@ -198,6 +198,48 @@ describe('projection eligibility guards', () => {
     expect(() => projectClaim(forgedVerified)).toThrow(notProjectableError);
   });
 
+  it('rejects forged terminal claims whose Source Anchor has no source identity', () => {
+    const needsEvidence = transitionClaim(claim('forged-blank-source-id'), {
+      to: 'needs-evidence',
+      actor: { kind: 'system', id: 'risk-fixture' },
+      now
+    });
+    const forgedVerified = {
+      ...needsEvidence,
+      state: 'verified' as const,
+      anchor: { ...anchor, sourceId: '   ' },
+      audit: Object.freeze([
+        ...needsEvidence.audit,
+        forgedReviewerTransition(needsEvidence, {
+          before: 'needs-evidence',
+          after: 'verified',
+          anchorId: '%20%20%20:text:start=4:end=18'
+        })
+      ])
+    } satisfies Claim;
+
+    expect(isProjectableClaim(forgedVerified)).toBe(false);
+    expect(() => projectClaim(forgedVerified)).toThrow(notProjectableError);
+  });
+
+  it('rejects forged terminal claims that carry additional anchor collections', () => {
+    const verified = transitionClaim(
+      transitionClaim(claim('forged-multi-anchor'), {
+        to: 'needs-evidence',
+        actor: { kind: 'system', id: 'risk-fixture' },
+        now
+      }),
+      { to: 'verified', reviewer, now }
+    );
+    const forgedVerified = {
+      ...verified,
+      anchors: Object.freeze([anchor, { ...anchor, startOffset: 20, endOffset: 30 }])
+    } satisfies Claim & { readonly anchors: readonly unknown[] };
+
+    expect(isProjectableClaim(forgedVerified)).toBe(false);
+    expect(() => projectClaim(forgedVerified)).toThrow(notProjectableError);
+  });
+
   it('rejects reviewer terminal audits copied from another claim', () => {
     const sourceClaim = transitionClaim(
       transitionClaim(claim('source-claim'), {
@@ -216,6 +258,56 @@ describe('projection eligibility guards', () => {
       ...targetClaim,
       state: 'verified' as const,
       audit: Object.freeze([...targetClaim.audit, sourceClaim.audit[sourceClaim.audit.length - 1]!])
+    } satisfies Claim;
+
+    expect(isProjectableClaim(forgedVerified)).toBe(false);
+    expect(() => projectClaim(forgedVerified)).toThrow(notProjectableError);
+  });
+
+  it('rejects forged reviewer terminal audits with a blank reviewer identity', () => {
+    const needsEvidence = transitionClaim(claim('forged-blank-reviewer'), {
+      to: 'needs-evidence',
+      actor: { kind: 'system', id: 'risk-fixture' },
+      now
+    });
+    const forgedVerified = {
+      ...needsEvidence,
+      state: 'verified' as const,
+      audit: Object.freeze([
+        ...needsEvidence.audit,
+        forgedReviewerTransition(needsEvidence, {
+          before: 'needs-evidence',
+          after: 'verified',
+          anchorId: sourceAnchorId(anchor),
+          reviewerId: '   '
+        })
+      ])
+    } satisfies Claim;
+
+    expect(isProjectableClaim(forgedVerified)).toBe(false);
+    expect(() => projectClaim(forgedVerified)).toThrow(notProjectableError);
+  });
+
+  it('rejects claims with more than one reviewer terminal decision audit', () => {
+    const verified = transitionClaim(
+      transitionClaim(claim('forged-duplicate-terminal'), {
+        to: 'needs-evidence',
+        actor: { kind: 'system', id: 'risk-fixture' },
+        now
+      }),
+      { to: 'verified', reviewer, now }
+    );
+    const forgedVerified = {
+      ...verified,
+      audit: Object.freeze([
+        ...verified.audit,
+        forgedReviewerTransition(verified, {
+          before: 'conflict',
+          after: 'verified',
+          anchorId: sourceAnchorId(anchor),
+          reviewerId: 'reviewer-2'
+        })
+      ])
     } satisfies Claim;
 
     expect(isProjectableClaim(forgedVerified)).toBe(false);

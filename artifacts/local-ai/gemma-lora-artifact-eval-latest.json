@@ -1,0 +1,15 @@
+{
+  "status": "FAIL",
+  "adapter": "/tmp/claimgate-lora-artifact-leak-cr5NcO/adapter",
+  "dataset": "/tmp/claimgate-lora-artifact-leak-cr5NcO/tuning.jsonl",
+  "examples": 1,
+  "authority": "candidate-only",
+  "productionQuality": false,
+  "trainingStatus": "TEST_TRAINED",
+  "maxSteps": null,
+  "baseModel": null,
+  "errors": [
+    "dataset line 1: candidate leaks forbidden authority field reviewerDecision",
+    "dataset line 1: candidate state must stay extracted"
+  ]
+}

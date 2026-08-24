@@ -8,4 +8,4 @@ ClaimGate v0 is an offline, deterministic pnpm monorepo.
 - `packs/*`: domain-pack labels, entity mapping, deterministic risk rules, report templates, and fixtures. Packs can depend on core contracts and conformance tests, but core cannot depend on packs.
 - `examples/*`: thin compositions that wire a selected pack into the core/UI boundary for demos. Pack swap changes behavior without core/UI changes.
 
-v0 no-go remains: no real LLM extraction, OCR, general parser, server, DB, auth, multitenancy, graph DB, or real DID wallet/issuer/verifier.
+v0 default verification no-go remains: no network LLM provider, OCR, general parser, server, DB, auth, multitenancy, graph DB, or real DID wallet/issuer/verifier. The optional Local Gemma/Ollama demo path belongs outside `packages/core`; `packages/ai-local` owns the local adapter/RAG guard and must stay behind the candidate-only `ClaimExtractor` boundary.

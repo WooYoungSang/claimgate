@@ -27,7 +27,8 @@ const forbiddenPositiveClaims = [
   'ClaimGate proves real-world fact checking accuracy'
 ];
 const noGos = [
-  'real LLM extraction',
+  'hosted LLM extraction',
+  'LLM-as-judge',
   'OCR',
   'PDF/Excel parsing',
   'server',
@@ -38,8 +39,8 @@ const noGos = [
   'real DID'
 ];
 const requiredNoGoStatements = [
-  'does **not** add real LLM extraction, OCR, PDF/Excel parsing, server, database, auth, multitenancy, graph database persistence, or real DID wallet/verifier behavior',
-  'not real LLM/OCR/server/DB/DID evaluation'
+  'does **not** add hosted LLM extraction, LLM-as-judge behavior, OCR, PDF/Excel parsing, server, database, auth, multitenancy, graph database persistence, or real DID wallet/verifier behavior',
+  'not hosted-LLM/LLM-as-judge/OCR/server/DB/DID evaluation'
 ];
 
 if (!existsSync(docPath)) {
@@ -103,7 +104,7 @@ const report = {
   scenarios: uniqueScenarioIds,
   coverage: requiredCoverage,
   primaryCommands: requiredCommands,
-  interpretation: 'offline deterministic fixture QA only; not real LLM/OCR/server/DB/DID evaluation'
+  interpretation: 'offline deterministic fixture QA only; not hosted-LLM/LLM-as-judge/OCR/server/DB/DID evaluation'
 };
 
 console.log(JSON.stringify(report, null, 2));

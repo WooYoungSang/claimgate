@@ -1,0 +1,13 @@
+{
+  "status": "SMOKE_TRAINED",
+  "trainedAt": "2026-08-17T12:26:33Z",
+  "baseModel": "google/gemma-4-12B-it",
+  "dataset": "artifacts/local-ai/gemma-candidate-tuning.jsonl",
+  "output": "artifacts/local-ai/gemma-candidate-lora-smoke",
+  "maxSteps": 1,
+  "maxSeqLength": 512,
+  "trainLoss": 8.505,
+  "trainRuntimeSeconds": 3.115,
+  "authority": "candidate-only",
+  "notes": "Smoke LoRA adapter proves the local training path can run on RTX 4090; it is not a quality-tuned production checkpoint. AI remains candidate extractor only."
+}

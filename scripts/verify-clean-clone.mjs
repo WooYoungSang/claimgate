@@ -175,7 +175,7 @@ ${rows}
 
 ## Scope boundary
 
-This evidence covers an offline, deterministic, fixture-first local Git clone. It does not claim live OpenAPI, real LLM, OCR, server/DB/auth, package publishing, production accuracy, or external release readiness.
+This evidence covers an offline, deterministic, fixture-first local Git clone. It does not claim live OpenAPI, hosted LLM, LLM-as-judge, OCR, server/DB/auth, package publishing, production accuracy, or external release readiness.
 `;
 }
 

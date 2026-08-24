@@ -1,5 +1,5 @@
 import { appendAuditEvent, createAuditEvent, type AuditActor, type AuditTrail } from './audit.js';
-import { freezeSourceAnchor, sourceAnchorId, type SourceAnchor } from './source-anchor.js';
+import { freezeSourceAnchor, isValidSourceAnchor, sourceAnchorId, type SourceAnchor } from './source-anchor.js';
 
 export type ClaimLifecycleState =
   | 'extracted'
@@ -35,6 +35,7 @@ export interface Claim {
 }
 
 export type ClaimAnchorErrorCode = 'E_INVALID_ANCHOR_ATTACH';
+const additionalAnchorCollectionKeys = ['anchors', 'sourceAnchors', 'evidenceAnchors', 'proposedAnchors'] as const;
 
 export class ClaimAnchorError extends Error {
   readonly code: ClaimAnchorErrorCode;
@@ -52,6 +53,7 @@ export interface CreateExtractedClaimInput {
   readonly subject?: string;
   readonly aiValue?: ClaimValue;
   readonly actor?: AuditActor;
+  readonly reason?: string;
   readonly now?: () => string;
 }
 
@@ -67,6 +69,8 @@ export interface AttachAnchorInput {
 const defaultNow = () => new Date().toISOString();
 
 export function createExtractedClaim(input: CreateExtractedClaimInput): Claim {
+  assertNoAdditionalAnchorCollections(input);
+
   const timestamp = (input.now ?? defaultNow)();
   const actor = input.actor ?? { kind: 'system', id: 'ai-curator' };
   const base: Omit<Claim, 'audit'> = Object.freeze({
@@ -87,7 +91,7 @@ export function createExtractedClaim(input: CreateExtractedClaimInput): Claim {
         after: 'extracted',
         actor,
         timestamp,
-        reason: 'Claim extracted as an unverified candidate.'
+        reason: input.reason ?? 'Claim extracted as an unverified candidate.'
       })
     ])
   });
@@ -100,6 +104,8 @@ export function attachAnchor(claim: Claim, input: AttachAnchorInput): Claim {
       `Cannot attach Source Anchor to ${claim.state} claim; only extracted claims may be anchored.`
     );
   }
+
+  assertNoAdditionalAnchorCollections(claim);
 
   const timestamp = (input.now ?? defaultNow)();
   const anchor = freezeSourceAnchor(input.anchor);
@@ -126,5 +132,22 @@ export function attachAnchor(claim: Claim, input: AttachAnchorInput): Claim {
 }
 
 export function hasSourceAnchor(claim: Pick<Claim, 'anchor'>): boolean {
-  return claim.anchor !== undefined;
+  return isValidSourceAnchor(claim.anchor);
+}
+
+export function hasAdditionalAnchorCollections(value: unknown): boolean {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+
+  return additionalAnchorCollectionKeys.some((key) => Object.prototype.hasOwnProperty.call(value, key));
+}
+
+function assertNoAdditionalAnchorCollections(value: unknown): void {
+  if (hasAdditionalAnchorCollections(value)) {
+    throw new ClaimAnchorError(
+      'E_INVALID_ANCHOR_ATTACH',
+      'Claim supports one primary Source Anchor; multi-anchor claims must be decomposed into atomic subclaims.'
+    );
+  }
 }

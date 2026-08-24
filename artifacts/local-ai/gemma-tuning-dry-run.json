@@ -1,0 +1,9 @@
+{
+  "status": "DRY_RUN_PASS",
+  "examples": 3,
+  "base_model": "google/gemma-4-12B-it",
+  "model_type": "gemma4_unified",
+  "model_loader": "AutoModelForImageTextToText",
+  "tokenizer": "GemmaTokenizer",
+  "authority": "candidate-only"
+}

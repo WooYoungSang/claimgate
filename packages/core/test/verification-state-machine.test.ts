@@ -3,6 +3,8 @@ import {
   attachAnchor,
   ClaimAnchorError,
   createExtractedClaim,
+  applyTerminalReviewerDecision,
+  claimReviewVersion,
   transitionClaim,
   sourceAnchorId,
   VerificationError,
@@ -102,6 +104,17 @@ describe('ClaimGate verification state machine', () => {
     ).toThrow(new VerificationError('E_NO_ANCHOR', 'A claim needs a Source Anchor before it can become corrected.'));
   });
 
+  it('rejects Source Anchors without a source identity', () => {
+    expect(() =>
+      attachAnchor(createExtractedClaim({ id: 'claim-no-source-id', text: 'Missing source id.', aiValue: 'value' }), {
+        anchor: { ...csvAnchor, sourceId: '   ' },
+        sourceValue: 'value',
+        actor: { kind: 'system', id: 'anchor-fixture' },
+        now: fixedNow
+      })
+    ).toThrow('Source Anchor requires a non-empty sourceId.');
+  });
+
   it('requires a reviewer for terminal decisions', () => {
     const needsEvidence = transitionClaim(anchoredClaim(), {
       to: 'needs-evidence',
@@ -112,6 +125,22 @@ describe('ClaimGate verification state machine', () => {
     expect(() =>
       transitionClaim(needsEvidence, {
         to: 'verified',
+        now: fixedNow
+      })
+    ).toThrow(new VerificationError('E_NO_REVIEWER', 'Terminal verification decisions require a reviewer.'));
+  });
+
+  it('rejects terminal decisions with a blank reviewer identity', () => {
+    const needsEvidence = transitionClaim(anchoredClaim(), {
+      to: 'needs-evidence',
+      actor: { kind: 'system', id: 'risk-fixture' },
+      now: fixedNow
+    });
+
+    expect(() =>
+      transitionClaim(needsEvidence, {
+        to: 'verified',
+        reviewer: { id: '   ' },
         now: fixedNow
       })
     ).toThrow(new VerificationError('E_NO_REVIEWER', 'Terminal verification decisions require a reviewer.'));
@@ -142,6 +171,23 @@ describe('ClaimGate verification state machine', () => {
     ).toThrow(invalidAnchorAttachError('needs-evidence'));
   });
 
+  it('rejects forged extracted Claims that already carry multi-anchor collections', () => {
+    const extracted = createExtractedClaim({ id: 'claim-multi-anchor', text: 'Composite claim.', aiValue: 'value' });
+    const forgedComposite = {
+      ...extracted,
+      anchors: Object.freeze([csvAnchor, { ...csvAnchor, row: 13 }])
+    };
+
+    expect(() =>
+      attachAnchor(forgedComposite, {
+        anchor: csvAnchor,
+        sourceValue: 'value',
+        actor: { kind: 'system', id: 'anchor-fixture' },
+        now: fixedNow
+      })
+    ).toThrow('Claim supports one primary Source Anchor; multi-anchor claims must be decomposed into atomic subclaims.');
+  });
+
   it('does not reopen terminal claims by attaching a Source Anchor', () => {
     const verified = transitionClaim(
       transitionClaim(anchoredClaim(), {
@@ -159,6 +205,119 @@ describe('ClaimGate verification state machine', () => {
         now: fixedNow
       })
     ).toThrow(invalidAnchorAttachError('verified'));
+  });
+
+  it('does not allow a second terminal reviewer decision in the v0 in-memory slice', () => {
+    const verified = transitionClaim(
+      transitionClaim(anchoredClaim(), {
+        to: 'needs-evidence',
+        actor: { kind: 'system', id: 'risk-fixture' },
+        now: fixedNow
+      }),
+      { to: 'verified', reviewer, now: fixedNow }
+    );
+
+    expect(() =>
+      transitionClaim(verified, {
+        to: 'corrected',
+        reviewer,
+        correction: { correctedValue: '12,345', reason: 'Second decision attempt.' },
+        now: fixedNow
+      })
+    ).toThrow(new VerificationError('E_INVALID_TRANSITION', 'Cannot transition from verified to corrected.'));
+  });
+
+  it('exposes the append-only audit length as the reviewer decision version', () => {
+    const anchored = anchoredClaim();
+    const needsEvidence = transitionClaim(anchored, {
+      to: 'needs-evidence',
+      actor: { kind: 'system', id: 'risk-fixture' },
+      now: fixedNow
+    });
+
+    expect(claimReviewVersion(anchored)).toBe(2);
+    expect(claimReviewVersion(needsEvidence)).toBe(3);
+  });
+
+  it('applies a terminal reviewer decision only when the expected version matches', () => {
+    const needsEvidence = transitionClaim(anchoredClaim(), {
+      to: 'needs-evidence',
+      actor: { kind: 'system', id: 'risk-fixture' },
+      now: fixedNow
+    });
+
+    const verified = applyTerminalReviewerDecision(needsEvidence, {
+      expectedVersion: claimReviewVersion(needsEvidence),
+      to: 'verified',
+      reviewer,
+      reason: 'Reviewer confirmed the anchored value.',
+      now: fixedNow
+    });
+
+    expect(verified.state).toBe('verified');
+    expect(claimReviewVersion(verified)).toBe(claimReviewVersion(needsEvidence) + 1);
+    expect(verified.audit.at(-1)).toMatchObject({
+      action: 'transition',
+      before: 'needs-evidence',
+      after: 'verified',
+      actor: { kind: 'reviewer', id: reviewer.id }
+    });
+  });
+
+  it('rejects stale concurrent reviewer terminal decisions before mutating the claim snapshot', () => {
+    const needsEvidence = transitionClaim(anchoredClaim(), {
+      to: 'needs-evidence',
+      actor: { kind: 'system', id: 'risk-fixture' },
+      now: fixedNow
+    });
+
+    expect(() =>
+      applyTerminalReviewerDecision(needsEvidence, {
+        expectedVersion: claimReviewVersion(needsEvidence) - 1,
+        to: 'verified',
+        reviewer,
+        now: fixedNow
+      })
+    ).toThrow(
+      new VerificationError(
+        'E_STALE_REVIEWER_DECISION',
+        'Stale reviewer decision for claim claim-1: expected version 2 but current version is 3.'
+      )
+    );
+
+    expect(needsEvidence.state).toBe('needs-evidence');
+    expect(claimReviewVersion(needsEvidence)).toBe(3);
+  });
+
+  it('rejects second terminal reviewer decisions with an explicit terminal-decision error', () => {
+    const verified = applyTerminalReviewerDecision(
+      transitionClaim(anchoredClaim(), {
+        to: 'needs-evidence',
+        actor: { kind: 'system', id: 'risk-fixture' },
+        now: fixedNow
+      }),
+      {
+        expectedVersion: 3,
+        to: 'verified',
+        reviewer,
+        now: fixedNow
+      }
+    );
+
+    expect(() =>
+      applyTerminalReviewerDecision(verified, {
+        expectedVersion: claimReviewVersion(verified),
+        to: 'corrected',
+        reviewer: { id: 'reviewer-2', displayName: 'Second Reviewer' },
+        correction: { correctedValue: '12,345', reason: 'Second decision attempt.' },
+        now: fixedNow
+      })
+    ).toThrow(
+      new VerificationError(
+        'E_TERMINAL_DECISION_ALREADY_RECORDED',
+        'Claim claim-1 already has a terminal reviewer decision: verified.'
+      )
+    );
   });
 
   it('deep clones and freezes nested Source Anchor fields when attaching anchors', () => {

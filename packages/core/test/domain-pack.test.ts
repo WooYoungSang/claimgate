@@ -24,6 +24,13 @@ const pack: DomainPack = {
   anchorKinds: ['dataset-row'],
   riskRules: [mismatchRule],
   reportTemplates: [{ id: 'summary', title: 'Summary', sections: ['review'] }],
+  greenSamplingPolicyRecommendation: {
+    owner: 'domain-pack',
+    greenSampleRate: 0.1,
+    minGreenSampleCount: 1,
+    seed: 'demo-domain-green-sampling',
+    reason: 'Demo pack recommends reviewing at least one green false-negative sample.'
+  },
   fixtures: [
     {
       id: 'demo-fixture',
@@ -55,6 +62,11 @@ describe('DomainPack contract', () => {
     expect(pack.anchorKinds).toEqual(['dataset-row']);
     expect(pack.entityTypes.map((entity) => entity.id)).toEqual(['agency']);
     expect(pack.reportTemplates.map((template) => template.id)).toEqual(['summary']);
+    expect(pack.greenSamplingPolicyRecommendation).toMatchObject({
+      owner: 'domain-pack',
+      greenSampleRate: 0.1,
+      minGreenSampleCount: 1
+    });
     expect(pack.fixtures).toHaveLength(1);
   });
 });

@@ -1,5 +1,5 @@
-import type { Claim, ClaimLifecycleState, ClaimValue } from './claim.js';
-import { sourceAnchorId, type SourceAnchor } from './source-anchor.js';
+import { hasAdditionalAnchorCollections, type Claim, type ClaimLifecycleState, type ClaimValue } from './claim.js';
+import { isValidSourceAnchor, sourceAnchorId, type SourceAnchor } from './source-anchor.js';
 
 export type ProjectionErrorCode = 'E_NOT_PROJECTABLE';
 
@@ -32,8 +32,9 @@ export function isProjectableClaim(claim: Claim): claim is Claim & {
 } {
   return (
     isProjectableState(claim.state) &&
-    claim.anchor !== undefined &&
-    hasReviewerTerminalAuditEvent(claim) &&
+    !hasAdditionalAnchorCollections(claim) &&
+    isValidSourceAnchor(claim.anchor) &&
+    hasExactlyOneReviewerTerminalAuditEvent(claim) &&
     (claim.state !== 'corrected' || claim.correction !== undefined)
   );
 }
@@ -52,15 +53,15 @@ export function assertProjectableClaim(claim: Claim): asserts claim is Claim & {
 
 const terminalAuditPredecessors = new Set<ClaimLifecycleState>(['needs-evidence', 'conflict', 'aggregate-only']);
 
-function hasReviewerTerminalAuditEvent(claim: Claim): boolean {
-  if (claim.anchor === undefined) {
+function hasExactlyOneReviewerTerminalAuditEvent(claim: Claim): boolean {
+  if (!isValidSourceAnchor(claim.anchor)) {
     return false;
   }
 
   const currentAnchorId = sourceAnchorId(claim.anchor);
 
-  return claim.audit.some((event) => {
-    if (event.action !== 'transition' || event.after !== claim.state || event.actor.kind !== 'reviewer') {
+  const terminalDecisionEvents = claim.audit.filter((event) => {
+    if (event.action !== 'transition' || event.after !== claim.state || event.actor.kind !== 'reviewer' || event.actor.id.trim().length === 0) {
       return false;
     }
 
@@ -78,6 +79,8 @@ function hasReviewerTerminalAuditEvent(claim: Claim): boolean {
 
     return claim.state !== 'corrected' || claim.correction?.reviewerId === event.actor.id;
   });
+
+  return terminalDecisionEvents.length === 1;
 }
 
 export function filterProjectableClaims<T extends Claim>(

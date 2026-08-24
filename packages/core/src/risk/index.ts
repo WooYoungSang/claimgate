@@ -2,6 +2,7 @@ import { transitionClaim, type CorrectionInput } from '../verification.js';
 import { hasSourceAnchor, type Claim, type ClaimLifecycleState, type ClaimValue } from '../claim.js';
 import { isProjectableClaim } from '../projection-guards.js';
 import type { Reviewer } from '../audit.js';
+import type { DomainGreenSamplingPolicyRecommendation } from '../domain-pack.js';
 
 export type RiskLevel = 'red' | 'yellow' | 'green';
 export type RiskQueueBucket = RiskLevel | 'aggregate-only';
@@ -15,7 +16,7 @@ export type RiskRuleId =
   | 'staleness'
   | 'aggregate-only';
 
-export type RiskEngineErrorCode = 'E_NO_RULE_TRACE' | 'E_AI_SCORED';
+export type RiskEngineErrorCode = 'E_NO_RULE_TRACE' | 'E_AI_SCORED' | 'E_INVALID_SAMPLING_POLICY';
 
 export class RiskEngineError extends Error {
   readonly code: RiskEngineErrorCode;
@@ -68,6 +69,10 @@ export interface RiskQueueOptions {
   readonly greenSampleRate?: number;
   readonly minGreenSampleCount?: number;
   readonly seed?: string;
+}
+
+export interface DomainPackWithGreenSamplingPolicy {
+  readonly greenSamplingPolicyRecommendation?: DomainGreenSamplingPolicyRecommendation;
 }
 
 export interface RiskQueueItem {
@@ -221,6 +226,20 @@ export function buildRiskQueue(inputs: readonly EvaluateRiskInput[], options: Ri
   });
 }
 
+export function greenSamplingOptionsFromDomainPack(pack: DomainPackWithGreenSamplingPolicy): RiskQueueOptions {
+  const recommendation = pack.greenSamplingPolicyRecommendation;
+  if (!recommendation) {
+    return Object.freeze({});
+  }
+
+  assertGreenSamplingPolicy(recommendation);
+  return Object.freeze({
+    ...(recommendation.greenSampleRate !== undefined ? { greenSampleRate: recommendation.greenSampleRate } : {}),
+    ...(recommendation.minGreenSampleCount !== undefined ? { minGreenSampleCount: recommendation.minGreenSampleCount } : {}),
+    ...(recommendation.seed !== undefined ? { seed: recommendation.seed } : {})
+  });
+}
+
 export function applyRiskDisposition(input: ApplyRiskDispositionInput): Claim {
   if (input.claim.state === input.recommendedState) {
     return input.claim;
@@ -323,11 +342,34 @@ function sortedBucket(items: readonly RiskQueueItem[], bucket: RiskQueueBucket):
 
 function sampleGreenIds(green: readonly RiskQueueItem[], options: RiskQueueOptions): ReadonlySet<string> {
   if (green.length === 0) return new Set<string>();
-  const rate = clamp(options.greenSampleRate ?? 0.1, 0, 1);
-  const minCount = Math.max(0, Math.floor(options.minGreenSampleCount ?? 1));
+
+  if (options.greenSampleRate === undefined && options.minGreenSampleCount === undefined) {
+    return new Set<string>();
+  }
+
+  assertGreenSamplingPolicy(options);
+
+  const rate = clamp(options.greenSampleRate ?? 0, 0, 1);
+  const minCount = Math.max(0, Math.floor(options.minGreenSampleCount ?? 0));
   const count = Math.min(green.length, Math.max(minCount, Math.ceil(green.length * rate)));
   const ordered = [...green].sort((left, right) => seededScore(right.claim.id, options.seed ?? 'claimgate-green-sampling') - seededScore(left.claim.id, options.seed ?? 'claimgate-green-sampling') || left.claim.id.localeCompare(right.claim.id));
   return new Set(ordered.slice(0, count).map((item) => item.claim.id));
+}
+
+function assertGreenSamplingPolicy(options: RiskQueueOptions): void {
+  if (
+    options.greenSampleRate !== undefined &&
+    (!Number.isFinite(options.greenSampleRate) || options.greenSampleRate < 0 || options.greenSampleRate > 1)
+  ) {
+    throw new RiskEngineError('E_INVALID_SAMPLING_POLICY', 'greenSampleRate must be a finite number between 0 and 1.');
+  }
+
+  if (
+    options.minGreenSampleCount !== undefined &&
+    (!Number.isFinite(options.minGreenSampleCount) || options.minGreenSampleCount < 0 || !Number.isInteger(options.minGreenSampleCount))
+  ) {
+    throw new RiskEngineError('E_INVALID_SAMPLING_POLICY', 'minGreenSampleCount must be a non-negative integer.');
+  }
 }
 
 function freezeQueueItem(item: RiskQueueItem): RiskQueueItem {

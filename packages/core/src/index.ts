@@ -39,12 +39,17 @@ export function listCoreInvariants(): readonly ClaimGateInvariant[] {
 export * from './audit.js';
 export * from './claim.js';
 export * from './source-anchor.js';
+export * from './source-anchor-workflow.js';
+export * from './extraction-provenance.js';
+export * from './claim-repository.js';
 export * from './evidence.js';
 export * from './projection-guards.js';
 export * from './verification.js';
 export * from './projectors/graph.js';
 export * from './projectors/report.js';
 export * from './extraction.js';
+export * from './atomic-claim.js';
 export * from './fixture-loader.js';
+export * from './domain-pack.js';
 
 export * from './risk/index.js';

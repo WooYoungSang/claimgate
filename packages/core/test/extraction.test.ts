@@ -81,6 +81,59 @@ describe('AI extraction adapter boundary', () => {
     ]);
   });
 
+  it('normalizes and freezes proposed anchors from adapter output without attaching them to core Claims', async () => {
+    const mutableProposedAnchor = {
+      kind: 'dataset-row' as const,
+      sourceId: source.id,
+      dataset: 'civic-budget-2026.csv',
+      row: 2,
+      column: 'population'
+    };
+    const futureAdapter: ClaimExtractor = {
+      id: 'future-llm-proposed-anchor-test-double',
+      mode: 'llm-adapter-boundary',
+      extractClaims: () => [
+        {
+          id: 'candidate-with-proposed-anchor',
+          text: 'City population is 12,345.',
+          state: 'extracted',
+          aiValue: '12,345',
+          proposedAnchor: mutableProposedAnchor
+        }
+      ]
+    };
+
+    const [candidate] = await extractCandidateClaims(futureAdapter, source);
+    mutableProposedAnchor.row = 99;
+    const [claim] = createExtractedClaimsFromCandidates([candidate!], { now: () => '2026-07-07T00:00:00.000Z' });
+
+    expect(candidate?.proposedAnchor).toMatchObject({ sourceId: source.id, row: 2 });
+    expect(Object.isFrozen(candidate?.proposedAnchor)).toBe(true);
+    expect(claim?.state).toBe('extracted');
+    expect(claim?.anchor).toBeUndefined();
+  });
+
+  it('rejects multi-anchor proposal shapes instead of silently choosing or ignoring anchors', async () => {
+    const futureAdapter: ClaimExtractor = {
+      id: 'future-llm-multi-anchor-test-double',
+      mode: 'llm-adapter-boundary',
+      extractClaims: () =>
+        [
+          {
+            id: 'composite-candidate',
+            text: 'Composite claim needs more than one source.',
+            state: 'extracted',
+            proposedAnchors: [
+              { kind: 'dataset-row', sourceId: source.id, dataset: 'a.csv', row: 1 },
+              { kind: 'dataset-row', sourceId: source.id, dataset: 'b.csv', row: 2 }
+            ]
+          }
+        ] as unknown as readonly CandidateClaim[]
+    };
+
+    await expect(extractCandidateClaims(futureAdapter, source)).rejects.toThrow(/AI extraction candidates may only contain extracted candidates/);
+  });
+
   it('rejects fixture records that smuggle judge, risk, projection, or terminal state authority', () => {
     const authorityLeak = JSON.stringify({
       id: 'bad-fixture',
@@ -129,6 +182,51 @@ describe('AI extraction adapter boundary', () => {
     };
 
     await expect(extractCandidateClaims(futureAdapter, source)).rejects.toThrow(/AI extraction candidates may only contain extracted candidates/);
+  });
+
+  it('rejects unknown candidate fields instead of silently dropping hidden authority metadata', async () => {
+    const futureAdapter: ClaimExtractor = {
+      id: 'future-llm-hidden-authority-test-double',
+      mode: 'llm-adapter-boundary',
+      extractClaims: () =>
+        [
+          {
+            id: 'hidden-authority-claim',
+            text: 'LLM hid a review decision in metadata.',
+            state: 'extracted',
+            metadata: {
+              reviewerDecision: 'verified',
+              reviewerId: 'ai-reviewer'
+            }
+          }
+        ] as unknown as readonly CandidateClaim[]
+    };
+
+    await expect(extractCandidateClaims(futureAdapter, source)).rejects.toThrow(/AI extraction candidates may only contain extracted candidates/);
+  });
+
+  it('rejects authority fields hidden inside proposed Source Anchor objects', async () => {
+    const futureAdapter: ClaimExtractor = {
+      id: 'future-llm-hidden-anchor-authority-test-double',
+      mode: 'llm-adapter-boundary',
+      extractClaims: () =>
+        [
+          {
+            id: 'hidden-anchor-authority-claim',
+            text: 'LLM hid a review decision inside the proposed anchor.',
+            state: 'extracted',
+            proposedAnchor: {
+              kind: 'dataset-row',
+              sourceId: source.id,
+              dataset: 'civic-budget-2026.csv',
+              row: 2,
+              reviewerDecision: 'verified'
+            }
+          }
+        ] as unknown as readonly CandidateClaim[]
+    };
+
+    await expect(extractCandidateClaims(futureAdapter, source)).rejects.toThrow();
   });
 
   it('keeps fixture loading deterministic and fixture-first, including intentional wrong claims', () => {

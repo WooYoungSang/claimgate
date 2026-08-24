@@ -24,7 +24,7 @@ Allowed candidate fields:
 
 - `id`, `text`, `subject`, `aiValue`
 - `state: "extracted"`
-- `proposedAnchor` (proposal only; not attached to the `Claim`)
+- `proposedAnchor` (proposal only; not attached to the `Claim` until `acceptProposedSourceAnchor` or another reviewer/source workflow accepts it)
 - `fixtureNotes` for deterministic demo annotations such as intentional mismatch fixtures
 
 Forbidden candidate authority:
@@ -39,22 +39,24 @@ Mapped authority labels exposed by core are `verify-truth`, `score-risk`, `attac
 
 The boundary preserves ClaimGate invariants: No Anchor No Claim, AI Curator Not Judge, deterministic risk with rule trace, Evidence Pack First, and verified/corrected-only projection.
 
-## Future LLM wiring story
+## Local LLM wiring story
 
-A real LLM/parser adapter can implement `ClaimExtractor` later, but it must be a replacement for candidate generation only:
+`@claimgate/ai-local` implements the local Ollama/Gemma `ClaimExtractor` boundary as a replacement for candidate generation only. The current submission recording path uses Local Gemma 4 12B through an Ollama-compatible endpoint on the RTX 4090 node. Automated tests may use test-double Ollama responses, but public product/demo copy must describe the real local Gemma path.
 
 1. The provider adapter receives a source descriptor or caller-managed source text.
 2. The provider adapter returns `CandidateClaim[]` with optional `proposedAnchor` values.
 3. ClaimGate calls `extractCandidateClaims` or `assertCandidateClaims` before admitting those candidates.
-4. Core creates `extracted` claims only; a separate anchoring/review workflow decides whether proposed anchors become real anchors.
-5. Deterministic risk rules, reviewer transitions, Evidence Pack, report, and graph projection remain outside the AI adapter.
+4. `@claimgate/core` source-anchor workflow APIs accept or reject proposed anchors under reviewer/source-workflow authority; AI output alone never attaches an anchor.
+5. RAG no-hit/conflict behavior is explicit: no-hit fails extraction or creates an extracted needs-evidence candidate without fabricated anchors; conflict candidates remain extracted input for deterministic risk/reviewer workflow.
+6. Core creates `extracted` claims only; a separate anchoring/review workflow decides whether proposed anchors become real anchors.
+7. Deterministic risk rules, reviewer transitions, Evidence Pack, report, and graph projection remain outside the AI adapter.
 
-Any future provider work requires a separate Bet and No-Go review. That Bet may wire credentials, prompts, retry policy, or provider-specific parsing, but it must still pass the same authority-leak tests and may not grant AI verification, scoring, reviewer, or projection authority.
+Any provider work must still pass the same authority-leak tests and may not grant AI verification, scoring, reviewer, or projection authority. Local model files, fine-tuned weights, and runtime services stay outside git; ClaimGate records model/RAG provenance without treating the model as a judge.
 
 ## What framework performance means
 
-Framework performance measurements in this repository evaluate deterministic ClaimGate operations: fixture loading, state transitions, risk rules, projection guards, and demo composition. They are **not** LLM accuracy, LLM latency, prompt quality, or extraction-quality benchmarks.
+Framework performance measurements in this repository evaluate deterministic ClaimGate operations: fixture loading, state transitions, risk rules, projection guards, and demo composition. They are **not** LLM accuracy, LLM latency, prompt quality, fine-tuning quality, or extraction-quality benchmarks.
 
 ## v0 No-Go
 
-v0 explicitly excludes real LLM calls, OCR, general-purpose PDF/Excel parsing, server, DB, auth, multitenancy, online demos, and non-deterministic extraction.
+The default v0 evaluation path explicitly excludes network LLM calls, OCR, general-purpose PDF/Excel parsing, server, DB, auth, multitenancy, hosted online demos, and non-deterministic extraction. The optional video recording path may call a local Gemma/Ollama-compatible runtime, but that runtime still has candidate-only authority and is not required for CI or clean-clone verification.

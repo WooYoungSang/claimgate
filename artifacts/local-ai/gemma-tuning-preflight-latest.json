@@ -1,0 +1,35 @@
+{
+  "status": "PASS",
+  "gpuReady": true,
+  "datasetReady": true,
+  "pythonDepsReady": true,
+  "trainingReady": "ready",
+  "gpu": {
+    "detected": true,
+    "name": "NVIDIA GeForce RTX 4090",
+    "memoryTotalMiB": 24564,
+    "memoryFreeMiB": 23188,
+    "driverVersion": "565.57.01"
+  },
+  "minFreeVramMiB": 18000,
+  "pythonDeps": {
+    "checked": true,
+    "ready": true,
+    "python": "artifacts/local-ai/gemma-train-venv/bin/python",
+    "versions": {
+      "torch": "2.7.1+cu126",
+      "transformers": "5.15.0",
+      "peft": "0.20.0",
+      "datasets": "3.6.0",
+      "accelerate": "1.7.0",
+      "bitsandbytes": "0.50.1",
+      "trl": "0.18.1",
+      "unsloth": "ERROR: ModuleNotFoundError: No module named 'unsloth'"
+    },
+    "missingOrBroken": []
+  },
+  "baseModel": "google/gemma-4-12B-it",
+  "baseModelReady": "remote-model-available",
+  "errors": [],
+  "nextCommand": "artifacts/local-ai/gemma-train-venv/bin/python scripts/train-gemma-candidate-lora.py --dataset artifacts/local-ai/gemma-candidate-tuning.jsonl --base-model google/gemma-4-12B-it --out artifacts/local-ai/gemma-candidate-lora"
+}
