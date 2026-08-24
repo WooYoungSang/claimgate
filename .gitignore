@@ -136,3 +136,26 @@ Thumbs.db
 # Track ClaimGate harness metadata manifest.
 !.agent/
 !.agent/warvis-claimgate.json
+
+# Local kbctl build artifact
+/kbctl
+artifacts/local-ai/hf-cache/
+artifacts/local-ai/gemma-train-venv/
+artifacts/local-ai/gemma-candidate-lora-smoke/
+artifacts/local-ai/gemma-candidate-lora-prototype/
+
+# Local runtime/cache state
+**/__pycache__/
+*.py[cod]
+.omc/project-memory.json
+.omc/sessions/
+
+# Local competition source material and generated/private form exports
+/docs/*.pdf
+/docs/*.hwp
+/docs/*.png
+/docs/submission/2026-mofa-ai/claimgate-oda-participation-application.*
+/docs/submission/2026-mofa-ai/claimgate-oda-privacy-consent.*
+/docs/submission/2026-mofa-ai/claimgate-oda-product-service-proposal.docx
+/docs/submission/2026-mofa-ai/claimgate-oda-product-service-proposal.preview.html
+/docs/submission/2026-mofa-ai/signature.*

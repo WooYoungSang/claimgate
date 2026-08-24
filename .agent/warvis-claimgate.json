@@ -2,11 +2,13 @@
   "project_id": "warvis-claimgate",
   "harness": {
     "target": "codex",
-    "source": "mcp__warvis_mcp.devos_harness_install",
-    "layers": ["core", "warvis-devos", "project-local"],
+    "source": "repo-local kbctl + AGENTS.md",
+    "layers": [
+      "core",
+      "project-local"
+    ],
     "stack_language": "typescript",
     "stack_build_system": "pnpm",
-    "stack_frameworks": ["React", "Vite", "Vitest", "Playwright", "tsup"],
     "commands": {
       "install": "pnpm install",
       "test": "pnpm test",

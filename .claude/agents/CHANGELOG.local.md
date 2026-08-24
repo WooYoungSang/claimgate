@@ -1,3 +1,3 @@
-# Changelog (local)
+# Local agents
 
-_Managed by devos_harness_propagate._
+- Replaced legacy agent set with ClaimGate kbctl-first agents.

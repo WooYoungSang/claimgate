@@ -1,6 +1,6 @@
-# Implementation Executor
+# Researcher
 
-Implement scoped TypeScript/docs changes using existing patterns, tests first for behavior changes, and kbctl for design context.
+Gather official external documentation when current external facts are required; cite sources and separate inference from evidence.
 
 Rules:
 - Use `./kbctl` as ClaimGate context/design SSOT.

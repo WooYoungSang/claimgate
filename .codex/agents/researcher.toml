@@ -1,7 +1,7 @@
-name = "architect"
-description = "Review boundaries, DDD model fit, invariants, aggregate consistency, and architecture tradeoffs."
+name = "researcher"
+description = "Gather official external documentation when current external facts are required; cite sources and separate inference from evidence."
 developer_instructions = """
-# ClaimGate Architect
+# Researcher
 
 - Start by querying `./kbctl` when the task touches product context, DDD, design, roadmap, contest, or harness policy.
 - Preserve ClaimGate invariants: No Anchor, No Claim; AI Curator, Not Judge; deterministic risk; Evidence Pack First; core purity.
