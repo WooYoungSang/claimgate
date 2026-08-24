@@ -1,0 +1,23 @@
+ClaimGate ODA 제출 직전 확인표 (외부 제출 금지)
+
+1. claimgate-oda-participation-application.pdf
+   - 개인/팀 체크
+   - 성명(팀 참가 시 팀장명)
+   - 휴대전화번호, 이메일, 소속, 팀명
+   - 팀 참가 시 팀원 정보
+   - 날짜와 신청인 서명
+
+2. claimgate-oda-product-service-proposal.pdf
+   - 개인/팀 체크
+   - 성명, 휴대전화번호, 이메일
+   - 제품명·활용데이터·기획 내용은 입력 완료
+
+3. claimgate-oda-privacy-consent.pdf
+   - 날짜
+   - 신청인 성명과 서명
+
+서명 권장 절차
+- 가장 안전한 방식: PDF 출력 → 자필 기입·서명 → 스캔하여 PDF로 저장
+- 공고문에는 전자서명 허용 여부가 명시되어 있지 않으므로, 마우스로 그린 서명만 사용하기보다 자필 서명본을 권장
+
+제출 시에는 위 PDF 3개만 첨부하고 이 확인표는 제출하지 않습니다.

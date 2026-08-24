@@ -83,7 +83,8 @@ const staleAliases = Object.freeze([
 const noGoTerms = Object.freeze([
   'offline / deterministic / fixture-first',
   'live OpenAPI',
-  'real LLM',
+  'hosted LLM',
+  'LLM-as-judge',
   'OCR',
   '서버·DB·auth',
   'production accuracy'

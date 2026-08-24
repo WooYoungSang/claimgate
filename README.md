@@ -18,26 +18,43 @@ See [`docs/product-manifesto.md`](docs/product-manifesto.md) for the invariant-t
 ```text
 packages/core/          # @claimgate/core: pure TypeScript trust contracts and later invariant engine
 packages/ui/            # @claimgate/ui: controlled React components; no hidden review authority
-packs/civic-data/       # @claimgate/pack-civic-data: fixture/rule/copy boundary scaffold
-packs/health-data/      # @claimgate/pack-health-data: second domain-pack scaffold
+packs/civic-data/       # @claimgate/pack-civic-data: deterministic civic fixture/rule/copy pack
+packs/health-data/      # @claimgate/pack-health-data: deterministic health fixture/rule/copy pack
+packs/mofa-oda/         # @claimgate/pack-mofa-oda: offline MOFA/KOICA fixture pack for ODA demo
 examples/civic-review-app/  # thin React/Vite composition using core + UI + swappable packs
 docs/                   # architecture and package-boundary notes
 fixtures/               # offline deterministic fixture landing zone
 scripts/                # local validation helpers
+tools/kbctl/            # optional Go CLI for project-local JSON knowledge/doc index
+tools/fmon/             # Bubble Tea TUI over the kbctl read model
+governance/knowledge/   # ClaimGate-local kbctl knowledge base
 ```
 
 ## Quickstart
 
-Requires Node.js 20+ and pnpm 9.
+Requires Node.js 20+ and pnpm 9 for the framework path. Optional `kbctl` knowledge tooling requires Go 1.22+.
 
 ```bash
 pnpm install --frozen-lockfile
 pnpm eval:framework
 ```
 
+For the video Local LLM path, first run `pnpm test:video-preflight`, then use the RTX 4090 node with a local Ollama-compatible Gemma 4 12B model. RAG now uses a repo-local persistent sparse-vector index over the MOFA ODA fixture corpus, and the repo includes candidate-only Gemma tuning dataset/preflight scripts. The tuning preflight is strict and must pass free VRAM/dependency checks before any LoRA run is claimed. A local candidate-only Gemma 4 12B LoRA smoke/prototype artifact can be generated under ignored `artifacts/local-ai/gemma-candidate-lora-smoke/`; the public repo still contains no committed production fine-tuned model artifact, external vector database, hosted LLM, or production online retrieval path:
+
+```bash
+# Requires local Ollama-compatible Gemma 4 12B on the RTX 4090 node.
+pnpm rag:build:mofa
+pnpm tune:dataset:mofa
+pnpm tune:preflight
+pnpm tune:train:smoke
+pnpm tune:eval:prototype
+pnpm tune:infer:prototype # boundary eval only; first-JSON postprocessing can consume candidates, raw strict JSON remains serving-blocked
+CLAIMGATE_LOCAL_LLM_MODEL=gemma4:12b OLLAMA_BASE_URL=http://127.0.0.1:29134 pnpm demo:ai:gemma
+```
+
 `pnpm eval:framework` is the evaluator-facing one-command smoke. It runs lint, typecheck, tests, demo, DomainPack conformance, handoff smoke, and framework performance evaluation using local fixtures only. `pnpm demo` remains available when you only want to see the pack-swap demo.
 
-No server, database, auth, OCR, real LLM extraction, API key, network service, or network demo is included in the v0 default path. Framework performance smoke measures deterministic local framework throughput; it is not a claim about LLM extraction quality.
+No server, database, auth, OCR, hosted LLM, API key, network service, external vector DB, committed production fine-tuned model artifact, or network demo is included in the v0 default path. The local Ollama/Gemma command is candidate-only and may not verify, score, anchor, or project claims. Framework performance smoke measures deterministic local framework throughput; it is not a claim about LLM extraction quality.
 
 ## Evaluator trust pack
 
@@ -62,6 +79,31 @@ See [`docs/package-boundaries.md`](docs/package-boundaries.md) for the scaffold 
 ## Product language boundary
 
 ClaimGate should be described as a source-grounded review framework, not an AI judge. Safe wording is: AI proposes candidates; deterministic rules surface risk; reviewers verify, correct, or reject; Evidence Packs carry the reusable proof. Trust signals and graph/report views provide context or projection only; they never replace Source Anchors or reviewer decisions.
+
+## Project-local knowledge index
+
+ClaimGate includes an optional `kbctl` CLI migrated from the WARVIS FisherMan tooling and reset for ClaimGate context. It indexes ClaimGate docs in `governance/knowledge/claimgate-kb.json` without copying FisherMan domain records.
+
+```bash
+pnpm test:kbctl
+./kbctl get document DOC-CLAIMGATE-PROJECT-BRIEF
+./kbctl list document
+./kbctl search 본질 --kind document,decision,lesson
+./kbctl search 현재 --kind document,decision,open_issue
+./kbctl search Evidence --kind document
+```
+
+See [`docs/operations/kbctl.md`](docs/operations/kbctl.md).
+
+The migrated ClaimGate FMON dashboard reads operational state only through `kbctl` JSON output:
+
+```bash
+pnpm test:tooling
+./fmon
+./fmon --once
+```
+
+See [`tools/fmon/README.md`](tools/fmon/README.md) for keys, layout, and the fail-closed data contract.
 
 ## OSS-first submission strategy
 

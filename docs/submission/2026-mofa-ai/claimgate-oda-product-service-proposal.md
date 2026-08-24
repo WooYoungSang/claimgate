@@ -1,293 +1,249 @@
-# ClaimGate ODA: 공공데이터 기반 AI 서술 검토 제품 기획서
+<header class="attachment-band">
+  <div class="attachment-number">붙임3</div>
+  <div class="attachment-title">외교 공공데이터·AI 활용 경진대회 제품(서비스) 기획서</div>
+</header>
 
-> 2026 외교 공공데이터·AI 활용 경진대회 제품·서비스 부문 제출 원고
-
-## 표지
+## 참가 정보
 
 | 항목 | 내용 |
 |---|---|
-| 제품명 | ClaimGate ODA |
-| 출품 구분 | 제품·서비스 부문 |
-| 한 줄 가치제안 | ODA·공공외교 담당자가 AI 생성 국가·사업·성과 설명을 공식 공공데이터 Source Anchor와 연결해 위험 우선으로 검토하고, 정정 결과를 Evidence Pack으로 인계하는 검토 제품 |
-| 1차 사용자 | ODA/공공외교 사업의 기획·검토·평가 담당자 |
-| 현재 기반 | ClaimGate v0 오프라인·결정론적·fixture-first 범용 프레임워크 [CE-001][CE-002] |
-| ODA 출품 구성 | 외교부·KOICA·KF·한아프리카재단 공개데이터를 Source Anchor 후보로 쓰는 ODA DomainPack 구성안 [CE-010][CE-011][CE-012][CE-013][CE-014] |
+| 참가구분 | ☑ 개인　☐ 팀 |
+| 참가분야 | 제품 또는 서비스 개발 |
+| 성명(팀 참가 시 팀장명) | 우영상 |
+| 휴대전화번호 | 010-3488-9885 |
+| 이메일 | woopsfactory@gmail.com |
+| 제품 또는 서비스명 | **ClaimGate ODA (Official Development Assistance)** |
+| 활용데이터 | **외교부_국가별 안전정보**, 한국국제협력단_국가별 협력사업, 한국국제협력단_ODA 용어사전, 한국국제교류재단_공공외교 사업 정보 |
+| 제품 또는 서비스 개요 | AI가 작성한 ODA·공공외교 설명을 외교 공공데이터의 근거 위치와 연결하고, 위험 문장을 우선 검토·정정한 뒤 재사용 가능한 근거 묶음으로 인계하는 검토 지원 제품 |
 
-## 제품 상태 범례
+> **한 줄 소개**<br>
+> AI가 초안을 빠르게 쓰게 한다면, ClaimGate ODA는 그 문장을 사람이 근거와 함께 책임질 수 있게 합니다.
 
-| 범례 | 의미 | 본 기획서 사용 원칙 |
+<div class="key-message">
+
+<strong>No Anchor, No Claim</strong><br>
+공식 데이터의 근거 위치가 연결되지 않은 문장은 검증 완료 상태가 될 수 없습니다.
+
+</div>
+
+<div class="page-break"></div>
+
+## 1. 제품 또는 서비스의 목적 또는 배경
+
+### 1.1 AI가 빠르게 쓴 설명은 담당자가 다시 확인해야 합니다
+
+ODA와 공공외교 업무에서는 국가 현황, 안전 이슈, 협력사업, 성과, 기관 및 용어에 관한 설명이 반복적으로 작성됩니다. 생성형 AI는 초안 작성 시간을 줄일 수 있지만, 문장이 자연스럽다는 사실만으로 다음 질문에 답할 수는 없습니다.
+
+- 국가와 지역의 안전 상황이 최신 외교부 정보와 일치하는가?
+- 사업명, 대상국, 기간과 수행기관이 공개된 사업 정보와 일치하는가?
+- ODA 용어와 성과 표현이 공식 정의와 어긋나지 않는가?
+- 누가 어떤 근거를 확인하고 무엇을 정정했는지 다시 찾을 수 있는가?
+
+특히 공공기관의 설명 자료는 협력국, 수혜자, 국민과 국제 파트너의 신뢰에 영향을 줍니다. 잘못된 숫자나 오래된 국가 정보가 포함되면 단순한 문장 오류를 넘어 정책 판단과 대외 신뢰의 위험으로 이어질 수 있습니다.
+
+### 1.2 ClaimGate ODA가 해결하는 문제
+
+ClaimGate ODA는 AI 문장을 대신 믿어 주는 자동 사실판정기가 아닙니다. AI가 만든 설명을 작은 주장 단위로 나누고, 각 주장에 공식 공공데이터의 근거 위치를 연결해 담당자가 검토·정정·인계하도록 돕는 제품입니다.
+
+| 기존 업무의 어려움 | ClaimGate ODA의 변화 |
+|---|---|
+| 문서 전체를 처음부터 다시 읽음 | 위험 신호가 큰 주장부터 우선 검토 |
+| 출처 URL만 남아 실제 근거 위치를 다시 찾음 | 데이터 행·필드·문장 범위까지 Source Anchor로 기록 |
+| AI의 추천과 사실판정이 섞임 | AI는 후보만 제안하고 규칙과 사람이 판단 |
+| 정정 결과가 문서 안에 묻힘 | 검증·정정된 주장만 Evidence Pack으로 인계 |
+
+### 1.3 목표 사용자와 사용 장면
+
+1차 사용자는 ODA·공공외교 사업의 기획, 검토 및 성과관리 담당자입니다. 다음과 같은 문서를 배포하거나 보고하기 전에 사용할 수 있습니다.
+
+- 국별 협력전략 및 사업 제안서 초안
+- ODA 사업 개요와 성과 요약
+- 공공외교 사업 소개 및 보도자료
+- 국가·지역 안전 관련 브리핑
+- 국제협력 사업의 내부 검토 및 인수인계 자료
+
+ClaimGate ODA의 목표는 문서를 더 많이 생성하는 것이 아니라, 이미 생성된 설명을 **근거가 확인된 문장 단위**로 바꾸는 것입니다.
+
+<div class="page-break"></div>
+
+## 2. 제품 또는 서비스의 기능 및 특징
+
+### 2.1 핵심 검토 흐름
+
+1. **주장 후보 구성**: AI가 작성한 문장을 국가, 사업, 기관, 기간, 수치와 성과에 관한 작은 주장으로 나눕니다.
+2. **근거 후보 제안**: AI는 관련성이 높은 데이터와 근거 위치 후보를 제안합니다.
+3. **Source Anchor 연결**: 담당자가 공식 데이터의 행·필드·문장 범위를 주장에 연결합니다.
+4. **위험 신호 계산**: 결정론적 규칙이 출처 부재, 값·단위·날짜·기관 불일치, 상충, 오래된 정보 등의 신호를 남깁니다.
+5. **사람의 최종 결정**: 담당자가 근거를 확인하고 검증, 정정 또는 기각합니다.
+6. **Evidence Pack 인계**: 검증 또는 정정된 주장만 후속 보고서와 브리핑에 재사용할 수 있는 근거 묶음으로 내보냅니다.
+
+### 2.2 핵심 기능
+
+| 기능 | 설명 | 사용자 가치 |
 |---|---|---|
-| **[현재]** | 현재 ClaimGate v0 프레임워크에서 코드·테스트·문서 근거가 있는 기능 | 제품의 핵심 신뢰 경계와 검토 흐름 설명에 사용 [CE-001][CE-003][CE-004][CE-006][CE-008][CE-009] |
-| **[구성]** | 현재 범용 프레임워크 위에 ODA 제출용으로 구성할 DomainPack/fixture 설계 | 외교부 및 산하기관 공개데이터 활용 방안 설명에 사용하되 구현 완료로 쓰지 않음 [CE-010][CE-012][CE-013][CE-014] |
-| **[로드맵]** | 승인된 선택적 adapter와 파일럿으로 확장할 계획 | 사업화 순서와 제출 후 운영자 과제에 사용 [CE-020][CE-021] |
+| **No Anchor, No Claim** | 근거 위치가 없는 주장은 검증 또는 정정 완료 상태가 될 수 없음 | 출처 없는 문장의 무분별한 승격 방지 |
+| **Source Anchor** | 데이터 행, 셀, 문서 페이지, 문장 범위, 웹 링크를 근거 위치로 기록 | 원문 재확인 시간 단축과 추적성 확보 |
+| **Risk-first Review** | 값·단위·날짜·기관 불일치, 출처 부재와 상충 여부를 규칙별 trace로 표시 | 위험한 문장부터 검토 가능 |
+| **Green Sampling** | 낮은 위험으로 분류된 문장도 일부 표본 검토 | 조용히 누락되는 오류 방어 |
+| **Human Final Decision** | 검증·정정·기각에는 담당자와 감사 기록이 필요 | AI의 자동 사실 승격 방지 |
+| **Evidence Pack First** | 검증·정정된 주장만 근거와 함께 재사용 가능 | 보고서·브리핑·인수인계의 일관성 향상 |
 
-## 심사기준 추적 요약
+### 2.3 AI의 역할: Curator, Not Judge
 
-| 심사기준 | 본문 추적 위치 | 핵심 근거 |
+ClaimGate ODA에서 AI는 검토자가 살펴볼 주장과 근거 후보를 빠르게 구성하는 **큐레이터** 역할을 합니다. AI는 사실 여부를 확정하거나 위험점수를 임의로 부여하지 않습니다. 위험 신호는 같은 입력에 같은 결과를 내는 규칙으로 계산하고, 최종 결정은 사람이 내립니다.
+
+현재 시제품은 오프라인에서 동일한 결과를 반복 검증할 수 있도록 고정 입력 기반 후보 추출 어댑터를 사용합니다. 실제 AI 모델 연결 시에도 교체되는 부분은 후보 생성 단계뿐이며, Source Anchor 연결, 위험 규칙, 최종 검토와 Evidence Pack 생성 권한은 AI에 넘기지 않습니다.
+
+### 2.4 개발 현황
+
+- Claim, Source Anchor, 검토 상태와 감사 이벤트 모델 구현
+- 결정론적 위험 규칙 및 규칙별 추적 결과 구현
+- 검증·정정된 주장만 허용하는 Evidence Pack 투영 보호 구현
+- 도메인 규칙을 교체할 수 있는 DomainPack 구조와 civic·health·MOFA ODA 세 개의 오프라인 예시 팩 구현
+- 오프라인 시나리오, 인계 및 성능 재현 테스트 완료
+- 외교 공공데이터용 MOFA ODA DomainPack은 DATA-001~003을 offline fixture로 구현했으며, live OpenAPI 연동은 향후 확장 범위로 분리
+
+<div class="page-break"></div>
+
+## 3. 외교부 및 산하기관 공공데이터 활용 방안
+
+### 3.1 핵심 활용 데이터
+
+ClaimGate ODA는 외교부 공공데이터를 단순 조회하거나 화면에 나열하는 데 그치지 않고, AI 문장의 사실 요소를 검토하는 기준점으로 활용합니다.
+
+| 데이터 | 출처 및 획득 방법 | 제품 내 활용 |
 |---|---|---|
-| 공공데이터 활용 | 3장, 6장 | 외교부 필수 데이터 1건 이상 및 산하기관 데이터 후보를 Source Anchor 후보로 설계 [CE-011][CE-012][CE-013][CE-014] |
-| AI 기술 활용 | 2장, 4장 | AI는 후보 claim/proposed anchor만 제안하고 결정론적 규칙이 위험 trace를 산출 [CE-003][CE-006][CE-017] |
-| AI 서비스 | 1장, 2장 | 자동 판정이 아니라 source-grounded reviewer workflow [CE-001][CE-002][CE-004] |
-| 독창성 | 4장 | green sampling, Evidence Pack First, DomainPack reuse [CE-007][CE-008][CE-015] |
-| 발전 가능성 | 5장, 6장 | deterministic QA와 generic framework → ODA fixture DomainPack → adapter → pilot 로드맵 [CE-018][CE-020] |
-| ESG혁신 | 5장, 6장 | 공공데이터 기반 AI 서술의 근거 부족 리스크를 줄이는 사회적 가치형 검토 흐름 [CE-016][CE-019][CE-021] |
+| **외교부_국가별 안전정보** | 현재: offline fixture + provenance URL / 향후: 공공데이터포털 OpenAPI (`data.go.kr/data/15000760/openapi.do`) | 국가·지역별 안전 공지의 국가명, 시점과 위험 내용을 AI 생성 설명의 Source Anchor로 사용 |
+| 한국국제협력단_국가별 협력사업 | 현재: offline fixture + provenance URL / 향후: 공공데이터포털 OpenAPI (`data.go.kr/data/15099198/openapi.do`) | 대상국, 사업명, 사업 유형, 기간과 사업 개요의 일치 여부 검토 |
+| 한국국제협력단_ODA 용어사전 | 현재: offline fixture + provenance URL / 향후: 공공데이터포털 파일데이터 (`data.go.kr/data/15052909/fileData.do`) | ODA 용어, 개념과 정의의 오용 여부 확인 |
+| 한국국제교류재단_공공외교 사업 정보 | 향후 확장: 공공데이터포털 OpenAPI (`data.go.kr/data/15099202/openapi.do`) | 공공외교 사업명, 기관, 기간과 사업 설명 확인 |
+| 한·아프리카재단 공개데이터 | 향후 확장: 공공데이터포털 OpenAPI·파일데이터 | 아프리카 국가, 기관, 스타트업 분야와 교류협력 관계 설명 확인 |
 
-<div class="page-break"></div>
+### 3.2 데이터 처리 방식
 
-## 1 목적 또는 배경
+1. 데이터 제공기관, 데이터셋, 조회 시점과 원본 위치를 Source로 등록합니다.
+2. 국가명, 사업명, 기관, 기간, 수치, 용어 등 검토 가능한 필드를 Anchor 후보로 변환합니다.
+3. AI 문장에서 추출된 주장과 Anchor 후보를 연결합니다.
+4. 동일한 규칙으로 값·날짜·기관·단위와 출처 존재 여부를 비교합니다.
+5. 담당자가 원본을 확인한 뒤 결과와 정정 내용을 감사 기록으로 남깁니다.
 
-### 1.1 문제 정의: AI가 빠르게 쓴 설명은 검토자가 느리게 책임진다
+### 3.3 대표 적용 예시
 
-ODA와 공공외교 사업 담당자는 국가 현황, 안전 이슈, 사업 성과, 협력기관, 용어 정의를 반복적으로 작성·검토한다. 생성형 AI는 초안 작성 속도를 높일 수 있지만, 담당자가 최종적으로 확인해야 하는 질문은 여전히 남는다.
+AI가 “A국은 최근 안전 상황이 안정적이므로 신규 협력사업 추진 여건이 양호하다”고 작성한 경우, ClaimGate ODA는 하나의 문장 안에 섞인 내용을 분리합니다.
 
-- 이 국가 설명은 최신 안전정보와 충돌하지 않는가?
-- 이 사업 설명은 실제 공개된 사업명·기간·대상국·성과 표현과 맞는가?
-- ODA 용어와 공공외교 성과 표현이 공식 정의나 공개데이터 필드와 어긋나지 않는가?
-- 검토 후 정정한 내용을 다음 보고서·브리핑·인수인계에 재사용할 수 있는가?
-
-ClaimGate ODA의 출발점은 “AI가 그럴듯하게 쓴 문장”을 “사람이 책임지고 판단할 수 있는 근거 연결 검토 항목”으로 바꾸는 것이다. 현재 ClaimGate v0는 AI가 만든 공공데이터 주장을 Source Anchor, deterministic risk trace, reviewer decision, Evidence Pack 흐름으로 바꾸는 범용 프레임워크다 [CE-001]. 또한 현재 제품은 자동 판정기가 아니라 “AI Curator, Not Judge” 경계 위에서 사람이 최종 판단하는 reviewer workflow다 [CE-002][CE-009].
-
-### 1.2 기존 수상작 패턴의 제품 설계 원칙화
-
-본 출품은 기존 우수 아이디어를 그대로 모방하지 않는다. 대신 공공데이터·AI 서비스에서 반복적으로 통하는 패턴을 다음 제품 설계 원칙으로 바꾼다.
-
-| 추출 패턴 | ClaimGate ODA 설계 원칙 |
-|---|---|
-| 구체적 사용자 | ODA/공공외교 사업의 기획·검토·평가 담당자를 1차 사용자로 고정한다. |
-| 반복적이고 긴급한 문제 | AI 생성 국가/사업/성과 설명의 근거·시점·용어·기관 불일치를 반복 검토 대상으로 삼는다. |
-| 공식 데이터 필드 | 외교부 및 산하기관 공개데이터를 Source Anchor 후보로 연결한다 [CE-011][CE-012][CE-013][CE-014]. |
-| AI 보조 | AI는 candidate claim과 proposed anchor만 제안한다 [CE-003]. |
-| 검토자의 행동 변화 | 검토자는 모든 문장을 처음부터 읽는 대신 red/yellow/green risk trace와 green sampling 대상을 우선순위로 처리한다 [CE-006][CE-007]. |
-
-### 1.3 제품의 현재성: 아이디어가 아니라 존재하는 프레임워크 기반 출품
-
-이 기획서는 미구현 아이디어만을 제안하지 않는다. 현재 구현된 ClaimGate v0의 신뢰 경계, state machine, 결정론적 risk engine, Evidence Pack projection guard를 기반으로 한다 [CE-001][CE-004][CE-006][CE-008][CE-009]. 다만 외교/ODA DomainPack, 실시간 공공데이터 API adapter, 실제 LLM adapter, 고객·매출·운영 성과는 현재 구현 완료로 주장하지 않는다. 본문에서는 이를 [구성] 또는 [로드맵] 범례로 분리한다 [CE-010][CE-017][CE-020][CE-021].
-
-| 심사기준 대응 | AI 서비스: source-grounded reviewer workflow를 제품 목적에 배치 [CE-001][CE-002]. ESG혁신: 공공데이터 AI 서술의 근거 부족 리스크를 줄이는 방향으로 사회적 가치를 정의 [CE-016]. |
-|---|---|
-
-<div class="page-break"></div>
-
-## 2 기능 및 특징
-
-### 2.1 핵심 사용자 시나리오
-
-사용자는 ODA 사업 기획서, 국별 협력 설명, 공공외교 사업 성과 요약, 브리핑 초안처럼 AI가 생성한 국가/사업/성과 설명을 ClaimGate ODA에 넣는다. 시스템은 문장별 candidate claim과 proposed anchor를 제안하고, 공개데이터 후보와의 연결 상태를 검토 항목으로 만든다 [CE-003][CE-005]. 이후 deterministic rule trace가 source existence, value/unit/date/entity mismatch, contradiction, staleness, aggregate-only 같은 위험 신호를 계산한다 [CE-006]. 검토자는 위험도가 높은 항목부터 anchor 확인, 정정, reject를 수행하고, verified/corrected claim만 Evidence Pack으로 인계한다 [CE-004][CE-008][CE-009].
-
-### 2.2 현재 구현된 제품 핵심
-
-| 기능 | 상태 | 설명 | 근거 |
-|---|---|---|---|
-| No Anchor No Claim | [현재] | Source Anchor 없는 claim은 `verified` 또는 `corrected`가 될 수 없다. | [CE-004] |
-| AI Curator, Not Judge | [현재] | AI adapter는 candidate claim/proposed anchor만 제안하며 사실판정, 위험점수 산정, anchor 부착, reviewer decision, evidence projection 권한을 갖지 않는다. | [CE-003] |
-| Source Anchor 모델 | [현재] | excel-cell, pdf-page, dataset-row, text-span, web-link 형태의 anchor와 deterministic anchor ID를 지원한다. | [CE-005] |
-| Deterministic risk + rule trace | [현재] | source existence, value/unit/date/entity mismatch, contradiction, staleness, aggregate-only를 deterministic rule trace로 계산한다. | [CE-006] |
-| Green sampling | [현재] | low-risk green claim도 전부 무시하지 않고 샘플링 검토 비용에 포함한다. | [CE-007] |
-| Evidence Pack First | [현재] | 재사용 산출물은 verified/corrected claims only이며 report/graph는 Evidence Pack의 downstream projection이다. | [CE-008] |
-| Human terminal decision | [현재] | terminal state에는 reviewer가 필요하고 audit이 reviewer transition과 corrected value를 남긴다. | [CE-009] |
-
-### 2.3 ODA 제품에서의 기능 흐름
-
-1. **입력**: AI가 생성한 국가/사업/성과 설명을 문장 단위로 분리한다 [구성][CE-012][CE-013][CE-014].
-2. **후보 제안**: AI adapter는 candidate claim과 proposed anchor만 제안한다 [현재][CE-003][CE-017].
-3. **Anchor 연결**: 외교부 안전정보, KOICA 협력사업/ODA 용어사전, KF 공공외교 사업 정보, 한아프리카재단 공개데이터를 Source Anchor 후보로 매핑한다 [구성][CE-012][CE-013][CE-014].
-4. **위험 우선 검토**: deterministic risk trace로 red/yellow/green 검토 순서를 만든다 [현재][CE-006][CE-007].
-5. **사람의 최종 결정**: 담당자가 verified/corrected/rejected를 남기고 정정 근거를 기록한다 [현재][CE-009].
-6. **Evidence Pack 인계**: verified/corrected claim만 보고서·그래프·후속 검토로 투영한다 [현재][CE-008].
-
-### 2.4 AI 권한 경계
-
-ClaimGate ODA에서 AI는 검토자에게 “볼 만한 주장 후보와 연결해 볼 만한 anchor 후보”를 제안하는 curator다 [CE-003]. AI는 사실판정, 위험점수 산정, 검증 완료 처리, Evidence Pack 투영, reviewer terminal decision을 수행하지 않는다 [CE-003][CE-009]. 현재 제품 근거 역시 실제 LLM 운영이 아니라 fixture 기반 candidate extraction과 future adapter boundary test에 있다 [CE-017]. 따라서 본 출품은 AI를 과장된 자동화 장치가 아니라 공공데이터 검토 업무의 후보 생성 보조로 배치한다.
-
-| 심사기준 대응 | AI 기술 활용: AI 후보 제안과 deterministic rule trace의 역할을 분리 [CE-003][CE-006][CE-017]. AI 서비스: No Anchor No Claim과 human terminal decision으로 검토 서비스를 구성 [CE-004][CE-009]. |
-|---|---|
-
-<div class="page-break"></div>
-
-## 3 외교부 및 산하기관 공공데이터 활용 방안
-
-### 3.1 활용 원칙
-
-경진대회는 외교부, KOICA, KF, 한·아프리카재단 개방데이터를 활용하는 제품·서비스 개발을 허용하며, 외교부 공공데이터 1건 이상 활용이 필수다 [CE-011]. ClaimGate ODA는 이 조건을 “외교부 데이터 1건을 단순 표시”하는 방식이 아니라, ODA/공공외교 AI 서술의 Source Anchor 후보로 활용하는 방식으로 충족하도록 설계한다 [CE-012][CE-013][CE-014].
-
-현재 구현된 DomainPack은 civic/health fixture pack이며 외교/ODA pack은 아직 없다 [CE-010]. 따라서 아래 활용 방안은 [구성]과 [로드맵]으로 표시하며, 현재 실시간 API 연동 완료로 쓰지 않는다 [CE-010][CE-020].
-
-### 3.2 공개데이터 후보와 제품 내 역할
-
-| 데이터 | 제품 내 활용 | 상태 | 근거 |
-|---|---|---|---|
-| 외교부_국가별 안전정보 (`https://www.data.go.kr/data/15000760/openapi.do`) | 국가/지역별 안전 공지 문장을 Source Anchor 후보로 삼아 AI 생성 국가·시점·위험유형 설명을 검토한다. | [구성] | [CE-012] |
-| 한국국제협력단_국가별 협력사업 (`https://www.data.go.kr/data/15099198/openapi.do?recommendDataYn=Y`) | 수원국별 ODA 사업 개요·유형·기간·성과 문장을 Source Anchor 후보로 삼아 사업 설명과 성과 표현을 검토한다. | [구성] | [CE-013] |
-| 한국국제협력단_ODA 용어사전 (`https://www.data.go.kr/data/15052909/fileData.do?recommendDataYn=Y`) | ODA 용어 정의의 단위·개념 불일치 검토용 보조 Source Anchor 후보로 사용한다. | [구성] | [CE-013] |
-| 한국국제교류재단_공공외교 사업 정보 (`https://www.data.go.kr/data/15099202/openapi.do`) | 공공외교 사업명·기관·기간·성과 설명의 출처/기간/기관 불일치를 검토한다. | [구성] | [CE-014] |
-| 한아프리카재단_아프리카혁신스타트업디렉터리 (`https://www.data.go.kr/data/15099203/openapi.do`) | 아프리카 혁신 스타트업·국가·분야 정보의 엔티티/국가명 불일치를 검토한다. | [구성] | [CE-014] |
-| 한아프리카재단_지자체_아프리카 교류협력 사례 (`https://www.data.go.kr/data/15113634/fileData.do`) | 지자체-아프리카 교류협력 사례를 ODA/공공외교 협력 네트워크 설명 검토 후보로 사용한다. | [구성] | [CE-014] |
-
-### 3.3 데이터 결합 방식
-
-ClaimGate ODA는 공공데이터를 단순 조회 화면에 나열하지 않는다. 각 공개데이터의 필드를 Source Anchor 후보로 바꾸고, AI 생성 문장의 국가명·사업명·기관명·기간·성과 표현·용어 정의와 비교 가능한 검토 단위로 만든다 [CE-005][CE-012][CE-013][CE-014]. 이때 risk trace는 결정론적 규칙으로 생성되며 AI가 위험점수를 직접 부여하지 않는다 [CE-006].
-
-예를 들어 “A국은 최근 안전 위험이 낮아 협력사업 확대에 적합하다”라는 AI 생성 문장은 다음 검토 항목으로 분해될 수 있다.
-
-- 국가/지역명 anchor 후보: 외교부_국가별 안전정보 [CE-012]
-- 사업 존재/기간 anchor 후보: 한국국제협력단_국가별 협력사업 [CE-013]
-- 표현·용어 anchor 후보: 한국국제협력단_ODA 용어사전 [CE-013]
-- 검토 결과 인계: verified/corrected claim만 Evidence Pack에 포함 [CE-008]
-
-| 심사기준 대응 | 공공데이터 활용: 외교부 필수 데이터와 산하기관 공개데이터를 Source Anchor 후보로 구체화 [CE-011][CE-012][CE-013][CE-014]. AI 기술 활용: 데이터 비교는 AI 판정이 아니라 deterministic rule trace로 수행 [CE-006]. |
-|---|---|
-
-<div class="page-break"></div>
-
-## 4 차별성 및 독창성
-
-### 4.1 차별점: 생성보다 검토, 요약보다 근거 인계
-
-많은 AI 서비스는 문서를 더 빨리 생성하거나 요약하는 데 초점을 둔다. ClaimGate ODA는 그 다음 단계, 즉 “그 문장을 공공기관 담당자가 책임 있게 검토하고 인계할 수 있는가”를 제품의 중심에 둔다 [CE-001][CE-002]. 따라서 출력물의 속도보다 Source Anchor, risk trace, reviewer decision, Evidence Pack으로 이어지는 검토 가능성을 우선한다 [CE-004][CE-006][CE-008][CE-009].
-
-### 4.2 독창성 1: Green sampling으로 false-negative 방어
-
-검토 시스템이 red/yellow만 보여주면 green으로 분류된 문장의 오류를 놓칠 수 있다. ClaimGate v0는 low-risk green claim도 모두 무시하지 않고 샘플링 검토 비용에 포함한다 [CE-007]. ODA 담당자에게 이는 “위험 높은 문장 먼저”와 “안전해 보이는 문장 일부 확인”을 동시에 제공하는 운영 설계다 [CE-007].
-
-### 4.3 독창성 2: Evidence Pack First
-
-ClaimGate는 보고서나 그래프를 바로 생성하기보다 verified/corrected claim만 Evidence Pack에 넣고, report/graph는 그 downstream projection으로 둔다 [CE-008]. 이 구조는 ODA 사업 검토에서 중요한 “나중에 누가 어떤 근거로 정정했는가”를 남기고, 보고서·브리핑·후속 평가로 인계 가능한 단위를 만든다 [CE-008][CE-009].
-
-### 4.4 독창성 3: DomainPack reuse
-
-현재 구현된 DomainPack은 civic/health fixture pack이며 ODA DomainPack은 아직 없다 [CE-010]. 그러나 핵심 차별점은 동일한 core/UI contract 위에 다른 domain judgment를 재사용할 수 있다는 점이다 [CE-015]. ODA 제품은 이 재사용 구조를 활용해 외교부·KOICA·KF·한아프리카재단 공개데이터에 맞춘 DomainPack을 구성하는 방식으로 확장한다 [CE-012][CE-013][CE-014][CE-015].
-
-### 4.5 차별화 요약
-
-| 비교 축 | 일반 생성형 AI 활용 | ClaimGate ODA |
+| 주장 요소 | 확인할 공공데이터 | 검토 방식 |
 |---|---|---|
-| AI 역할 | 초안 생성 또는 요약 중심 | candidate claim/proposed anchor 제안 보조 [CE-003] |
-| 검토 기준 | 사람이 별도 판단 | No Anchor No Claim + deterministic risk trace [CE-004][CE-006] |
-| 낮은 위험 항목 | 대개 통과 처리 | green sampling으로 일부 확인 [CE-007] |
-| 산출물 | 문서 또는 요약문 | verified/corrected claim 기반 Evidence Pack [CE-008] |
-| 확장 방식 | 도메인별 별도 구현 가능성 | DomainPack reuse로 domain judgment 분리 [CE-015] |
+| A국의 최근 안전 상황 | 외교부_국가별 안전정보 | 국가·지역·공지 시점·위험 내용 확인 |
+| A국 대상 협력사업 존재 여부 | KOICA 국가별 협력사업 | 대상국·사업명·기간 확인 |
+| “신규 사업 추진에 적합”이라는 판단 | 직접 사실로 승격하지 않음 | 담당자의 정책 판단으로 명시하고 근거 사실과 분리 |
 
-| 심사기준 대응 | 독창성: green sampling, Evidence Pack First, DomainPack reuse를 차별 설계로 제시 [CE-007][CE-008][CE-015]. 발전 가능성: 동일 core/UI contract 위에 ODA DomainPack으로 확장 [CE-015][CE-020]. |
-|---|---|
+이 구조는 공개데이터의 사실과 사람의 정책 판단을 구분하고, AI가 둘을 한 문장으로 섞어 확정적으로 표현하는 문제를 줄입니다.
 
-<div class="page-break"></div>
+### 3.4 지속성과 확장 범위
 
-## 5 기대효과
-
-### 5.1 담당자 업무 변화
-
-ClaimGate ODA가 목표로 하는 변화는 “AI가 대신 결정한다”가 아니라 “검토자가 무엇을 먼저 확인할지 명확해진다”이다 [CE-002][CE-006][CE-009]. ODA/공공외교 담당자는 AI 생성 설명을 한 문장씩 무작위로 읽는 대신 다음 순서로 처리한다.
-
-1. anchor가 없거나 충돌 가능성이 큰 red/yellow 항목을 우선 확인한다 [CE-004][CE-006].
-2. green 항목도 sampling 대상으로 일부 확인한다 [CE-007].
-3. 정정한 claim은 reviewer audit과 함께 남긴다 [CE-009].
-4. verified/corrected claim만 Evidence Pack으로 넘겨 후속 보고서·브리핑·평가에 재사용한다 [CE-008].
-
-### 5.2 공공데이터 활용 효과
-
-외교부_국가별 안전정보는 국가·지역 안전 서술의 Source Anchor 후보가 되고, KOICA 데이터는 ODA 사업 개요·기간·성과·용어 설명의 anchor 후보가 된다 [CE-012][CE-013]. KF와 한아프리카재단 데이터는 공공외교·아프리카 협력 서술의 기관·사업·네트워크 설명 검토 후보가 된다 [CE-014]. 이 방식은 공공데이터를 “검색 결과”가 아니라 “AI 문장을 검토하는 기준점”으로 전환한다 [CE-005][CE-011].
-
-### 5.3 사회적 가치와 ESG혁신
-
-ODA와 공공외교 문서는 협력국, 수혜자, 국제 파트너, 공공기관의 신뢰와 연결된다. ClaimGate ODA는 공공데이터 기반 AI claim review를 통해 unsupported policy/business narrative risk를 줄이는 방향의 사회적 가치를 지향한다 [CE-016]. 현재 근거는 measured social impact가 아니라 보수적인 검토 흐름과 deterministic framework workload에 있다 [CE-016][CE-019].
-
-### 5.4 검증 가능성
-
-현재 QA framing은 offline deterministic scenario validation을 지원하지만 외부 production QA나 user acceptance를 입증하지 않는다 [CE-018]. 따라서 기대효과는 다음처럼 보수적으로 제시한다.
-
-| 효과 영역 | 제출 시 표현 | 상태 | 근거 |
-|---|---|---|---|
-| 검토 우선순위 | 위험 우선 검토와 green sampling으로 담당자 검토 순서를 구조화한다. | [현재]/[구성] | [CE-006][CE-007] |
-| 근거 인계 | verified/corrected claim만 Evidence Pack으로 전달한다. | [현재] | [CE-008] |
-| ODA 적용성 | 외교부·산하기관 공개데이터를 anchor 후보로 구성할 수 있다. | [구성] | [CE-012][CE-013][CE-014] |
-| 품질 검증 | 오프라인 결정론 시나리오 검증으로 framework 동작을 확인할 수 있다. | [현재] | [CE-018] |
-| 성능 표현 | deterministic framework workload 범위에서만 성능을 설명한다. | [현재] | [CE-019] |
-
-| 심사기준 대응 | 발전 가능성: offline deterministic scenario validation 기반으로 ODA fixture 확장 검증 계획을 제시 [CE-018]. ESG혁신: 공공데이터 AI 서술의 근거 부족 리스크 감소라는 보수적 사회 가치로 한정 [CE-016][CE-019]. |
-|---|---|
+현재 저장소의 ODA 시제품은 공공데이터 URL을 provenance metadata로 보존하고, DATA-001~003을 offline fixture로 검토합니다. OpenAPI 읽기 전용 어댑터와 파일데이터 스냅샷 수집은 향후 확장 계획이며, 그 경우에도 핵심 검토 모델은 유지하고 ODA DomainPack의 필드 매핑과 규칙만 갱신하는 구조를 목표로 합니다.
 
 <div class="page-break"></div>
 
-## 6 사업(창업) 계획
+## 4. 기존 제품·서비스와의 차별성 및 독창성
 
-### 6.1 제품화 원칙
+### 4.1 생성보다 검토에 집중합니다
 
-사업계획은 현재 구현된 generic framework를 과장하지 않고, ODA fixture DomainPack, 승인된 선택적 adapter, pilot 순서로 확장한다 [CE-020]. 외부 제출, public release, portal action, protected go/no-go는 운영자 작업으로 남긴다 [CE-021].
+일반적인 생성형 AI 서비스는 더 빠른 초안 작성과 요약에 초점을 둡니다. ClaimGate ODA는 생성 이후의 책임 있는 검토를 제품의 중심에 둡니다. 결과 문서만 남기는 대신 각 문장의 근거, 위험 신호, 담당자의 결정과 정정 이력을 함께 남깁니다.
 
-### 6.2 단계별 로드맵
-
-| 단계 | 목표 | 산출물 | 상태 | 근거 |
-|---|---|---|---|---|
-| 1단계: Generic framework 정리 | 현재 ClaimGate v0의 No Anchor No Claim, AI boundary, risk trace, Evidence Pack First를 제출 가능한 제품 언어로 정리 | 제품 설명, 데모 시나리오, evidence trace | [현재] | [CE-001][CE-003][CE-004][CE-006][CE-008] |
-| 2단계: ODA fixture DomainPack | 외교부·KOICA·KF·한아프리카재단 공개데이터 후보를 fixture로 구성 | ODA DomainPack fixture, sample claim set, public-data anchor mapping | [로드맵] | [CE-010][CE-012][CE-013][CE-014][CE-020] |
-| 3단계: 승인된 선택적 adapter | 운영자 승인 후 필요한 범위에서 공개데이터 adapter와 LLM adapter를 붙임 | read-only data adapter, AI candidate extraction adapter, boundary tests | [로드맵] | [CE-017][CE-020][CE-021] |
-| 4단계: Pilot | ODA/공공외교 담당자 대상 제한 파일럿으로 검토 흐름, 산출물 형식, 책임 경계를 검증 | pilot checklist, acceptance notes, 개선 backlog | [로드맵] | [CE-020][CE-021] |
-
-### 6.3 초기 고객·운영 가설
-
-초기 사용자는 ODA/공공외교 사업의 기획·검토·평가 담당자다. 이들은 공고문, 사업 제안서, 국별 협력 설명, 성과 보고, 보도자료 초안에서 반복적으로 국가·사업·기관·성과·용어 설명을 검토한다. ClaimGate ODA는 문서 생산 도구가 아니라 검토 우선순위와 근거 인계를 제공하는 내부 검토 보조 제품으로 시작한다 [CE-001][CE-002][CE-008].
-
-운영 모델은 다음과 같다.
-
-- **공공기관 내부 검토 보조**: ODA 사업 설명 초안의 Source Anchor 연결과 risk trace 검토 [CE-006][CE-012][CE-013].
-- **공공외교 사업 성과 검토**: KF/한아프리카재단 공개데이터 후보와 기관·기간·사업명 anchor 확인 [CE-014].
-- **증거 인계 패키지**: verified/corrected claim만 Evidence Pack으로 묶어 후속 보고서 작성팀에 전달 [CE-008].
-
-### 6.4 수익화와 확장 방향
-
-초기에는 제품 완성도와 공공데이터 적합성을 검증하는 파일럿을 우선한다 [CE-020]. 이후 DomainPack reuse 구조를 활용해 ODA 외에도 보건, 시민데이터, 국제협력, 공공조달 등 공공데이터 claim review가 필요한 영역으로 확장할 수 있다 [CE-015]. 단, 고객·매출·운영 지표는 파일럿 이후 운영자 승인과 별도 검증을 거쳐 제시한다 [CE-020][CE-021].
-
-| 심사기준 대응 | 발전 가능성: generic framework → ODA fixture DomainPack → 승인된 선택적 adapter → pilot 순서의 제품화 로드맵 [CE-020]. ESG혁신: 외부 제출·공개·go/no-go를 운영자 책임으로 분리해 공공 신뢰 경계를 유지 [CE-021]. |
-|---|---|
-
-<div class="page-break"></div>
-
-## 제품 시나리오 상세: 검토자의 하루
-
-### 입력
-
-ODA 담당자는 AI가 작성한 다음 유형의 설명을 검토한다.
-
-- “협력국 A는 최근 안전 상황이 안정적이므로 신규 사업 추진 여건이 양호하다.”
-- “KOICA B 사업은 C 분야 성과를 냈고 다음 단계 확장이 가능하다.”
-- “D 공공외교 사업은 E 기관과 연계되어 아프리카 혁신 생태계와 연결된다.”
-
-### 처리
-
-**[구성]** 현재 generic framework 원리를 ODA fixture DomainPack에 적용하면, ClaimGate ODA는 각 문장을 candidate claim으로 분리하고 proposed anchor를 제안하는 흐름으로 구성된다 [CE-003][CE-010]. 국가 안전 표현은 외교부_국가별 안전정보 anchor 후보로, ODA 사업 설명은 한국국제협력단_국가별 협력사업 및 한국국제협력단_ODA 용어사전 anchor 후보로, 공공외교·아프리카 협력 설명은 한국국제교류재단_공공외교 사업 정보와 한아프리카재단 공개데이터 anchor 후보로 연결한다 [CE-012][CE-013][CE-014].
-
-### 검토
-
-검토자는 red/yellow risk trace를 먼저 확인한다 [CE-006]. source가 없거나 날짜·기관·사업명·용어가 맞지 않는 claim은 corrected 또는 rejected로 처리한다 [CE-004][CE-009]. low-risk green claim도 일부 sampling해 false-negative를 방어한다 [CE-007].
-
-### 인계
-
-최종적으로 verified/corrected claim만 Evidence Pack으로 묶인다 [CE-008]. Evidence Pack은 후속 보고서, 브리핑, 평가 검토의 근거 묶음으로 사용되며, report/graph는 이 Evidence Pack 이후의 downstream projection이다 [CE-008].
-
-### 제품 상태 재확인
-
-이 시나리오는 현재 generic framework의 검토 원리를 ODA fixture DomainPack에 적용하는 구성안이다 [CE-010][CE-020]. 현재 제출 원고는 ODA DomainPack과 실시간 adapter가 이미 운영 중이라고 쓰지 않는다 [CE-010][CE-017][CE-021].
-
-<div class="page-break"></div>
-
-## Evidence ID 요약
-
-| 구분 | 사용 CE ID | 본문 역할 |
+| 비교 항목 | 일반 생성형 AI 활용 | ClaimGate ODA |
 |---|---|---|
-| 현재 제품 핵심 | CE-001, CE-002, CE-003, CE-004, CE-005, CE-006, CE-007, CE-008, CE-009, CE-015, CE-017, CE-018, CE-019 | ClaimGate v0의 검토 흐름, AI boundary, state guard, risk trace, Evidence Pack, DomainPack reuse, deterministic validation 설명 |
-| ODA 구성 | CE-010, CE-011, CE-012, CE-013, CE-014, CE-016 | 외교/ODA DomainPack 미구현 사실, 경진대회 데이터 활용 조건, 공개데이터 후보와 사회적 가치 framing 설명 |
-| 로드맵/운영자 경계 | CE-020, CE-021 | generic framework → ODA fixture DomainPack → 승인된 선택적 adapter → pilot 로드맵 및 외부 제출/공개/go-no-go 운영자 작업 경계 |
-| 금지 주장 가드레일 | CE-022 | 현재 근거로 말할 수 없는 제품 주장 배제 기준 |
+| AI 역할 | 답변·문서 생성 및 요약 | 주장과 근거 후보 제안 |
+| 사실 확인 | 사용자에게 별도 확인 요구 | 공식 데이터의 Source Anchor를 검토 단위에 연결 |
+| 위험 표시 | 모델의 확률이나 설명에 의존 | 결정론적 규칙과 규칙별 trace 제공 |
+| 최종 승인 | 자동 출력 또는 사용자 임의 사용 | 담당자 확인과 감사 이벤트 필수 |
+| 재사용 산출물 | 완성 문서 중심 | 검증·정정된 주장과 근거의 Evidence Pack |
 
-## 제출 전 운영자 체크리스트
+### 4.2 Green Sampling으로 낮은 위험의 오류도 살핍니다
 
-- [ ] 외부 제출 포털 업로드, 참가자 개인정보 입력, 서명 또는 직인 처리는 운영자가 수행한다 [CE-021].
-- [ ] 외교부_국가별 안전정보 1건 이상 활용 조건이 최종 제출 양식에서 명시되어 있는지 확인한다 [CE-011][CE-012].
-- [ ] ODA DomainPack, 실시간 API adapter, 실제 LLM adapter는 현재 구현 완료가 아니라 [구성]/[로드맵]으로 표시되어 있는지 확인한다 [CE-010][CE-017][CE-020].
-- [ ] 고객·매출·운영 성과와 같은 외부 실적 표현은 파일럿 이후 별도 근거가 생기기 전까지 제외한다 [CE-020][CE-021].
-- [ ] 본문에 [현재]/[구성]/[로드맵] 범례가 유지되고 모든 핵심 주장이 CE ID로 추적되는지 확인한다.
-- [ ] PDF 변환 후 10쪽 이하인지 확인한다. 본 원고는 9개 논리 페이지로 설계되어 있다.
+위험 항목만 보여 주는 시스템은 안전해 보이는 문장의 오류를 놓칠 수 있습니다. ClaimGate ODA는 높은 위험을 우선 검토하면서도 낮은 위험 항목 일부를 표본으로 확인합니다. 검토 시간을 집중시키면서 false negative를 방어하는 운영 방식입니다.
 
-## 최종 문장
+### 4.3 Evidence Pack으로 근거를 인계합니다
 
-ClaimGate ODA는 ODA·공공외교 담당자가 AI 생성 설명을 그대로 믿거나 전면 배제하지 않고, 공식 공공데이터 Source Anchor와 deterministic risk trace를 통해 검토·정정·인계하도록 돕는 제품이다 [CE-001][CE-002][CE-006][CE-008]. 현재 제품의 강점은 범용 ClaimGate v0 프레임워크의 보수적 신뢰 경계에 있으며, ODA 출품의 다음 단계는 외교부 및 산하기관 공개데이터를 fixture DomainPack으로 구성하고 승인된 adapter와 pilot으로 검증 범위를 넓히는 것이다 [CE-010][CE-011][CE-020][CE-021].
+검토 결과는 일회성 체크리스트로 끝나지 않습니다. 검증·정정된 주장, 연결된 공공데이터 위치, 담당자 결정과 정정 값을 Evidence Pack에 묶습니다. 후속 보고서, 브리핑과 인수인계 자료는 이 근거 묶음을 바탕으로 만들 수 있어 같은 사실을 반복 확인하는 비용을 줄일 수 있습니다.
+
+### 4.4 DomainPack으로 분야별 판단을 분리합니다
+
+공통 검토 엔진에 ODA, 보건, 시민데이터 등 분야별 필드 매핑과 규칙을 DomainPack으로 결합합니다. 핵심 검토 원칙을 유지하면서 도메인마다 다른 용어, 데이터 구조와 판단 규칙을 독립적으로 개선할 수 있습니다.
+
+<div class="page-break"></div>
+
+## 5. 기대효과
+
+### 5.1 담당자 업무의 변화
+
+- 출처가 없거나 값·날짜·기관이 충돌하는 문장을 먼저 확인할 수 있습니다.
+- 각 주장에 연결된 데이터 위치를 바로 열어 원문을 확인할 수 있습니다.
+- 정정 이유와 최종 결정이 남아 후속 담당자가 같은 사실을 다시 찾는 일을 줄일 수 있습니다.
+- AI의 제안과 사람의 판단을 분리해 책임 주체를 명확히 할 수 있습니다.
+
+### 5.2 외교 공공데이터의 활용 가치 확대
+
+외교 공공데이터가 검색·조회용 자료를 넘어 AI 문장의 품질을 관리하는 신뢰 기반으로 활용됩니다. 현재 시제품에서는 외교부 국가별 안전정보, KOICA 국가별 협력사업, KOICA ODA 용어사전을 offline fixture Anchor로 사용합니다. KF·한·아프리카재단 데이터 결합은 향후 DomainPack 확장 범위로 두어 사업·기관·성과·용어 검토를 넓힐 수 있습니다.
+
+### 5.3 사회적 가치
+
+ODA와 공공외교 문서의 오류는 협력국과 수혜자에 대한 잘못된 인식, 사업 의사결정의 왜곡과 공공 신뢰 저하로 이어질 수 있습니다. ClaimGate ODA는 AI를 배제하기보다 책임 있게 활용하도록 돕습니다.
+
+| 가치 영역 | 기대 변화 |
+|---|---|
+| 공공 신뢰 | 설명의 출처와 정정 이력을 확인할 수 있는 구조 제공 |
+| 책임 있는 AI | AI의 후보 제안과 사람의 최종 판단을 명확히 분리 |
+| 업무 지속성 | 담당자가 바뀌어도 검증된 주장과 근거를 인계 |
+| 데이터 활용 | 공개데이터를 문장 검토와 품질관리의 기반으로 재사용 |
+| 확장성 | 공공외교·국제협력 외 다른 공공데이터 분야로 적용 가능 |
+
+### 5.4 검증 가능한 제품 운영
+
+같은 입력과 규칙에는 같은 위험 신호와 Evidence Pack이 생성되도록 설계했습니다. 오프라인 시나리오 테스트로 핵심 상태 전이, Anchor 없는 검증 차단, AI 권한 경계, 위험 규칙, 정정과 Evidence Pack 인계를 반복 검증합니다. 발표 데모에서도 의도적으로 잘못된 국가·사업 설명이 검토 큐에서 발견되고 정정되는 전체 흐름을 재현할 계획입니다.
+
+<div class="page-break"></div>
+
+## 6. 제품 및 서비스의 사업(창업) 계획
+
+### 6.1 단계별 제품화 계획
+
+| 단계 | 목표 | 주요 결과물 |
+|---|---|---|
+| 1단계: 검토 엔진 완성 | Claim, Source Anchor, 위험 규칙, 사람의 결정과 Evidence Pack 기반 제품 골격 확보 | 범용 ClaimGate v0, 재현 테스트, 도메인 교체 구조 |
+| 2단계: ODA 시제품 | 외교부·산하기관 공개데이터의 필드와 규칙을 ODA DomainPack으로 구성 | ODA 샘플 데이터, 잘못된 주장 fixture, 검토 화면과 발표 데모 |
+| 3단계: 제한 파일럿 | ODA·공공외교 실무자의 문서 검토 흐름과 산출물 적합성 확인 | 파일럿 체크리스트, 사용자 의견, 개선 백로그 |
+| 4단계: 운영 연계 | 필요한 범위의 읽기 전용 데이터 어댑터와 AI 후보 추출 어댑터 연결 | 기관별 배포 구성, 감사·인계 체계, 운영 가이드 |
+
+### 6.2 초기 시장과 고객
+
+초기 고객은 ODA·공공외교 사업을 기획하고 사업 설명, 국가 정보, 성과 보고를 반복 검토하는 공공기관과 수행기관입니다. 첫 적용은 문서 작성 전체를 대체하기보다 다음과 같은 고위험 검토 업무에 집중합니다.
+
+- 국별 협력 및 안전 관련 설명의 근거 확인
+- 사업명·대상국·기간·기관·성과 표현 검토
+- 외부 공개 전 보도자료와 브리핑의 사실 요소 점검
+- 사업 종료 후 성과 주장과 근거의 인계
+
+### 6.3 사업 모델
+
+초기에는 제한된 파일럿을 통해 데이터 적합성, 검토 시간, 정정 유형과 Evidence Pack 활용도를 확인합니다. 이후 기관별 DomainPack 구성, 내부 배포와 운영 지원을 묶은 B2G/B2B형 제품으로 확장합니다.
+
+| 제공 형태 | 내용 |
+|---|---|
+| 기관별 DomainPack 구축 | 기관 데이터 구조, 용어와 위험 규칙 구성 |
+| 내부 검토 제품 | 위험 큐, Source Anchor, 정정과 Evidence Pack 기능 제공 |
+| 운영·품질 지원 | 규칙 변경 관리, 데이터 갱신 점검, 감사·인계 가이드 제공 |
+| 분야 확장 | 보건, 공공조달, 지역정책 등 근거 검토가 필요한 영역에 적용 |
+
+### 6.4 발표 심사 전 개발 계획
+
+제품·서비스 개발 부문의 요건에 맞춰 발표 심사 전까지 다음 시제품을 완성합니다.
+
+1. 외교부_국가별 안전정보를 포함한 ODA DomainPack 샘플
+2. 국가·사업·기관·기간이 의도적으로 잘못된 AI 설명 fixture
+3. 위험 큐 → Source Anchor 확인 → 사람의 정정 → Evidence Pack 인계 데모
+4. 같은 입력에 같은 결과가 나오는 재현 테스트와 데모 실행 안내
+
+### 6.5 제품 비전
+
+ClaimGate ODA는 AI가 생성한 문장을 무조건 믿거나 전면 배제하는 대신, 공식 공공데이터와 사람의 책임 있는 판단 사이에 검토 가능한 연결고리를 만듭니다. 장기적으로는 공공기관이 생성형 AI를 사용할 때 “무엇을 생성했는가”뿐 아니라 “어떤 근거를 확인했고 누가 책임졌는가”까지 관리하는 신뢰 인프라로 성장하는 것을 목표로 합니다.

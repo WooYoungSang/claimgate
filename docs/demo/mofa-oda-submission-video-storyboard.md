@@ -4,7 +4,7 @@
 >
 > **총 길이:** 180초(3분) · 허용 범위 165–195초
 >
-> **제품 경계:** offline / deterministic / fixture-first 시제품이다. live OpenAPI, real LLM, OCR, 서버·DB·auth, production accuracy는 FUTURE / No-Go다. 공개 URL의 현재 배포 점검은 실패 5건으로 **보류(pending)** 상태이며 성공으로 제시하지 않는다.
+> **제품 경계:** offline / deterministic / fixture-first 시제품이다. live OpenAPI, hosted LLM/LLM-as-judge, OCR, 서버·DB·auth, production accuracy는 FUTURE / No-Go다. RTX 4090 Local Gemma는 후보 추출 전용 경로다. 공개 URL의 현재 배포 점검은 실패 5건으로 **보류(pending)** 상태이며 성공으로 제시하지 않는다.
 
 ## 촬영 전 체크
 

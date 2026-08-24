@@ -1,0 +1,21 @@
+@page { size: A4; margin: 15mm 15mm 16mm; @bottom-left { content: "ClaimGate ODA"; color:#718096; font-size:7pt; } @bottom-right { content: counter(page) " / " counter(pages); color:#718096; font-size:7pt; } }
+* { box-sizing: border-box; }
+html,body { margin:0; font-family:"Noto Sans CJK KR","Malgun Gothic","맑은 고딕",sans-serif; color:#172c3d; font-size:9.2pt; line-height:1.58; }
+.attachment-band { display:grid; grid-template-columns:27mm 1fr; height:14mm; margin:1mm 0 9mm; }
+.attachment-number { background:#000080; color:#fff; display:flex; align-items:center; justify-content:center; font-family:"Noto Serif CJK KR",serif; font-size:15pt; }
+.attachment-title { background:#e7ffff; border:.35mm solid #111; display:flex; align-items:center; justify-content:center; font-family:"Noto Serif CJK KR",serif; font-size:14pt; white-space:nowrap; }
+h2 { margin:0 0 5mm; padding:0 0 2.5mm; border-bottom:.4mm solid #1b809c; color:#114b73; font-size:17pt; line-height:1.25; }
+h3 { margin:5mm 0 2mm; color:#0d617d; font-size:11pt; }
+p { margin:0 0 3.2mm; }
+ul,ol { margin:2mm 0 3mm; padding-left:7mm; }
+li { margin:0 0 1.2mm; }
+table { border-collapse:collapse; width:100%; table-layout:fixed; margin:2mm 0 4mm; font-size:8.2pt; }
+th,td { border:.25mm solid #8aa9ba; padding:2mm 2.3mm; vertical-align:top; }
+th { background:#e7f3f6; color:#114b73; font-weight:700; }
+body > table:first-of-type th:first-child { width:34mm; }
+blockquote { margin:4mm 0; padding:4mm 5mm; border-left:1.2mm solid #1687a5; background:#eef8fa; font-size:10pt; font-weight:600; }
+.key-message { margin:8mm 0 0; padding:8mm; border:.6mm solid #1687a5; border-radius:4mm; text-align:center; background:#f2fbfc; font-size:11pt; }
+.key-message strong { color:#0d6078; font-size:19pt; }
+.page-break { break-before:page; }
+code { font-family:Consolas,monospace; font-size:.92em; background:#f2f5f7; padding:.2mm .8mm; }
+strong { color:#0b5671; }

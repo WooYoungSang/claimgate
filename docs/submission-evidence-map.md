@@ -44,10 +44,10 @@ Do not claim any of the following for v0:
 
 - ClaimGate automatically determines truth.
 - ClaimGate eliminates hallucinations.
-- A real LLM, OCR, PDF parser, Excel parser, server, database, auth layer, graph database, or real DID wallet/verifier is implemented.
+- A hosted LLM, LLM-as-judge, OCR, PDF parser, Excel parser, server, database, auth layer, graph database, or real DID wallet/verifier is implemented. The local Gemma path is candidate extraction only.
 - The MOFA/KOICA public-data URLs are fetched live, or the fixture pack proves production factual accuracy.
 - The mock trust adapter verifies claims.
-- The synthetic performance run proves production latency for arbitrary documents or real LLM calls.
+- The synthetic performance run proves production latency for arbitrary documents or hosted LLM calls or production model quality.
 - Green claims are ignored without sampling; green sampling is part of the review-cost accounting.
 
 ## Repeatable gate bundle

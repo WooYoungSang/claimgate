@@ -13,7 +13,8 @@
   },
   "requiredNoGo": [
     "live-openapi",
-    "real-llm",
+    "hosted-llm",
+    "llm-as-judge",
     "ocr",
     "server",
     "database",
@@ -270,7 +271,7 @@
     },
     {
       "id": "claim-future-boundaries",
-      "statement": "live OpenAPI, real LLM, OCR, 서버·DB·auth, production accuracy는 FUTURE / No-Go다.",
+      "statement": "live OpenAPI, hosted LLM/LLM-as-judge, OCR, 서버·DB·auth, production accuracy는 FUTURE / No-Go다. RTX 4090 Local Gemma는 후보 추출 전용 경로다.",
       "status": "future",
       "commandRefs": [],
       "commitRefs": [

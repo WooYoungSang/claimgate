@@ -94,7 +94,7 @@ pnpm test:e2e
 pnpm test:perf
 ```
 
-The latest local performance run of `pnpm test:perf` exercised 5,000 deterministic synthetic claims, projected 2,500 verified/corrected claims, emitted 2,502 graph nodes and 5,000 graph edges, and completed the synthetic framework pipeline in 110.13 ms under a 5,000 ms budget. This is evidence for the deterministic framework path only. It is not a claim about production latency for arbitrary documents or real LLM calls.
+The latest local performance run of `pnpm test:perf` exercised 5,000 deterministic synthetic claims, projected 2,500 verified/corrected claims, emitted 2,502 graph nodes and 5,000 graph edges, and completed the synthetic framework pipeline in 110.13 ms under a 5,000 ms budget. This is evidence for the deterministic framework path only. It is not a claim about production latency for arbitrary documents or hosted LLM calls or production model quality.
 
 The same run measured fake-work reduction after accounting for green sampling: 3,875 claims were focused review work, 125 green claims were sampled, 1,125 reviews were skipped, and the synthetic fake-work-reduced ratio was 0.225. These numbers are useful because the metric charges the framework for sampling cost rather than pretending that all green claims can be ignored.
 
@@ -109,13 +109,13 @@ A three-minute judging narrative can present ClaimGate as follows:
 5. **Show correction and audit**: a reviewer can verify, correct, or reject; the audit trail records the decision.
 6. **Show Evidence Pack output**: only verified/corrected claims reach the report or graph projection.
 7. **Show reuse**: swap DomainPacks to demonstrate the framework boundary across civic and health fixtures.
-8. **Close with limits**: v0 is offline and deterministic; real LLM/OCR/server/DID integrations are future adapter work, not hidden claims.
+8. **Close with limits**: v0 is offline and deterministic; hosted LLM/OCR/server/DID integrations and LLM-as-judge behavior are future/no-go adapter work, not hidden claims.
 
 ## 7. Limitations and future work
 
-v0 intentionally excludes real LLM extraction, OCR, a general-purpose PDF/Excel parser, server, database, auth, multitenancy, graph database, and real DID wallet/issuer/verifier integration. Those are adapter or platform layers for later work.
+v0 intentionally excludes hosted LLM integration, LLM-as-judge behavior, OCR, a general-purpose PDF/Excel parser, server, database, auth, multitenancy, graph database, and real DID wallet/issuer/verifier integration. Local Gemma is candidate extraction only. Those are adapter or platform layers for later work.
 
-Future work can add a real LLM extractor behind the existing candidate-only contract, richer source parsers, reviewer UX refinements, CI-published package workflows, and optional trust integrations. The invariant must remain unchanged: no external adapter may bypass anchors, deterministic risk traces, reviewer terminal decisions, or verified/corrected-only projection.
+Future work can harden local/hosted LLM extractors behind the existing candidate-only contract, richer source parsers, reviewer UX refinements, CI-published package workflows, and optional trust integrations. The invariant must remain unchanged: no external adapter may bypass anchors, deterministic risk traces, reviewer terminal decisions, or verified/corrected-only projection.
 
 ## 8. Submission checklist
 

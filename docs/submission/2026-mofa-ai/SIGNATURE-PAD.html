@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>ClaimGate ODA 서명 패드</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  body{font-family:system-ui,"Noto Sans KR",sans-serif;max-width:760px;margin:32px auto;padding:0 18px;color:#17202a}
+  h1{font-size:24px}p{line-height:1.6}.pad{border:2px solid #1f4e79;border-radius:8px;background:#fff;touch-action:none;width:100%;height:220px}
+  button{font-size:16px;padding:10px 18px;margin:12px 8px 0 0;border:0;border-radius:6px;cursor:pointer}.save{background:#0b6e8e;color:#fff}.clear{background:#e8edf1}
+  .note{margin-top:20px;padding:14px;background:#f2f8fa;border-left:4px solid #0b6e8e}
+</style>
+</head>
+<body>
+<h1>서명 이미지 만들기</h1>
+<p>아래 흰 칸에 마우스·터치펜·손가락으로 서명한 뒤 <b>투명 PNG 저장</b>을 누르세요. 서명 데이터는 외부로 전송되지 않습니다.</p>
+<canvas id="pad" class="pad"></canvas><br>
+<button class="save" id="save">투명 PNG 저장</button><button class="clear" id="clear">지우기</button>
+<div class="note">저장한 <code>signature.png</code>를 LibreOffice Draw에서 <b>삽입 → 이미지</b>로 서명란 위에 배치하세요.</div>
+<script>
+const canvas=document.getElementById('pad'),ctx=canvas.getContext('2d');let drawing=false,last=null;
+function resize(){const r=canvas.getBoundingClientRect(),d=devicePixelRatio||1,old=ctx.getImageData(0,0,canvas.width||1,canvas.height||1);canvas.width=Math.round(r.width*d);canvas.height=Math.round(r.height*d);ctx.scale(d,d);ctx.lineWidth=2.4;ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle='#111'}
+resize();addEventListener('resize',resize);
+function pos(e){const r=canvas.getBoundingClientRect(),p=e.touches?e.touches[0]:e;return{x:p.clientX-r.left,y:p.clientY-r.top}}
+function start(e){e.preventDefault();drawing=true;last=pos(e)}function move(e){if(!drawing)return;e.preventDefault();const p=pos(e);ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p}function end(){drawing=false;last=null}
+canvas.addEventListener('pointerdown',start);canvas.addEventListener('pointermove',move);addEventListener('pointerup',end);
+document.getElementById('clear').onclick=()=>ctx.clearRect(0,0,canvas.width,canvas.height);
+document.getElementById('save').onclick=()=>{const a=document.createElement('a');a.download='signature.png';a.href=canvas.toDataURL('image/png');a.click()};
+</script>
+</body></html>

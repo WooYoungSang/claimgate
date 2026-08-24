@@ -10,7 +10,7 @@ Scope source: `bet-warvis-claimgate-framework--claimgate-oss-contest-submission-
 
 - No external submission from this repository or agent lane.
 - Do not publish, flip repository visibility, tag a public release, upload a video, or send a contest form without a separate human/operator approval.
-- Keep ClaimGate v0 offline and deterministic: no real LLM extraction, OCR, server, DB, auth, multitenancy, graph DB, real DID wallet/issuer/verifier, or online demo.
+- Keep ClaimGate v0 default evaluator path offline and deterministic: no hosted LLM extraction, OCR, server, DB, auth, multitenancy, graph DB, real DID wallet/issuer/verifier, production vector RAG, fine-tuned model artifact, or online demo. The RTX 4090 local Ollama/Gemma extraction path is candidate-only and must be disclosed as local-only.
 - Preserve invariants: No Anchor, No Claim; AI Curator, Not Judge; deterministic risk with rule trace; Evidence Pack First; verified/corrected-only projection.
 
 ## Contest deadline and control checklist
@@ -26,7 +26,7 @@ Until then, the lane treats the deadline as visible but unconfirmed and blocks p
 | Source repository URL selected | Release owner | Final URL and target branch/tag | PENDING |
 | README landing story ready | Submission narrative lane | README and docs review evidence | PENDING |
 | Report/development narrative ready | Narrative lane | Report artifact and validation ref | PENDING |
-| Demo/video story ready | Demo lane | Video/script artifact and smoke evidence | PENDING |
+| Demo/video story ready | Demo lane | `docs/demo/mofa-oda-video-preflight.md`, storyboard, runtime smoke evidence | PREFLIGHT READY; actual recording pending |
 | License and OSS metadata ready | This lane | `LICENSE`, package metadata, README OSS section | READY in repo, final review pending |
 | Reproducibility commands pass offline | This lane | `pnpm install`, `pnpm test`, `pnpm demo` or current gate refs | PENDING fresh-run |
 | Security/privacy/no-secret sweep complete | This lane | grep/checklist evidence | PENDING |
@@ -46,9 +46,9 @@ Until then, the lane treats the deadline as visible but unconfirmed and blocks p
 | Domain pack docs | `docs/domain-packs.md` | Reuse/conformance story visible | READY |
 | Trust adapter docs | `docs/opendid-trust-adapter.md` | Mock-only trust boundary visible | READY |
 | Submission control plane | `docs/competition-submission.md` | This file validated by `pnpm test:submission-control-plane` | READY when validation passes |
-| Offline demo | `pnpm demo` | Deterministic output and pack swap evidence | PENDING fresh-run |
+| Offline demo | `pnpm demo` | Deterministic output and pack swap evidence | PASS in latest local gate; rerun before final submit |
 | Test evidence | `pnpm test`, conformance, e2e/perf as applicable | Latest command log captured | PENDING fresh-run |
-| Report/video assets | external or future `docs/` paths | Final asset links and checksums | PENDING narrative/demo lanes |
+| Video preflight | `docs/demo/mofa-oda-video-preflight.md`; `pnpm test:video-preflight`; `pnpm demo:ai:gemma` | Runtime proof for RTX 4090 Local Gemma candidate-only path; final video file/checksum still external | PREFLIGHT READY; actual recording pending |
 
 ## Evidence gate matrix
 
@@ -58,7 +58,7 @@ Until then, the lane treats the deadline as visible but unconfirmed and blocks p
 | Lint/boundary safety | Package boundaries and repo lint pass | `pnpm lint` | PASS | Core imports UI/pack/example or hidden authority appears |
 | Type safety | Strict TypeScript compiles | `pnpm typecheck` | PASS | Type errors or skipped packages |
 | Unit/invariant tests | ClaimGate invariants hold | `pnpm test` | PASS | No Anchor No Claim, AI Curator Not Judge, deterministic risk, Evidence Pack First, or verified/corrected-only projection breaks |
-| Domain conformance | Two packs prove reuse | `pnpm test/conformance` | PASS | Only one pack passes or pack swap fails |
+| Domain conformance | Civic, health, and MOFA ODA packs prove reuse | `pnpm test/conformance` | PASS | Fewer than three packs pass, unused pack rules pass unnoticed, or pack swap fails |
 | Demo smoke | Offline deterministic demo runs | `pnpm demo` | PASS | Online dependency, nondeterministic output, or server requirement |
 | Handoff smoke | Demo app handoff path works | `pnpm test:e2e` | PASS or consciously deferred | Broken handoff path without waiver |
 | Performance eval | Framework-scale eval has current result | `pnpm test:perf` | PASS or consciously deferred | Missing result for claimed performance story |
@@ -91,7 +91,7 @@ Until then, the lane treats the deadline as visible but unconfirmed and blocks p
 
 | Item | Result |
 |---|---|
-| Build eligibility | PASS via `devos_validate_build_eligibility` on 2026-07-08 |
+| Build eligibility | PASS via repo-local kbctl evidence and reproducible test/demo commands |
 | Worktree isolation | PASS: `forge/claimgate-oss-contest-submission-control-plane` |
 | File lease | PASS_WITH_WARN: README lease conflict; README edit scope-hammered out |
 | Local validator | `pnpm test:submission-control-plane` |
@@ -120,8 +120,8 @@ ClaimGate is an offline deterministic framework for reviewing public-data claims
 |---|---|---|
 | Written report | Differentiation matrix and five-sentence thesis. | `docs/benchmark-differentiation.md` |
 | Source code | Core trust invariants, DomainPack conformance, UI controlled components. | `pnpm lint`, `pnpm typecheck`, `pnpm test` |
-| Demo video | One intentionally wrong AI claim goes through risk queue, reviewer correction, Evidence Pack, and report/graph projection. | `pnpm demo`, `pnpm test:e2e` |
-| Function test | Offline deterministic tests and conformance for two packs. | `pnpm test/conformance` |
+| Demo video | Real RTX 4090 Local Gemma proposes a candidate, then one intentionally wrong AI claim goes through risk queue, reviewer correction, Evidence Pack, and report/graph projection. | `pnpm test:video-preflight`, `pnpm demo:ai:gemma`, `pnpm demo`, `pnpm test:e2e` |
+| Function test | Offline deterministic tests and conformance for civic, health, and MOFA ODA packs. | `pnpm test/conformance` |
 | License check | MIT license and no server/DB/auth/network dependency in v0 demo. | `LICENSE`, `pnpm lint` boundary check |
 
 ## Demo narrative draft

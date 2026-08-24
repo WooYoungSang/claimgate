@@ -120,10 +120,10 @@ test("missing shot or rehearsal evidence slot fails", async () => {
 
 test("missing No-Go boundary fails", async () => {
   const bundle = await loadBundle();
-  bundle.requiredNoGo = bundle.requiredNoGo.filter((item) => item !== "real-llm");
+  bundle.requiredNoGo = bundle.requiredNoGo.filter((item) => item !== "hosted-llm");
   const result = await validateEvidenceBundle(bundle);
   assert.equal(result.ok, false);
-  assert.match(result.errors.join("\n"), /missing required No-Go: real-llm/);
+  assert.match(result.errors.join("\n"), /missing required No-Go: hosted-llm/);
 });
 
 test("claim references must resolve to declared command and evidence IDs", async () => {
@@ -172,10 +172,10 @@ test("extra claim and unexpected scope fields fail closed", async () => {
   assert.match(result.errors.join("\n"), /scope keys must exactly match/);
 });
 
-test("exact claim meaning rejects production, live API and real LLM overclaims", async () => {
+test("exact claim meaning rejects production, live API and hosted LLM overclaims", async () => {
   const bundle = await loadBundle();
   const claim = bundle.claims.find((item) => item.id === "claim-offline-boundary");
-  claim.statement = "Production accuracy verified with a real LLM and live OpenAPI.";
+  claim.statement = "Production accuracy verified with a hosted LLM judge and live OpenAPI.";
   const result = await validateEvidenceBundle(bundle);
   assert.equal(result.ok, false);
   assert.match(result.errors.join("\n"), /statement mismatch: claim-offline-boundary/);
@@ -326,10 +326,10 @@ test("immutable storyboard evidence-slot mutation fails", () => {
 });
 
 test("immutable storyboard No-Go mutation fails", () => {
-  const markdown = loadImmutableStoryboard().replaceAll("real LLM", "real model");
+  const markdown = loadImmutableStoryboard().replaceAll("real LLM", "hosted model");
   const result = parseStoryboardContract(markdown);
   assert.equal(result.ok, false);
-  assert.match(result.errors.join("\n"), /missing contract phrase: real LLM/);
+  assert.match(result.errors.join("\n"), /LLM No-Go boundary language|exact product boundary line/);
 });
 
 test("immutable storyboard deployment/video pending mutation fails", () => {

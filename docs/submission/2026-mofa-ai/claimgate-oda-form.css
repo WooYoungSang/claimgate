@@ -1,0 +1,43 @@
+@page { size: A4; margin: 0; }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; font-family: "Noto Sans CJK KR", "Malgun Gothic", "맑은 고딕", sans-serif; color: #111; }
+.page { width: 210mm; height: 297mm; padding: 18mm 17mm 16mm; page-break-after: always; position: relative; background: white; }
+.page:last-child { page-break-after: auto; }
+.attachment-band { display: grid; grid-template-columns: 27mm 1fr; height: 14mm; margin: 0 0 13mm; }
+.attachment-number { background: #000080; color: white; display: flex; align-items: center; justify-content: center; font-family: "Noto Serif CJK KR", serif; font-size: 15pt; }
+.attachment-title { background: #e7ffff; border: .35mm solid #111; display: flex; align-items: center; justify-content: center; font-family: "Noto Serif CJK KR", serif; font-size: 15pt; white-space: nowrap; }
+table { border-collapse: collapse; width: 100%; table-layout: fixed; }
+.form-table th, .form-table td { border: .35mm solid #111; padding: 2.5mm 2.8mm; font-size: 9pt; line-height: 1.45; vertical-align: middle; }
+.form-table th { width: 34mm; text-align: center; font-weight: 700; background: #fff; }
+.form-table th.narrow { width: 16mm; }
+.applicant-table td { height: 13mm; }
+.warning { color: #e31b23; font-size: 7.5pt !important; }
+.input { color: #174f72; font-weight: 600; }
+.team-table { margin-top: 8mm; }
+.team-table th, .team-table td { text-align: center; height: 11mm; }
+.team-table th:first-child { width: 34mm; }
+.product-table { margin-top: 8mm; }
+.product-table th { width: 54mm; }
+.product-table td { min-height: 16mm; }
+.overview-table { margin-top: 8mm; }
+.overview-table th { width: 54mm; height: 31mm; font-size: 12pt; }
+.overview-table td { font-size: 9.5pt; line-height: 1.6; }
+.pledge { border: .35mm solid #111; margin-top: 8mm; padding: 0 6mm 7mm; min-height: 196mm; }
+.pledge h1 { margin: 0 -6mm 5mm; padding: 3mm; border-bottom: .35mm solid #111; text-align: center; font-family: "Noto Serif CJK KR", serif; font-size: 15pt; }
+.pledge p, .pledge li { font-size: 10pt; line-height: 1.65; }
+.pledge ol { padding-left: 7mm; margin: 7mm 0; }
+.date-line { margin: 17mm 0 4mm; text-align: center; font-size: 11pt; }
+.sign-line { display: flex; align-items: center; justify-content: flex-end; gap: 2mm; min-height: 19mm; padding-right: 11mm; font-size: 11pt; }
+.signature-area { position: relative; width: 34mm; height: 19mm; display: inline-flex; align-items: flex-end; justify-content: center; margin-left: 1mm; }
+.signature-area .signature-box { position: absolute; left: 0; top: -2mm; width: 34mm; height: 19mm; z-index: 2; background: center/contain no-repeat url("signature.png"); }
+.signature-area .seal-marker { position: relative; z-index: 1; margin-bottom: 1.2mm; }
+.recipient { margin-top: 10mm; text-align: center; font-family: "Noto Serif CJK KR", serif; font-size: 14pt; font-weight: 700; }
+.privacy-page .attachment-band { margin-bottom: 9mm; }
+.privacy-document { border: .35mm solid #111; padding: 0 6mm 6mm; min-height: 245mm; }
+.privacy-document h1 { margin: 0 -6mm 6mm; padding: 4mm 3mm; border-bottom: .35mm solid #111; font-family: "Noto Serif CJK KR", serif; font-size: 15pt; font-weight: 500; }
+.privacy-document h2 { margin: 7mm 0 1mm; font-size: 10.5pt; }
+.privacy-document p { margin: 0; font-size: 9.5pt; line-height: 1.55; }
+.privacy-document .consent-statement { margin-top: 12mm; font-weight: 600; }
+.privacy-document .date-line { margin-top: 10mm; }
+.privacy-document .sign-line { min-height: 17mm; }
+.privacy-document .recipient { margin-top: 4mm; }

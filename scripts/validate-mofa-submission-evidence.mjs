@@ -29,7 +29,8 @@ const SCOPE = {
 
 const REQUIRED_NO_GO = [
   "live-openapi",
-  "real-llm",
+  "hosted-llm",
+  "llm-as-judge",
   "ocr",
   "server",
   "database",
@@ -68,8 +69,14 @@ const SHOT_IDS = [
 
 const EXACT_VIDEO_STATUS_LINE =
   "> **상태:** 촬영 계획 검증 완료 · 실제 영상 촬영/업로드/외부 제출은 미실시";
-const EXACT_PRODUCT_BOUNDARY_LINE =
+const CURRENT_PRODUCT_BOUNDARY_LINE =
+  "> **제품 경계:** offline / deterministic / fixture-first 시제품이다. live OpenAPI, hosted LLM/LLM-as-judge, OCR, 서버·DB·auth, production accuracy는 FUTURE / No-Go다. RTX 4090 Local Gemma는 후보 추출 전용 경로다. 공개 URL의 현재 배포 점검은 실패 5건으로 **보류(pending)** 상태이며 성공으로 제시하지 않는다.";
+const LEGACY_PRODUCT_BOUNDARY_LINE =
   "> **제품 경계:** offline / deterministic / fixture-first 시제품이다. live OpenAPI, real LLM, OCR, 서버·DB·auth, production accuracy는 FUTURE / No-Go다. 공개 URL의 현재 배포 점검은 실패 5건으로 **보류(pending)** 상태이며 성공으로 제시하지 않는다.";
+const ACCEPTED_PRODUCT_BOUNDARY_LINES = [
+  CURRENT_PRODUCT_BOUNDARY_LINE,
+  LEGACY_PRODUCT_BOUNDARY_LINE,
+];
 const EXACT_DEPLOYMENT_OBSERVATION_LINE =
   "2026-07-18 UTC 기준 `pnpm probe:deployment`은 exit 1, failureCount 5였다.";
 const EXACT_DEPLOYMENT_CONCLUSION_LINE =
@@ -212,7 +219,7 @@ const CLAIMS = {
   },
   "claim-future-boundaries": {
     statement:
-      "live OpenAPI, real LLM, OCR, 서버·DB·auth, production accuracy는 FUTURE / No-Go다.",
+      "live OpenAPI, hosted LLM/LLM-as-judge, OCR, 서버·DB·auth, production accuracy는 FUTURE / No-Go다. RTX 4090 Local Gemma는 후보 추출 전용 경로다.",
     status: "future",
     commandRefs: [],
     commitRefs: [BASELINE_COMMIT],
@@ -355,7 +362,7 @@ export const parseStoryboardContract = (markdown) => {
   const lines = new Set(markdown.split(/\r?\n/u));
   for (const [line, label] of [
     [EXACT_VIDEO_STATUS_LINE, "exact video status line"],
-    [EXACT_PRODUCT_BOUNDARY_LINE, "exact product boundary line"],
+
     [EXACT_DEPLOYMENT_OBSERVATION_LINE, "exact deployment observation line"],
     [EXACT_DEPLOYMENT_CONCLUSION_LINE, "exact deployment conclusion line"],
     [EXACT_REHEARSAL_CHECK_LINE, "exact rehearsal pending line"],
@@ -367,12 +374,21 @@ export const parseStoryboardContract = (markdown) => {
     }
   }
 
+  if (!ACCEPTED_PRODUCT_BOUNDARY_LINES.some((line) => lines.has(line))) {
+    errors.push("storyboard missing exact product boundary line");
+  }
+  const hasCurrentNoGoLanguage =
+    markdown.includes("hosted LLM") && markdown.includes("LLM-as-judge");
+  const hasLegacyNoGoLanguage = markdown.includes("real LLM");
+  if (!hasCurrentNoGoLanguage && !hasLegacyNoGoLanguage) {
+    errors.push("storyboard missing LLM No-Go boundary language");
+  }
+
   for (const phrase of [
     "**총 길이:** 180초(3분)",
     "= **180초**",
     "offline / deterministic / fixture-first",
     "live OpenAPI",
-    "real LLM",
     "OCR",
     "서버·DB·auth",
     "production accuracy",

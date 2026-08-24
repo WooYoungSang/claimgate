@@ -2,7 +2,7 @@
 
 > **목표:** AI가 만든 답을 그대로 믿는 화면이 아니라, 오프라인 후보 주장을 공공데이터 출처 근거와 결정론적 규칙으로 대조하고 **사람의 판정만** 정식 근거 묶음에 투영되는 흐름을 3분 안에 보여 준다.
 >
-> **시제품 경계:** 이 데모는 **offline / deterministic / fixture-first**이다. `AI Curator`는 사전 생성 fixture에서 후보를 제안하는 시뮬레이션일 뿐 최종 판정 권한이 없다. live OpenAPI, real LLM, OCR, 서버·DB·auth, production accuracy 평가는 **FUTURE / No-Go**이며 동작하거나 준비됐다고 말하지 않는다.
+> **시제품 경계:** 이 데모는 **offline / deterministic / fixture-first**이다. `AI Curator`는 RTX 4090 Local Gemma 또는 고정 fixture에서 후보를 제안할 뿐 최종 판정 권한이 없다. live OpenAPI, hosted LLM/LLM-as-judge, OCR, 서버·DB·auth, production accuracy 평가는 **FUTURE / No-Go**이며 동작하거나 준비됐다고 말하지 않는다.
 
 ## 0. 사전 준비 (시연 전, 타이머 제외)
 
@@ -38,7 +38,7 @@ pnpm --filter @claimgate/example-civic-review-app exec vite preview --host 127.0
 
 | 구간 | 시간 | 화면 조작 | 발표 멘트와 확인점 |
 |---|---:|---|---|
-| 오프닝 | 0–20초 | 시작 오버레이에서 파이프라인을 가리킨 뒤 `가이드 데모 시작` | “입력은 **사전 생성 오프라인 고정 예시 데이터**, AI 후보 제안기는 **후보 주장 제안 모의 실행**, 권한은 **제안 전용·판정 불가**입니다. 결정론적 규칙과 사람 검토자가 판단합니다.” 시작 후 상단 `오프라인 고정 예시 데이터`, `AI 후보 제안기 · 제안 전용`, `외교부 ODA 공공데이터 팩`을 확인한다. |
+| 오프닝 | 0–20초 | 시작 오버레이에서 파이프라인을 가리킨 뒤 `가이드 데모 시작` | “입력은 **사전 생성 오프라인 고정 예시 데이터**, AI 후보 제안기는 **후보 주장 제안**, 권한은 **제안 전용·판정 불가**입니다. 결정론적 규칙과 사람 검토자가 판단합니다.” 시작 후 상단 `오프라인 고정 예시 데이터`, `AI 후보 제안기 · 제안 전용`, `외교부 ODA 공공데이터 팩`을 확인한다. |
 | 1단계 · 후보 주장 | 20–50초 | `검토할 주장` 큐의 RED, YELLOW, GREEN 세 항목을 차례로 가리키거나 클릭한 뒤 RED로 돌아온다. `다음 단계` | “RED는 ‘안전’ 주장과 **외교부_국가별 안전정보**의 위험·주의가 충돌합니다. YELLOW는 KOICA 사업의 국가·기간이 다릅니다. GREEN은 ODA 용어 정의가 공식 용어사전과 일치하지만 false-negative 방지를 위해 표본 검토합니다.” |
 | 2단계 · 근거 비교 | 50–85초 | RED 선택 상태에서 `AI 제안`과 `출처 근거` 카드, `값 불일치`, `공공데이터 출처 이력`, `판정 규칙`을 순서대로 가리킨다. `다음 단계` | “AI 값 `safe-and-stable`과 출처 근거 값 `special-travel-advisory-caution`을 타입과 값으로 비교합니다. 출처 이력은 제목·위치·오프라인 출처 경계를 보존합니다. 규칙 추적 `mofa.country-safety-mismatch`가 RED와 `conflict`를 재현하지만 최종 판정은 하지 않습니다.” |
 | 3단계 · 사람 판정 | 85–120초 | `근거값으로 정정` → 기본 정정 값과 `판정 사유` 확인 → `판정 기록` → `다음 단계` | “검토자가 근거값과 사유를 직접 확정합니다. `검토 이력`에는 `데모-검토자`와 결정론적 고정 예시 데이터 시각이 남습니다. AI나 규칙 엔진이 이 버튼을 대신 누르지 않습니다.” **주의:** 판정 후 해당 주장의 세 판정 버튼은 잠긴다. |
@@ -113,7 +113,7 @@ pnpm --filter @claimgate/example-civic-review-app exec vite preview --host 127.0
 - 대기 또는 기각 항목이 정식 근거 묶음 미리보기에 포함된다.
 - rule ID·risk·recommended state가 위 시나리오와 다르거나 실행마다 결과가 달라진다.
 - 검토자 판정과 사유 없이 근거 묶음에 항목이 투영된다.
-- 런타임이 live OpenAPI, real LLM, OCR, 서버·DB·auth를 요구하거나 호출한다.
+- 런타임이 live OpenAPI, hosted LLM/LLM-as-judge, OCR, 서버·DB·auth를 요구하거나 호출한다.
 - 공개 URL 장애를 제품 정확도 또는 공공데이터 정확도 문제로 잘못 설명해야만 시연을 이어갈 수 있다.
 
 ---
@@ -138,7 +138,7 @@ pnpm --filter @claimgate/example-civic-review-app exec vite preview --host 127.0
 **02:15** `근거 묶음 미리보기` → `JSON 다운로드`/`마크다운 다운로드` → `×` → `가이드 완료`
 
 **02:40** `시민 예산 데이터 팩` / `보건 통계 데이터 팩` / `외교부 ODA 공공데이터 팩` 확인
-“동일 프레임, 도메인 규칙·고정 예시 데이터 교체. live API·real LLM·OCR·운영 정확도는 FUTURE / No-Go입니다.”
+“동일 프레임, 도메인 규칙·고정 예시 데이터 교체. live API·hosted LLM·LLM-as-judge·OCR·운영 정확도는 FUTURE / No-Go입니다.”
 
 **03:00 STOP** — 핵심 체크포인트 미충족 시 다음 화면으로 넘어가지 말고 중단 기준에 따라 보고한다.
 

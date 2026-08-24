@@ -6,7 +6,7 @@
 
 - Cloudflare 토큰, 원본 인증서, 개인키, `.env`를 읽거나 출력하거나 저장소에 넣지 않는다.
 - DNS 레코드 생성·수정, Cloudflare SSL/TLS 모드 변경, Caddy 서비스 reload는 운영자 Gate다.
-- `live OpenAPI`, `real LLM`, OCR, 서버·DB·auth는 이 정적 데모와 무관하며 계속 No-Go다.
+- `live OpenAPI`, hosted LLM/LLM-as-judge, OCR, 서버·DB·auth는 이 정적 데모와 무관하며 계속 No-Go다. RTX 4090 Local Gemma는 후보 추출 전용 영상 경로다.
 - 공개 스모크는 `GET`, DNS 조회, TLS handshake만 수행하는 읽기 전용 관측이다.
 - 자격증명이 필요한 단계는 자동 성공으로 기록하지 않는다. 아래 운영자 체크리스트에 `미실시`로 남긴다.
 

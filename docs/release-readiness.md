@@ -10,7 +10,7 @@ This document supports a future public OSS transition. It does **not** authorize
 - pushing this branch;
 - flipping GitHub repository visibility;
 - uploading private vault/runtime state;
-- marking the ShapeOps Bet as shipped or HANDOFF accepted.
+- changing any external/private lifecycle state.
 
 ## Public-readiness checklist
 
@@ -43,7 +43,7 @@ A non-empty content audit is not automatically a vulnerability, but it is a **NO
 
 - [ ] `SECURITY.md` describes supported versions, vulnerability reporting, and v0 boundaries.
 - [ ] No real personal data, non-public source documents, private reviewer notes, or vault exports are required by examples/tests.
-- [ ] v0 includes no server, DB, auth, multitenancy, real DID wallet/issuer/verifier, OCR, real LLM extraction, or online demo dependency.
+- [ ] v0 includes no server, DB, auth, multitenancy, real DID wallet/issuer/verifier, OCR, hosted LLM dependency, LLM-as-judge behavior, or online demo dependency.
 
 ### 3. License and third-party review
 
@@ -152,7 +152,7 @@ Measured isolated run on Node `v22.22.1` and pnpm `9.0.0`:
 Remaining FUTURE / No-Go boundaries:
 
 - live MOFA/KOICA OpenAPI or file download;
-- real LLM extraction or LLM-as-judge;
+- hosted LLM extraction or LLM-as-judge;
 - OCR or general PDF/Excel parsing;
 - server, DB, auth, multitenancy, or production graph database;
 - production factual accuracy, adoption, reviewer time-saving, or SLA claims.

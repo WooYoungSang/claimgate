@@ -16,7 +16,7 @@ ClaimGate is an offline, deterministic framework for reviewing risky public-data
 2. **Boundary** — ClaimGate is offline and deterministic in v0; AI proposes candidates; reviewers decide.
 3. **Workflow** — source anchors, deterministic risk trace, reviewer correction, Evidence Pack projection.
 4. **Differentiation** — Evidence Pack is the primary artifact; graph/report/trust signals are projections or context.
-5. **Honest scope** — no real LLM extraction, OCR, server, DB, auth, multitenancy, graph DB, or real DID wallet in v0.
+5. **Honest scope** — no hosted LLM, LLM-as-judge, OCR, server, DB, auth, multitenancy, graph DB, or real DID wallet in v0. Local Gemma is candidate extraction only.
 
 ## Forbidden phrases and replacements
 
@@ -45,4 +45,4 @@ ClaimGate should be positioned against hidden-authority AI systems, not as one o
 
 ## Scope statement
 
-ClaimGate v0 is an offline, deterministic v0 framework. It excludes real LLM extraction, OCR, general-purpose PDF/Excel parsing, server, database, authentication, multitenancy, online demos, graph database deployment, and real DID wallet/issuer/verifier integration.
+ClaimGate v0 is an offline, deterministic v0 framework. It excludes hosted LLM calls, LLM-as-judge behavior, OCR, general-purpose PDF/Excel parsing, server, database, authentication, multitenancy, online demos, graph database deployment, and real DID wallet/issuer/verifier integration. The RTX 4090 Local Gemma path is candidate extraction only.

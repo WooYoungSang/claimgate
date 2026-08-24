@@ -1,6 +1,6 @@
 # ClaimGate Reproducibility Guide
 
-ClaimGate v0 is designed for deterministic, offline evaluation from a fresh clone. The default evaluator path uses fixture data committed to the repository and does not require API keys, network services, hosted databases, auth, OCR, real LLM calls, or DID infrastructure.
+ClaimGate v0 is designed for deterministic, offline evaluation from a fresh clone. The default evaluator path uses fixture data committed to the repository and does not require API keys, network services, hosted databases, auth, OCR, hosted LLM calls, or DID infrastructure. The separate `pnpm demo:ai:gemma` path requires the local RTX 4090 Ollama/Gemma runtime.
 
 ## Environment
 
@@ -45,6 +45,16 @@ pnpm test:e2e
 pnpm test:perf
 ```
 
+Optional kbctl knowledge tooling gate, when Go 1.22+ is available:
+
+```bash
+pnpm test:kbctl
+./kbctl verify
+./kbctl list document
+```
+
+This verifies the project-local document/knowledge index only; it is not a runtime dependency of ClaimGate v0.
+
 ## What `pnpm eval:framework` runs
 
 `pnpm eval:framework` chains:
@@ -57,7 +67,7 @@ pnpm test:perf
 6. `pnpm test:e2e`
 7. `pnpm test:perf`
 
-The command is intentionally framework-focused. It verifies deterministic behavior and package boundaries; it does not call or judge a real LLM.
+The command is intentionally framework-focused. It verifies deterministic behavior and package boundaries; it does not call hosted LLMs or judge local model factual quality.
 
 ## Determinism contract
 
@@ -71,7 +81,7 @@ The command is intentionally framework-focused. It verifies deterministic behavi
 
 ## Offline / no-network runtime contract
 
-After dependencies are installed, ClaimGate demos and tests must run without a server, database, auth service, OCR service, real LLM provider, graph database, online verifier, API keys, or model-provider credentials. Fixture packs and example apps should use checked-in deterministic data only.
+After dependencies are installed, ClaimGate demos and tests must run without a server, database, auth service, OCR service, hosted LLM provider, graph database, online verifier, API keys, or model-provider credentials. Fixture packs and example apps should use checked-in deterministic data only.
 
 Allowed network use for this v0 release gate:
 
@@ -80,7 +90,7 @@ Allowed network use for this v0 release gate:
 
 Disallowed in v0 runtime/demo paths:
 
-- real LLM extraction or provider calls;
+- hosted LLM extraction/provider calls or LLM-as-judge behavior;
 - OCR or general-purpose PDF/Excel parsing services;
 - hosted API/server/database/auth/multitenancy;
 - graph DB projection as a runtime dependency;
@@ -99,4 +109,4 @@ If a future integration needs any of the above, it must be opt-in and must not b
 ## Public-release go/no-go rule
 
 - **GO** if a fresh clone can run the clean-room commands and the runtime remains fixture-first/offline.
-- **NO-GO** if any demo or test requires secrets, local vault state, network APIs, mutable external state, private runtime services, real LLM extraction, OCR services, graph DB projection as a runtime dependency, or real DID wallet/issuer/verifier integration.
+- **NO-GO** if any demo or test requires secrets, local vault state, network APIs, mutable external state, private runtime services, hosted LLM extraction, LLM-as-judge behavior, OCR services, graph DB projection as a runtime dependency, or real DID wallet/issuer/verifier integration.
