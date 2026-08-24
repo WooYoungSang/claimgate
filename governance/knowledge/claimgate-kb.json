@@ -135,7 +135,8 @@
       "D-050",
       "D-051",
       "D-052",
-      "D-053"
+      "D-053",
+      "D-054"
     ],
     "incident_ids": [],
     "open_issue_ids": [
@@ -634,14 +635,14 @@
     {
       "stage": "OSS-2",
       "output": "Prepare sanitized public export branch for OSSContest source submission",
-      "status": "not_started",
-      "evidence": "blocked until repository hygiene lane removes private harness/runtime surfaces"
+      "status": "complete",
+      "evidence": "Commits 1a98fa0, 21555a2, and 9eb0bcf produce a clean worktree; pnpm audit:harness:gpt56, pnpm lint, pnpm typecheck, pnpm test, and pnpm test:tooling pass."
     },
     {
       "stage": "OSS-3",
       "output": "Finalize development report, 3-minute demo video, and source URL package",
-      "status": "not_started",
-      "evidence": "pending human/operator publication and contest portal actions"
+      "status": "blocked",
+      "evidence": "D-054 confirms the official MOFA initial package is three documents, not source/video/deployment. Repository assets are ready, but the official 2026-07-13 18:00 deadline has passed and organizer acceptance of late submission is unknown."
     }
   ],
   "mvp_v1_parallel_roadmap": {
@@ -678,7 +679,9 @@
             ],
             "delivers": "A sanitized public export candidate without private runtime/operator surfaces.",
             "done_when": "secret/private endpoint scans are triaged and public source tree is reproducible.",
-            "status": "not_started"
+            "status": "complete",
+            "evidence": "Public agent harness was simplified in 1a98fa0; local runtime/private submission artifacts are ignored; worktree is clean; harness audit and full verification pass.",
+            "next_step": "Keep private credentials, signatures, portal exports, and runtime state ignored during publication."
           },
           {
             "id": "PKT-OSS-CONTEST-ASSETS",
@@ -693,9 +696,9 @@
             ],
             "delivers": "OSSContest-facing report, video script, and quickstart narrative.",
             "done_when": "report, 3-minute video plan, source URL, and final checklist are ready for human portal submission.",
-            "status": "in_progress",
-            "evidence": "Added docs/demo/mofa-oda-video-preflight.md and pnpm test:video-preflight. Local Gemma demo smoke previously passed on RTX 4090 with gemma4:12b; final video recording remains pending operator evidence.",
-            "next_step": "Record two timed rehearsals and final 3-minute video, then attach external evidence/checksums without committing private portal credentials."
+            "status": "blocked",
+            "evidence": "All repository validation and the three-document generation workflow are ready. D-054 separates the official MOFA initial three-document gate from optional/internal source, video, and deployment evidence. The hard blocker is the passed 2026-07-13 18:00 deadline with no extension found.",
+            "next_step": "Ask the official organizer whether late submission is accepted. If accepted, operator-review and send the participation application, product/service proposal, and privacy consent PDFs; continue source/video work only as follow-up evidence."
           }
         ]
       }
@@ -1072,27 +1075,34 @@
       "status": "accepted",
       "decision": "ClaimGate adopts the IGNIS FMON CQRS/fail-closed Bubble Tea dashboard and the missing kbctl Human Review Gate plus atomic workpacket planning contracts, localized to the ClaimGate module, brand, default KB path, and schema namespace.",
       "rationale": "The requested migration should preserve the proven read-model and validation behavior without importing IGNIS domain records or project-only harness checks that do not exist in ClaimGate."
+    },
+    {
+      "id": "D-054",
+      "date": "2026-08-24",
+      "status": "accepted",
+      "decision": "For the 2026 MOFA contest initial submission, the official notice controls: submit the participation application, product/service proposal, and privacy consent through 국민생각함 or email. Source publication, a 3-minute video, and public deployment are supplemental/internal readiness artifacts, not listed initial-submission prerequisites; presentation material is requested only from presentation-stage candidates.",
+      "rationale": "The repo control plane mixed OSSContest packaging with the MOFA initial submission gate. Official MOFA requirements must not be inflated by internal readiness criteria, while the passed 2026-07-13 18:00 deadline remains a hard external blocker."
     }
   ],
   "incidents": [],
   "open_issues": [
     {
       "id": "OI-001",
-      "status": "open",
+      "status": "closed",
       "description": "Public export is still blocked until private agent/runtime surfaces and private endpoint references are removed or isolated from the source submission tree.",
-      "next_step": "Create a sanitized export branch or script and run release-readiness scans."
+      "next_step": "Resolved by 1a98fa0 plus passing pnpm audit:harness:gpt56 and clean worktree verification."
     },
     {
       "id": "OI-002",
       "status": "open",
-      "description": "OSSContest final report, 3-minute video artifact, source URL, and portal submission remain human/operator actions.",
-      "next_step": "After public export hygiene, update competition report and capture video evidence."
+      "description": "The official 2026 MOFA contest initial-submission deadline was 2026-07-13 18:00 and has passed with no extension found. The official initial package is three operator-reviewed documents: participation application, product/service proposal, and privacy consent; source URL, video, and public deployment are not listed initial prerequisites.",
+      "next_step": "Contact the official organizer through the notice contact channel and ask whether late submission or an alternate channel is accepted. If accepted, submit the three reviewed PDFs through the instructed channel; keep source publication and video preparation as follow-up evidence."
     },
     {
       "id": "OI-003",
-      "status": "open",
+      "status": "closed",
       "description": "ClaimGate 구현 브리프는 정리되었지만 공개 출품 전에는 sanitized export branch 또는 export script로 내부 운영 표면을 제거해야 한다.",
-      "next_step": "public export hygiene lane에서 private agent/runtime files, internal instructions, private endpoint references를 분리하고 clean source package를 검증한다."
+      "next_step": "Resolved by the sanitized public harness/tooling commits and ignore rules; maintain the same release hygiene."
     }
   ],
   "lessons": [
