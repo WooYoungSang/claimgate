@@ -641,8 +641,8 @@
     {
       "stage": "OSS-3",
       "output": "Finalize development report, 3-minute demo video, and source URL package",
-      "status": "blocked",
-      "evidence": "D-054 confirms the official MOFA initial package is three documents, not source/video/deployment. Repository assets are ready, but the official 2026-07-13 18:00 deadline has passed and organizer acceptance of late submission is unknown."
+      "status": "in_progress",
+      "evidence": "Operator confirmed on 2026-08-24 that the required initial submission documents were already sent. Repository validations pass; only the final contest-stage submission action remains."
     }
   ],
   "mvp_v1_parallel_roadmap": {
@@ -696,9 +696,9 @@
             ],
             "delivers": "OSSContest-facing report, video script, and quickstart narrative.",
             "done_when": "report, 3-minute video plan, source URL, and final checklist are ready for human portal submission.",
-            "status": "blocked",
-            "evidence": "All repository validation and the three-document generation workflow are ready. D-054 separates the official MOFA initial three-document gate from optional/internal source, video, and deployment evidence. The hard blocker is the passed 2026-07-13 18:00 deadline with no extension found.",
-            "next_step": "Ask the official organizer whether late submission is accepted. If accepted, operator-review and send the participation application, product/service proposal, and privacy consent PDFs; continue source/video work only as follow-up evidence."
+            "status": "in_progress",
+            "evidence": "Operator confirmed the participation application, product/service proposal, and privacy consent were already sent. Repo submission, evidence, video-preflight, tooling, and harness validations pass. Remaining work is the explicitly identified final-stage external submission.",
+            "next_step": "Confirm the exact final-stage channel and artifact set before performing the irreversible external submission action."
           }
         ]
       }
@@ -1095,8 +1095,8 @@
     {
       "id": "OI-002",
       "status": "open",
-      "description": "The official 2026 MOFA contest initial-submission deadline was 2026-07-13 18:00 and has passed with no extension found. The official initial package is three operator-reviewed documents: participation application, product/service proposal, and privacy consent; source URL, video, and public deployment are not listed initial prerequisites.",
-      "next_step": "Contact the official organizer through the notice contact channel and ask whether late submission or an alternate channel is accepted. If accepted, submit the three reviewed PDFs through the instructed channel; keep source publication and video preparation as follow-up evidence."
+      "description": "The operator confirmed the required initial documents were already sent. The remaining action is the final contest-stage submission; its exact channel and artifact set must be confirmed before external submission.",
+      "next_step": "Identify whether final submission means a 국민생각함 final-submit action, an email final package, or presentation-stage materials/video, then execute only that confirmed external action."
     },
     {
       "id": "OI-003",
