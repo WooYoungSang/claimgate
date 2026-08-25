@@ -36,6 +36,8 @@
     "test:tooling": "pnpm test:kbctl && pnpm test:fmon",
     "build:final-presentation": "python3 scripts/generate-mofa-final-presentation.py && mkdir -p /tmp/claimgate-final-presentation && libreoffice --headless --convert-to pdf --outdir /tmp/claimgate-final-presentation artifacts/submission/2026-mofa-ai/final-presentation/claimgate-oda-final-presentation.pptx && cp /tmp/claimgate-final-presentation/claimgate-oda-final-presentation.pdf artifacts/submission/2026-mofa-ai/final-presentation/claimgate-oda-final-presentation.pdf && python3 scripts/package-mofa-final-presentation.py",
     "test:final-presentation": "python3 scripts/validate-mofa-final-presentation.py",
+    "build:osscontest-report": "python3 scripts/generate-osscontest-final-report.py && python3 scripts/package-osscontest-final.py",
+    "test:osscontest-final": "python3 scripts/validate-osscontest-final.py",
     "demo:ai": "CLAIMGATE_LOCAL_LLM_PROVIDER=ollama CLAIMGATE_LOCAL_LLM_MODEL=${CLAIMGATE_LOCAL_LLM_MODEL:-gemma4:12b} tsx scripts/ai-claim-demo.ts --provider=ollama",
     "test:ai-demo": "node --test scripts/ai-claim-demo.test.mjs scripts/local-gemma-pipeline.test.mjs",
     "demo:ai:gemma": "CLAIMGATE_LOCAL_LLM_PROVIDER=ollama CLAIMGATE_LOCAL_LLM_MODEL=${CLAIMGATE_LOCAL_LLM_MODEL:-gemma4:12b} tsx scripts/ai-claim-demo.ts --provider=ollama",

@@ -1,0 +1,20 @@
+{
+  "schema": "claimgate.osscontest-submission/v1",
+  "receiptNumber": "접수번호",
+  "team": "ClaimGate",
+  "repository": "https://github.com/WooYoungSang/warvis-claimgate",
+  "videoUrl": "[YOUTUBE_URL_REQUIRED]",
+  "uploadZip": "2026 오픈소스 개발자대회 제출파일_접수번호(ClaimGate).zip",
+  "files": [
+    {
+      "path": "2026 오픈소스 개발자대회 결과보고서_접수번호(ClaimGate).docx",
+      "bytes": 459259,
+      "sha256": "ca4aa8eeac083c7932fe185eca32d00fb0bfe6faf893317537e7460c3a457af4"
+    },
+    {
+      "path": "2026 오픈소스 개발자대회 결과보고서_접수번호(ClaimGate).pdf",
+      "bytes": 382084,
+      "sha256": "45525d2141dff9b02668a06b64d874e09f3dc5d3a4c3d8205c11677d39c2205f"
+    }
+  ]
+}

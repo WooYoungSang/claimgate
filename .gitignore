@@ -159,3 +159,6 @@ artifacts/local-ai/gemma-candidate-lora-prototype/
 /docs/submission/2026-mofa-ai/claimgate-oda-product-service-proposal.docx
 /docs/submission/2026-mofa-ai/claimgate-oda-product-service-proposal.preview.html
 /docs/submission/2026-mofa-ai/signature.*
+
+# Local OSS Contest video awaiting operator YouTube upload
+/artifacts/submission/2026-osscontest/final/*.mp4

@@ -83,7 +83,9 @@
       "DOC-FMON-README",
       "DOC-MOFA-FINAL-PRESENTATION-README",
       "DOC-MOFA-FINAL-PRESENTATION-SOURCE",
-      "DOC-MOFA-FINAL-SPEAKER-NOTES"
+      "DOC-MOFA-FINAL-SPEAKER-NOTES",
+      "DOC-OSSCONTEST-SCORECARD",
+      "DOC-OSSCONTEST-FINAL-README"
     ],
     "decision_ids": [
       "D-001",
@@ -140,7 +142,8 @@
       "D-052",
       "D-053",
       "D-054",
-      "D-055"
+      "D-055",
+      "D-056"
     ],
     "incident_ids": [],
     "open_issue_ids": [
@@ -648,6 +651,20 @@
       "path": "artifacts/submission/2026-mofa-ai/final-presentation/claimgate-oda-speaker-notes.md",
       "summary": "Five-minute presentation script and judge Q&A that separates current offline deterministic evidence from future live adapters and production claims.",
       "status": "supporting"
+    },
+    {
+      "id": "DOC-OSSCONTEST-SCORECARD",
+      "title": "ClaimGate 2026 OSS Contest scoring map",
+      "path": "artifacts/submission/2026-osscontest/OSS-CONTEST-SCORECARD.md",
+      "summary": "Maps all 30-point written and 70-point second-stage criteria to repository evidence, strengths, gaps, and exclusion risks.",
+      "status": "canonical"
+    },
+    {
+      "id": "DOC-OSSCONTEST-FINAL-README",
+      "title": "ClaimGate OSS Contest final submission handoff",
+      "path": "artifacts/submission/2026-osscontest/final/README.md",
+      "summary": "Official final handoff for result report DOCX/PDF ZIP, public repository, sub-three-minute demo video, SBOM, AI license annex, and portal completion checks.",
+      "status": "canonical"
     }
   ],
   "roadmap": [
@@ -665,9 +682,9 @@
     },
     {
       "stage": "OSS-3",
-      "output": "Finalize the MOFA presentation-stage PDF/PPTX, speaker notes, and verified handoff package",
-      "status": "complete",
-      "evidence": "Official notice checked 2026-08-25; D-055; artifacts/submission/2026-mofa-ai/final-presentation contains the 10-slide PDF/PPTX, speaker notes, screenshots, manifest, checksums, and ZIP. pnpm build:final-presentation and pnpm test:final-presentation pass, plus full repo gates pass."
+      "output": "Finalize the OSS Contest result report, public source URL, sub-three-minute YouTube demo, SBOM, AI license annex, and two-file upload ZIP",
+      "status": "blocked",
+      "evidence": "D-056; official notice 39/41 checked 2026-08-25; official-template DOCX/PDF draft, 77.88-second actual UI demo MP4, SBOM and AI annex, scorecard, and valid two-file ZIP exist. Final blockers: receipt number, YouTube URL, and publishing 38 local commits to the currently 404 GitHub repository."
     }
   ],
   "mvp_v1_parallel_roadmap": {
@@ -719,11 +736,11 @@
               "docs/demo-script.md",
               "docs/competition-submission.md"
             ],
-            "delivers": "MOFA presentation-stage 10-slide PDF/PPTX, five-minute speaker notes, prototype screenshots, checksums, manifest, and operator handoff ZIP.",
-            "done_when": "The official free-form presentation package is reproducibly generated, visually inspected, claim-bounded, checksum-verified, and ready for operator upload.",
-            "status": "complete",
-            "evidence": "D-055; final-presentation PDF/PPTX have 10 16:9 slides; actual MOFA prototype screenshots are embedded; ZIP CRC and SHA-256 verify; no phone/email or unsupported live/accuracy claims are present; pnpm test:final-presentation and all repository gates pass.",
-            "next_step": "Operator uploads claimgate-oda-final-presentation.pdf unless the private instruction explicitly requests PPTX, then performs the irreversible final-submit action."
+            "delivers": "Official-template OSS Contest result report DOCX/PDF, public GitHub source URL, up-to-three-minute YouTube demo, SBOM, AI model/license annex, scorecard, and upload ZIP.",
+            "done_when": "Notice 39/41 requirements are met with no placeholders: receipt-numbered DOCX/PDF ZIP, reachable public repository matching HEAD, YouTube demo URL in the report, mandatory annexes, and passing package validation.",
+            "status": "blocked",
+            "evidence": "Draft quality gate passes: report is 7 pages total with four result-report pages plus annexes, video is 77.88 seconds at 1280x720, ZIP contains only DOCX/PDF, SBOM and AI model license sections are populated. Remaining: receipt number, YouTube upload URL, and public GitHub push.",
+            "next_step": "Provide OSS Contest receipt number; publish the current repository to the representative GitHub URL; upload claimgate-osscontest-demo.mp4 to YouTube; regenerate report/ZIP with env values; upload ZIP and confirm portal status plus completion email."
           }
         ]
       }
@@ -1111,9 +1128,16 @@
     {
       "id": "D-055",
       "date": "2026-08-25",
-      "status": "accepted",
+      "status": "superseded",
       "decision": "The final public presentation package follows the official MOFA presentation-stage requirement of free-form presentation material: a 10-slide 16:9 PDF/PPTX deck, 5-minute speaker notes, real prototype screenshots, checksums, manifest, and operator handoff ZIP. Video and source URL are not presented as public-notice requirements.",
       "rationale": "The official notice exposes no slide count, duration, or extension restriction and says detailed presentation instructions are individual. A concise editable deck plus PDF is the safest adaptable deliverable while preserving ClaimGate anti-overclaim boundaries."
+    },
+    {
+      "id": "D-056",
+      "date": "2026-08-25",
+      "status": "accepted",
+      "decision": "The authoritative 2026 OSS Contest final gate is notice 39 plus scoring notice 41: submit by 2026-08-27 18:00 a five-page-or-less official result report with public repository URL and a YouTube demo up to three minutes, including mandatory SBOM and applicable AI model/license annexes; upload a ZIP containing the report DOCX and PDF. Evaluation is written 30 points plus presentation/function/license evaluation 70 points.",
+      "rationale": "D-055 addressed the MOFA presentation stage and is not the OSS Contest submission contract. Notice 41 rewards code completeness, OSS growth, documentation, innovation, management, usability, demo, community, OSS suitability, functional tests, and license verification, so the final package must map evidence directly to those criteria."
     }
   ],
   "incidents": [],
@@ -1127,8 +1151,8 @@
     {
       "id": "OI-002",
       "status": "open",
-      "description": "All public presentation-stage deliverables are generated and verified. The only remaining action is the credential-gated external upload/final-submit step under the operator private instruction.",
-      "next_step": "Upload artifacts/submission/2026-mofa-ai/final-presentation/claimgate-oda-final-presentation.pdf, or the PPTX only when explicitly requested, and retain the submission receipt outside the public repo."
+      "description": "OSS Contest draft artifacts are ready, but final submission is blocked by three credential/operator values: receipt number, YouTube demo URL, and a reachable public GitHub repository matching the 38 unpublished local commits.",
+      "next_step": "Set OSSCONTEST_RECEIPT_NUMBER and OSSCONTEST_VIDEO_URL, authorize/push the public GitHub repository, rebuild the report ZIP, upload it before 2026-08-27 18:00, and verify both portal Submitted status and completion email."
     },
     {
       "id": "OI-003",
