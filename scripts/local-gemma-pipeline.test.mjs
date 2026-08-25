@@ -164,6 +164,7 @@ test('LoRA artifact validation rejects authority-shaped tuning examples', () => 
   const dir = mkdtempSync(join(tmpdir(), 'claimgate-lora-artifact-leak-'));
   const adapter = join(dir, 'adapter');
   const dataset = join(dir, 'tuning.jsonl');
+  const out = join(dir, 'eval.json');
   mkdirSync(adapter, { recursive: true });
   writeFileSync(join(adapter, 'adapter_config.json'), '{}\n');
   writeFileSync(join(adapter, 'adapter_model.safetensors'), 'fake adapter bytes');
@@ -181,7 +182,7 @@ test('LoRA artifact validation rejects authority-shaped tuning examples', () => 
 
   assert.throws(
     () =>
-      execFileSync('node', ['scripts/validate-gemma-lora-artifact.mjs', '--adapter', adapter, '--dataset', dataset], {
+      execFileSync('node', ['scripts/validate-gemma-lora-artifact.mjs', '--adapter', adapter, '--dataset', dataset, '--out', out], {
         cwd: process.cwd(), encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe']
       }),
     /Command failed/
