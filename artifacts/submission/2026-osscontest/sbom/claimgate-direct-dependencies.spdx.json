@@ -1,0 +1,812 @@
+{
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "creationInfo": {
+    "created": "2026-08-26T00:00:00Z",
+    "creators": [
+      "Tool: scripts/generate-osscontest-sbom.py"
+    ]
+  },
+  "dataLicense": "CC0-1.0",
+  "documentDescribes": [
+    "SPDXRef-ClaimGate"
+  ],
+  "documentNamespace": "https://claimgate.dev/spdx/osscontest/eeaa6487bc7c557a0561",
+  "name": "ClaimGate OSS Contest direct dependency SBOM",
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-ClaimGate",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "name": "ClaimGate",
+      "primaryPackagePurpose": "APPLICATION",
+      "supplier": "NOASSERTION",
+      "versionInfo": "0.0.0"
+    },
+    {
+      "SPDXID": "SPDXRef-npm--types-node-22.10.2",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:npm/%40types/node@22.10.2",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "name": "@types/node",
+      "primaryPackagePurpose": "LIBRARY",
+      "sourceInfo": "repository=https://github.com/DefinitelyTyped/DefinitelyTyped; scope=types; purpose=TypeScript declarations for the Node.js APIs used by build and test scripts.",
+      "supplier": "NOASSERTION",
+      "versionInfo": "22.10.2"
+    },
+    {
+      "SPDXID": "SPDXRef-npm--types-react-18.3.18",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:npm/%40types/react@18.3.18",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "name": "@types/react",
+      "primaryPackagePurpose": "LIBRARY",
+      "sourceInfo": "repository=https://github.com/DefinitelyTyped/DefinitelyTyped; scope=types; purpose=TypeScript declarations for React components.",
+      "supplier": "NOASSERTION",
+      "versionInfo": "18.3.18"
+    },
+    {
+      "SPDXID": "SPDXRef-npm--types-react-dom-18.3.5",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:npm/%40types/react-dom@18.3.5",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "name": "@types/react-dom",
+      "primaryPackagePurpose": "LIBRARY",
+      "sourceInfo": "repository=https://github.com/DefinitelyTyped/DefinitelyTyped; scope=types; purpose=TypeScript declarations for React DOM rendering.",
+      "supplier": "NOASSERTION",
+      "versionInfo": "18.3.5"
+    },
+    {
+      "SPDXID": "SPDXRef-npm--vitejs-plugin-react-4.3.4",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:npm/%40vitejs/plugin-react@4.3.4",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "homepage": "https://github.com/vitejs/vite-plugin-react",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "name": "@vitejs/plugin-react",
+      "primaryPackagePurpose": "LIBRARY",
+      "sourceInfo": "repository=https://github.com/vitejs/vite-plugin-react; scope=build; purpose=React transform support for the Vite example build.",
+      "supplier": "NOASSERTION",
+      "versionInfo": "4.3.4"
+    },
+    {
+      "SPDXID": "SPDXRef-npm-react-18.3.1",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:npm/react@18.3.1",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "homepage": "https://github.com/facebook/react",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "name": "react",
+      "primaryPackagePurpose": "LIBRARY",
+      "sourceInfo": "repository=https://github.com/facebook/react; scope=runtime; purpose=Controlled-component runtime for the evaluator UI.",
+      "supplier": "NOASSERTION",
+      "versionInfo": "18.3.1"
+    },
+    {
+      "SPDXID": "SPDXRef-npm-react-dom-18.3.1",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:npm/react-dom@18.3.1",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "homepage": "https://github.com/facebook/react",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "name": "react-dom",
+      "primaryPackagePurpose": "LIBRARY",
+      "sourceInfo": "repository=https://github.com/facebook/react; scope=runtime; purpose=Browser renderer for the evaluator UI.",
+      "supplier": "NOASSERTION",
+      "versionInfo": "18.3.1"
+    },
+    {
+      "SPDXID": "SPDXRef-npm-tsup-8.3.5",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:npm/tsup@8.3.5",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "homepage": "https://github.com/egoist/tsup",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "name": "tsup",
+      "primaryPackagePurpose": "LIBRARY",
+      "sourceInfo": "repository=https://github.com/egoist/tsup; scope=build; purpose=TypeScript package bundling for ClaimGate workspace packages.",
+      "supplier": "NOASSERTION",
+      "versionInfo": "8.3.5"
+    },
+    {
+      "SPDXID": "SPDXRef-npm-tsx-4.19.2",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:npm/tsx@4.19.2",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "homepage": "https://github.com/privatenumber/tsx",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "name": "tsx",
+      "primaryPackagePurpose": "LIBRARY",
+      "sourceInfo": "repository=https://github.com/privatenumber/tsx; scope=build; purpose=TypeScript runner for local demos and evaluator scripts.",
+      "supplier": "NOASSERTION",
+      "versionInfo": "4.19.2"
+    },
+    {
+      "SPDXID": "SPDXRef-npm-typescript-5.7.2",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:npm/typescript@5.7.2",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "homepage": "https://github.com/microsoft/TypeScript",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "name": "typescript",
+      "primaryPackagePurpose": "LIBRARY",
+      "sourceInfo": "repository=https://github.com/microsoft/TypeScript; scope=build; purpose=Strict TypeScript compiler and type checker.",
+      "supplier": "NOASSERTION",
+      "versionInfo": "5.7.2"
+    },
+    {
+      "SPDXID": "SPDXRef-npm-vite-5.4.11",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:npm/vite@5.4.11",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "homepage": "https://github.com/vitejs/vite",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "name": "vite",
+      "primaryPackagePurpose": "LIBRARY",
+      "sourceInfo": "repository=https://github.com/vitejs/vite; scope=build; purpose=Static development and production build tool for the example UI.",
+      "supplier": "NOASSERTION",
+      "versionInfo": "5.4.11"
+    },
+    {
+      "SPDXID": "SPDXRef-npm-vitest-2.1.8",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:npm/vitest@2.1.8",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "homepage": "https://github.com/vitest-dev/vitest",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "name": "vitest",
+      "primaryPackagePurpose": "LIBRARY",
+      "sourceInfo": "repository=https://github.com/vitest-dev/vitest; scope=test; purpose=Deterministic unit and conformance test runner.",
+      "supplier": "NOASSERTION",
+      "versionInfo": "2.1.8"
+    },
+    {
+      "SPDXID": "SPDXRef-npm-zustand-4.5.5",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:npm/zustand@4.5.5",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "homepage": "https://github.com/pmndrs/zustand",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "name": "zustand",
+      "primaryPackagePurpose": "LIBRARY",
+      "sourceInfo": "repository=https://github.com/pmndrs/zustand; scope=runtime; purpose=Local client-side review workflow state for the example UI.",
+      "supplier": "NOASSERTION",
+      "versionInfo": "4.5.5"
+    },
+    {
+      "SPDXID": "SPDXRef-go-github.com-aymanbagabas-go-osc52-v2-v2.0.1",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:golang/github.com/aymanbagabas/go-osc52/v2@v2.0.1",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "homepage": "https://github.com/aymanbagabas/go-osc52",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "name": "github.com/aymanbagabas/go-osc52/v2",
+      "primaryPackagePurpose": "LIBRARY",
+      "sourceInfo": "repository=https://github.com/aymanbagabas/go-osc52; scope=indirect; purpose=Transitive terminal/runtime support for the FMON local TUI.",
+      "supplier": "NOASSERTION",
+      "versionInfo": "v2.0.1"
+    },
+    {
+      "SPDXID": "SPDXRef-go-github.com-charmbracelet-bubbles-v0.20.0",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:golang/github.com/charmbracelet/bubbles@v0.20.0",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "homepage": "https://github.com/charmbracelet/bubbles",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "name": "github.com/charmbracelet/bubbles",
+      "primaryPackagePurpose": "LIBRARY",
+      "sourceInfo": "repository=https://github.com/charmbracelet/bubbles; scope=runtime; purpose=Reusable terminal UI components for FMON.",
+      "supplier": "NOASSERTION",
+      "versionInfo": "v0.20.0"
+    },
+    {
+      "SPDXID": "SPDXRef-go-github.com-charmbracelet-bubbletea-v1.3.4",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:golang/github.com/charmbracelet/bubbletea@v1.3.4",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "homepage": "https://github.com/charmbracelet/bubbletea",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "name": "github.com/charmbracelet/bubbletea",
+      "primaryPackagePurpose": "LIBRARY",
+      "sourceInfo": "repository=https://github.com/charmbracelet/bubbletea; scope=runtime; purpose=Terminal UI runtime for FMON.",
+      "supplier": "NOASSERTION",
+      "versionInfo": "v1.3.4"
+    },
+    {
+      "SPDXID": "SPDXRef-go-github.com-charmbracelet-lipgloss-v1.0.0",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:golang/github.com/charmbracelet/lipgloss@v1.0.0",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "homepage": "https://github.com/charmbracelet/lipgloss",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "name": "github.com/charmbracelet/lipgloss",
+      "primaryPackagePurpose": "LIBRARY",
+      "sourceInfo": "repository=https://github.com/charmbracelet/lipgloss; scope=runtime; purpose=Terminal layout and styling for FMON.",
+      "supplier": "NOASSERTION",
+      "versionInfo": "v1.0.0"
+    },
+    {
+      "SPDXID": "SPDXRef-go-github.com-charmbracelet-x-ansi-v0.8.0",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:golang/github.com/charmbracelet/x/ansi@v0.8.0",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "homepage": "https://github.com/charmbracelet/x",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "name": "github.com/charmbracelet/x/ansi",
+      "primaryPackagePurpose": "LIBRARY",
+      "sourceInfo": "repository=https://github.com/charmbracelet/x; scope=indirect; purpose=Transitive terminal/runtime support for the FMON local TUI.",
+      "supplier": "NOASSERTION",
+      "versionInfo": "v0.8.0"
+    },
+    {
+      "SPDXID": "SPDXRef-go-github.com-charmbracelet-x-term-v0.2.1",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:golang/github.com/charmbracelet/x/term@v0.2.1",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "homepage": "https://github.com/charmbracelet/x",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "name": "github.com/charmbracelet/x/term",
+      "primaryPackagePurpose": "LIBRARY",
+      "sourceInfo": "repository=https://github.com/charmbracelet/x; scope=indirect; purpose=Transitive terminal/runtime support for the FMON local TUI.",
+      "supplier": "NOASSERTION",
+      "versionInfo": "v0.2.1"
+    },
+    {
+      "SPDXID": "SPDXRef-go-github.com-erikgeiser-coninput-v0.0.0-20211004153227-1c3628e74d0f",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:golang/github.com/erikgeiser/coninput@v0.0.0-20211004153227-1c3628e74d0f",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "homepage": "https://github.com/erikgeiser/coninput",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "name": "github.com/erikgeiser/coninput",
+      "primaryPackagePurpose": "LIBRARY",
+      "sourceInfo": "repository=https://github.com/erikgeiser/coninput; scope=indirect; purpose=Transitive terminal/runtime support for the FMON local TUI.",
+      "supplier": "NOASSERTION",
+      "versionInfo": "v0.0.0-20211004153227-1c3628e74d0f"
+    },
+    {
+      "SPDXID": "SPDXRef-go-github.com-lucasb-eyer-go-colorful-v1.2.0",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:golang/github.com/lucasb-eyer/go-colorful@v1.2.0",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "homepage": "https://github.com/lucasb-eyer/go-colorful",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "name": "github.com/lucasb-eyer/go-colorful",
+      "primaryPackagePurpose": "LIBRARY",
+      "sourceInfo": "repository=https://github.com/lucasb-eyer/go-colorful; scope=indirect; purpose=Transitive terminal/runtime support for the FMON local TUI.",
+      "supplier": "NOASSERTION",
+      "versionInfo": "v1.2.0"
+    },
+    {
+      "SPDXID": "SPDXRef-go-github.com-mattn-go-isatty-v0.0.20",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:golang/github.com/mattn/go-isatty@v0.0.20",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "homepage": "https://github.com/mattn/go-isatty",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "name": "github.com/mattn/go-isatty",
+      "primaryPackagePurpose": "LIBRARY",
+      "sourceInfo": "repository=https://github.com/mattn/go-isatty; scope=indirect; purpose=Transitive terminal/runtime support for the FMON local TUI.",
+      "supplier": "NOASSERTION",
+      "versionInfo": "v0.0.20"
+    },
+    {
+      "SPDXID": "SPDXRef-go-github.com-mattn-go-localereader-v0.0.1",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:golang/github.com/mattn/go-localereader@v0.0.1",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "homepage": "https://github.com/mattn/go-localereader",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "name": "github.com/mattn/go-localereader",
+      "primaryPackagePurpose": "LIBRARY",
+      "sourceInfo": "repository=https://github.com/mattn/go-localereader; scope=indirect; purpose=Transitive terminal/runtime support for the FMON local TUI.",
+      "supplier": "NOASSERTION",
+      "versionInfo": "v0.0.1"
+    },
+    {
+      "SPDXID": "SPDXRef-go-github.com-mattn-go-runewidth-v0.0.16",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:golang/github.com/mattn/go-runewidth@v0.0.16",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "homepage": "https://github.com/mattn/go-runewidth",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "name": "github.com/mattn/go-runewidth",
+      "primaryPackagePurpose": "LIBRARY",
+      "sourceInfo": "repository=https://github.com/mattn/go-runewidth; scope=indirect; purpose=Transitive terminal/runtime support for the FMON local TUI.",
+      "supplier": "NOASSERTION",
+      "versionInfo": "v0.0.16"
+    },
+    {
+      "SPDXID": "SPDXRef-go-github.com-muesli-ansi-v0.0.0-20230316100256-276c6243b2f6",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:golang/github.com/muesli/ansi@v0.0.0-20230316100256-276c6243b2f6",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "homepage": "https://github.com/muesli/ansi",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "name": "github.com/muesli/ansi",
+      "primaryPackagePurpose": "LIBRARY",
+      "sourceInfo": "repository=https://github.com/muesli/ansi; scope=indirect; purpose=Transitive terminal/runtime support for the FMON local TUI.",
+      "supplier": "NOASSERTION",
+      "versionInfo": "v0.0.0-20230316100256-276c6243b2f6"
+    },
+    {
+      "SPDXID": "SPDXRef-go-github.com-muesli-cancelreader-v0.2.2",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:golang/github.com/muesli/cancelreader@v0.2.2",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "homepage": "https://github.com/muesli/cancelreader",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "name": "github.com/muesli/cancelreader",
+      "primaryPackagePurpose": "LIBRARY",
+      "sourceInfo": "repository=https://github.com/muesli/cancelreader; scope=indirect; purpose=Transitive terminal/runtime support for the FMON local TUI.",
+      "supplier": "NOASSERTION",
+      "versionInfo": "v0.2.2"
+    },
+    {
+      "SPDXID": "SPDXRef-go-github.com-muesli-termenv-v0.15.2",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:golang/github.com/muesli/termenv@v0.15.2",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "homepage": "https://github.com/muesli/termenv",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "name": "github.com/muesli/termenv",
+      "primaryPackagePurpose": "LIBRARY",
+      "sourceInfo": "repository=https://github.com/muesli/termenv; scope=indirect; purpose=Transitive terminal/runtime support for the FMON local TUI.",
+      "supplier": "NOASSERTION",
+      "versionInfo": "v0.15.2"
+    },
+    {
+      "SPDXID": "SPDXRef-go-github.com-rivo-uniseg-v0.4.7",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:golang/github.com/rivo/uniseg@v0.4.7",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "homepage": "https://github.com/rivo/uniseg",
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "name": "github.com/rivo/uniseg",
+      "primaryPackagePurpose": "LIBRARY",
+      "sourceInfo": "repository=https://github.com/rivo/uniseg; scope=indirect; purpose=Transitive terminal/runtime support for the FMON local TUI.",
+      "supplier": "NOASSERTION",
+      "versionInfo": "v0.4.7"
+    },
+    {
+      "SPDXID": "SPDXRef-go-golang.org-x-sync-v0.11.0",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:golang/golang.org/x/sync@v0.11.0",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "homepage": "https://go.googlesource.com/sync",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "name": "golang.org/x/sync",
+      "primaryPackagePurpose": "LIBRARY",
+      "sourceInfo": "repository=https://go.googlesource.com/sync; scope=indirect; purpose=Transitive terminal/runtime support for the FMON local TUI.",
+      "supplier": "NOASSERTION",
+      "versionInfo": "v0.11.0"
+    },
+    {
+      "SPDXID": "SPDXRef-go-golang.org-x-sys-v0.30.0",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:golang/golang.org/x/sys@v0.30.0",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "homepage": "https://go.googlesource.com/sys",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "name": "golang.org/x/sys",
+      "primaryPackagePurpose": "LIBRARY",
+      "sourceInfo": "repository=https://go.googlesource.com/sys; scope=indirect; purpose=Transitive terminal/runtime support for the FMON local TUI.",
+      "supplier": "NOASSERTION",
+      "versionInfo": "v0.30.0"
+    },
+    {
+      "SPDXID": "SPDXRef-go-golang.org-x-text-v0.3.8",
+      "copyrightText": "NOASSERTION",
+      "downloadLocation": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:golang/golang.org/x/text@v0.3.8",
+          "referenceType": "purl"
+        }
+      ],
+      "filesAnalyzed": false,
+      "homepage": "https://go.googlesource.com/text",
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "name": "golang.org/x/text",
+      "primaryPackagePurpose": "LIBRARY",
+      "sourceInfo": "repository=https://go.googlesource.com/text; scope=indirect; purpose=Transitive terminal/runtime support for the FMON local TUI.",
+      "supplier": "NOASSERTION",
+      "versionInfo": "v0.3.8"
+    }
+  ],
+  "relationships": [
+    {
+      "relatedSpdxElement": "SPDXRef-npm--types-node-22.10.2",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-ClaimGate"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-npm--types-react-18.3.18",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-ClaimGate"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-npm--types-react-dom-18.3.5",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-ClaimGate"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-npm--vitejs-plugin-react-4.3.4",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-ClaimGate"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-npm-react-18.3.1",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-ClaimGate"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-npm-react-dom-18.3.1",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-ClaimGate"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-npm-tsup-8.3.5",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-ClaimGate"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-npm-tsx-4.19.2",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-ClaimGate"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-npm-typescript-5.7.2",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-ClaimGate"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-npm-vite-5.4.11",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-ClaimGate"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-npm-vitest-2.1.8",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-ClaimGate"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-npm-zustand-4.5.5",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-ClaimGate"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-go-github.com-aymanbagabas-go-osc52-v2-v2.0.1",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-ClaimGate"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-go-github.com-charmbracelet-bubbles-v0.20.0",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-ClaimGate"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-go-github.com-charmbracelet-bubbletea-v1.3.4",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-ClaimGate"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-go-github.com-charmbracelet-lipgloss-v1.0.0",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-ClaimGate"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-go-github.com-charmbracelet-x-ansi-v0.8.0",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-ClaimGate"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-go-github.com-charmbracelet-x-term-v0.2.1",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-ClaimGate"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-go-github.com-erikgeiser-coninput-v0.0.0-20211004153227-1c3628e74d0f",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-ClaimGate"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-go-github.com-lucasb-eyer-go-colorful-v1.2.0",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-ClaimGate"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-go-github.com-mattn-go-isatty-v0.0.20",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-ClaimGate"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-go-github.com-mattn-go-localereader-v0.0.1",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-ClaimGate"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-go-github.com-mattn-go-runewidth-v0.0.16",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-ClaimGate"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-go-github.com-muesli-ansi-v0.0.0-20230316100256-276c6243b2f6",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-ClaimGate"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-go-github.com-muesli-cancelreader-v0.2.2",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-ClaimGate"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-go-github.com-muesli-termenv-v0.15.2",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-ClaimGate"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-go-github.com-rivo-uniseg-v0.4.7",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-ClaimGate"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-go-golang.org-x-sync-v0.11.0",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-ClaimGate"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-go-golang.org-x-sys-v0.30.0",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-ClaimGate"
+    },
+    {
+      "relatedSpdxElement": "SPDXRef-go-golang.org-x-text-v0.3.8",
+      "relationshipType": "DEPENDS_ON",
+      "spdxElementId": "SPDXRef-ClaimGate"
+    }
+  ],
+  "spdxVersion": "SPDX-2.3"
+}

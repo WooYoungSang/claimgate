@@ -21,6 +21,12 @@ Authority boundary:
 - RAG no-hit must not be treated as evidence; it either fails extraction or becomes an extracted needs-evidence candidate without a proposed anchor.
 - RAG conflict remains candidate input and is not a truth decision.
 
-This is not an external vector DB or hosted retrieval package. It can create a candidate-only tuning dataset and run a strict training preflight, but it contains no committed production fine-tuned model artifact. The optional training script can generate a local ignored smoke/prototype adapter that must be recorded separately.
+This is not an external vector DB or hosted retrieval package. Fine-tuned weights remain local and uncommitted; the repository commits only reproducible dataset, training-report, and bounded evaluation evidence.
 
-Prototype LoRA inference status: `pnpm tune:infer:prototype` currently records `BOUNDARY_PASS_SERVING_BLOCKED` for raw strict JSON on the 20-step adapter. First-JSON candidate extraction passes on 3/3 tiny local examples and the TypeScript adapter now validates/consumes only that first candidate JSON object; raw strict JSON serving remains blocked, and the adapter is not production-quality.
+The current candidate-only LoRA uses six fixture-derived training records and a non-overlapping three-record holdout. A 60-step RTX 4090 QLoRA run with response-only loss and EOS-terminated completions records `BOUNDARY_PASS_SERVING_READY`: strict JSON 3/3, candidate-only 3/3, exact fixture text 3/3, and zero authority violations. This is a bounded fixture-holdout result, not production extraction accuracy.
+
+With the local adapter present, run the full candidate → deterministic risk → reviewer → Evidence Pack demo through the adapter:
+
+```bash
+CLAIMGATE_GEMMA_LORA_ADAPTER=artifacts/local-ai/gemma-candidate-lora-serving-ready pnpm demo:ai:gemma
+```

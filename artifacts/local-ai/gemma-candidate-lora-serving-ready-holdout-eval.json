@@ -1,0 +1,85 @@
+{
+  "status": "BOUNDARY_PASS_SERVING_READY",
+  "evaluatedAt": "2026-08-25T19:44:19.166512Z",
+  "baseModel": "google/gemma-4-12B-it",
+  "adapter": "artifacts/local-ai/gemma-candidate-lora-serving-ready",
+  "dataset": "artifacts/local-ai/gemma-candidate-holdout.jsonl",
+  "examples": 3,
+  "parsePass": 3,
+  "candidateOnlyPass": 3,
+  "exactTextMatch": 3,
+  "strictJsonOnlyPass": 3,
+  "authorityViolationCount": 0,
+  "postprocessedCandidateBoundaryReady": true,
+  "rawStrictJsonServingReady": true,
+  "servingReady": true,
+  "authority": "candidate-only",
+  "productionQuality": false,
+  "adapterTrainingStatus": "TRAINED",
+  "notes": "Bounded non-overlapping holdout inference emitted one strict candidate-only JSON object for every evaluated row. This is not a production-quality or real-document truth-accuracy evaluation.",
+  "rows": [
+    {
+      "id": "mofa-country-safety-mismatch-holdout-review-queue",
+      "parseOk": true,
+      "candidateOnly": true,
+      "exactTextMatch": true,
+      "strictJsonOnly": true,
+      "trailingAfterFirstJsonPreview": "",
+      "errors": [],
+      "generatedText": "{\"candidates\":[{\"id\":\"ai-candidate-mofa-country-safety-mismatch\",\"text\":\"협력국은 제한 없는 현장 활동이 가능한 안전·안정 상태입니다.\",\"state\":\"extracted\",\"subject\":\"협력국 안전 상태\",\"aiValue\":\"안전·안정\"}]}",
+      "parsed": {
+        "candidates": [
+          {
+            "id": "ai-candidate-mofa-country-safety-mismatch",
+            "text": "협력국은 제한 없는 현장 활동이 가능한 안전·안정 상태입니다.",
+            "state": "extracted",
+            "subject": "협력국 안전 상태",
+            "aiValue": "안전·안정"
+          }
+        ]
+      }
+    },
+    {
+      "id": "koica-project-period-or-country-mismatch-holdout-review-queue",
+      "parseOk": true,
+      "candidateOnly": true,
+      "exactTextMatch": true,
+      "strictJsonOnly": true,
+      "trailingAfterFirstJsonPreview": "",
+      "errors": [],
+      "generatedText": "{\"candidates\":[{\"id\":\"ai-candidate-koica-project-period-or-country-mismatch\",\"text\":\"KOICA는 국가 B에서 2022년부터 2026년까지 농촌 식수 사업을 수행합니다.\",\"state\":\"extracted\",\"subject\":\"국가 B 농촌 식수 협력사업\",\"aiValue\":\"국가-b|2022-2026|koica\"}]}",
+      "parsed": {
+        "candidates": [
+          {
+            "id": "ai-candidate-koica-project-period-or-country-mismatch",
+            "text": "KOICA는 국가 B에서 2022년부터 2026년까지 농촌 식수 사업을 수행합니다.",
+            "state": "extracted",
+            "subject": "국가 B 농촌 식수 협력사업",
+            "aiValue": "국가-b|2022-2026|koica"
+          }
+        ]
+      }
+    },
+    {
+      "id": "oda-term-definition-match-holdout-review-queue",
+      "parseOk": true,
+      "candidateOnly": true,
+      "exactTextMatch": true,
+      "strictJsonOnly": true,
+      "trailingAfterFirstJsonPreview": "",
+      "errors": [],
+      "generatedText": "{\"candidates\":[{\"id\":\"ai-candidate-oda-term-definition-match\",\"text\":\"ODA는 개발도상국의 경제발전과 복지 증진을 목적으로 하는 정부 원조입니다.\",\"state\":\"extracted\",\"subject\":\"공적개발원조\",\"aiValue\":\"개발도상국의 경제발전과 복지 증진을 목적으로 하는 정부 원조\"}]}",
+      "parsed": {
+        "candidates": [
+          {
+            "id": "ai-candidate-oda-term-definition-match",
+            "text": "ODA는 개발도상국의 경제발전과 복지 증진을 목적으로 하는 정부 원조입니다.",
+            "state": "extracted",
+            "subject": "공적개발원조",
+            "aiValue": "개발도상국의 경제발전과 복지 증진을 목적으로 하는 정부 원조"
+          }
+        ]
+      }
+    }
+  ]
+}

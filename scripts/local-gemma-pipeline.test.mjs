@@ -22,13 +22,26 @@ test('builds persistent local RAG index artifact', () => {
 test('builds candidate-only Gemma tuning JSONL and passes preflight with mocked RTX 4090', () => {
   const dir = mkdtempSync(join(tmpdir(), 'claimgate-tuning-'));
   const out = join(dir, 'tuning.jsonl');
-  execFileSync('pnpm', ['exec', 'tsx', 'scripts/build-gemma-tuning-dataset.ts', '--out', out], {
+  const holdout = join(dir, 'holdout.jsonl');
+  execFileSync('pnpm', ['exec', 'tsx', 'scripts/build-gemma-tuning-dataset.ts', '--out', out, '--holdout-out', holdout], {
     cwd: process.cwd(),
     encoding: 'utf8'
   });
   const jsonl = readFileSync(out, 'utf8');
+  const trainRows = jsonl.trim().split('\n').map(JSON.parse);
+  const holdoutRows = readFileSync(holdout, 'utf8').trim().split('\n').map(JSON.parse);
   assert.match(jsonl, /"candidates"/);
   assert.doesNotMatch(jsonl, /reviewerDecision|riskLevel|riskScore|"verified"/);
+  assert.ok(trainRows.length >= 6, 'fixture-derived train split must contain at least six examples');
+  assert.ok(holdoutRows.length >= 3, 'fixture-derived holdout must cover every MOFA fixture family');
+  assert.deepEqual(
+    new Set(trainRows.map((row) => row.id)).intersection(new Set(holdoutRows.map((row) => row.id))).size,
+    0,
+    'train and holdout ids must not overlap'
+  );
+  assert.deepEqual(new Set(holdoutRows.map((row) => row.metadata.fixtureId)).size, 3);
+  assert.ok(trainRows.every((row) => row.metadata.split === 'train'));
+  assert.ok(holdoutRows.every((row) => row.metadata.split === 'holdout'));
 
   const preflight = execFileSync(
     'pnpm',
@@ -52,6 +65,27 @@ test('builds candidate-only Gemma tuning JSONL and passes preflight with mocked 
   assert.equal(report.datasetReady, true);
   assert.equal(report.pythonDepsReady, true);
   assert.equal(report.trainingReady, 'ready');
+});
+
+test('candidate evaluator unit checks enforce strict JSON and zero authority-shaped fields', () => {
+  const code = `
+import importlib.util, json
+spec = importlib.util.spec_from_file_location("candidate_eval", "scripts/eval-gemma-lora-candidate.py")
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+strict = '{"candidates":[{"id":"candidate-1","text":"후보 주장","state":"extracted"}]}'
+parsed, strict_only, trailing = module.extract_json_object(strict)
+assert strict_only and trailing == ""
+valid, errors = module.validate_generated_candidates(parsed)
+assert valid and errors == []
+leaked, leak_errors = module.validate_generated_candidates({"candidates":[{"id":"bad","text":"검증됨","state":"extracted","reviewerDecision":"verified"}]})
+assert not leaked and any("forbidden" in error for error in leak_errors)
+unknown, unknown_errors = module.validate_generated_candidates({"candidates":[{"id":"bad","text":"후보","state":"extracted","confidence":0.99}]})
+assert not unknown and any("unsupported" in error for error in unknown_errors)
+print(json.dumps({"strict": strict_only, "authorityViolations": 0}))
+`;
+  const result = execFileSync('python3', ['-c', code], { cwd: process.cwd(), encoding: 'utf8' });
+  assert.deepEqual(JSON.parse(result), { strict: true, authorityViolations: 0 });
 });
 
 

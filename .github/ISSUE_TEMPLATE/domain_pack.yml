@@ -1,0 +1,62 @@
+name: DomainPack proposal
+description: Propose a new fixture/rule/policy pack without weakening core invariants
+title: "[DomainPack]: "
+labels:
+  - enhancement
+body:
+  - type: input
+    id: domain
+    attributes:
+      label: Domain and public-data source
+      description: Name the domain and link only to public, redistributable source material.
+    validations:
+      required: true
+  - type: textarea
+    id: scenario
+    attributes:
+      label: Review scenario
+      description: Describe one concrete business story from candidate claim through reviewer outcome.
+    validations:
+      required: true
+  - type: textarea
+    id: knowledge
+    attributes:
+      label: Known, assumed, unknown, or conflicted behavior
+      description: Separate confirmed rules from assumptions and unresolved questions. Do not invent domain policy.
+      placeholder: |
+        KNOWN:
+        ASSUMED:
+        UNKNOWN:
+        CONFLICTED:
+    validations:
+      required: true
+  - type: textarea
+    id: fixtures
+    attributes:
+      label: Fixture and license plan
+      description: Explain provenance, redistribution terms, sanitization, and how every proposed risk rule will be exercised.
+    validations:
+      required: true
+  - type: textarea
+    id: authority
+    attributes:
+      label: Core invariant impact
+      description: Confirm that the pack will not override source-anchor, reviewer, deterministic-risk, Evidence Pack, or projection guards.
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: Conformance plan
+      description: List the positive and negative fixtures and expected rule traces.
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-submission checks
+      options:
+        - label: The proposed source material is public and suitable for repository fixtures.
+          required: true
+        - label: I have identified uncertainty instead of inventing domain rules.
+          required: true

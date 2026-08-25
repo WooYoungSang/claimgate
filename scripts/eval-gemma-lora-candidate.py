@@ -30,6 +30,7 @@ FORBIDDEN = {
     "projected",
     "evidencePack",
 }
+ALLOWED_CANDIDATE_FIELDS = {"id", "text", "subject", "state", "aiValue"}
 
 
 def validate_dataset(path: Path) -> list[dict[str, Any]]:
@@ -109,6 +110,9 @@ def validate_generated_candidates(parsed: dict[str, Any]) -> tuple[bool, list[st
         leaked = FORBIDDEN.intersection(candidate)
         if leaked:
             errors.append(f"candidate {idx} leaks forbidden authority fields: {sorted(leaked)}")
+        unsupported = set(candidate).difference(ALLOWED_CANDIDATE_FIELDS)
+        if unsupported:
+            errors.append(f"candidate {idx} contains unsupported fields: {sorted(unsupported)}")
         if candidate.get("state") != "extracted":
             errors.append(f"candidate {idx} state must be extracted")
         if not isinstance(candidate.get("text"), str) or not candidate["text"].strip():
@@ -129,6 +133,7 @@ def main() -> None:
     parser.add_argument("--max-examples", type=int, default=3)
     parser.add_argument("--max-new-tokens", type=int, default=256)
     parser.add_argument("--max-seq-length", type=int, default=1024)
+    parser.add_argument("--request-text", help="run one candidate-only runtime request instead of scoring dataset outputs")
     parser.add_argument("--no-4bit", action="store_true")
     parser.add_argument("--dry-run", action="store_true", help="validate dataset/adapter/model config without loading weights or generating")
     args = parser.parse_args()
@@ -136,12 +141,24 @@ def main() -> None:
     dataset_path = Path(args.dataset)
     adapter_path = Path(args.adapter)
     examples = validate_dataset(dataset_path)[: args.max_examples]
+    if args.request_text is not None:
+        if not args.request_text.strip():
+            raise SystemExit("--request-text must be non-empty")
+        examples = [{"id": "runtime-request", "input": args.request_text, "output": {"candidates": []}}]
     adapter_report = read_adapter_report(adapter_path)
 
     try:
         import torch
         from peft import PeftModel
-        from transformers import AutoConfig, AutoModelForCausalLM, AutoModelForImageTextToText, AutoTokenizer, BitsAndBytesConfig
+        from transformers import (
+            AutoConfig,
+            AutoModelForCausalLM,
+            AutoModelForImageTextToText,
+            AutoTokenizer,
+            BitsAndBytesConfig,
+            StoppingCriteria,
+            StoppingCriteriaList,
+        )
     except ImportError as exc:
         raise SystemExit("Missing inference dependencies: torch, transformers, peft, bitsandbytes.") from exc
 
@@ -191,6 +208,19 @@ def main() -> None:
     for example in examples:
         prompt = build_prompt(example)
         inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=args.max_seq_length)
+        prompt_length = inputs["input_ids"].shape[-1]
+
+        class StopAfterCompleteJson(StoppingCriteria):
+            """Stop deterministic decoding as soon as its first complete JSON object closes."""
+
+            def __call__(self, input_ids: Any, scores: Any, **kwargs: Any) -> bool:
+                generated = tokenizer.decode(input_ids[0][prompt_length:], skip_special_tokens=True)
+                try:
+                    extract_json_object(generated)
+                    return True
+                except ValueError:
+                    return False
+
         device = next(model.parameters()).device
         inputs = {key: value.to(device) for key, value in inputs.items()}
         with torch.no_grad():
@@ -200,6 +230,7 @@ def main() -> None:
                 do_sample=False,
                 pad_token_id=tokenizer.pad_token_id,
                 eos_token_id=tokenizer.eos_token_id,
+                stopping_criteria=StoppingCriteriaList([StopAfterCompleteJson()]),
             )
         generated_ids = output_ids[0][inputs["input_ids"].shape[-1] :]
         generated_text = tokenizer.decode(generated_ids, skip_special_tokens=True)
@@ -213,9 +244,10 @@ def main() -> None:
         try:
             parsed, strict_json_only, trailing_after_first_json = extract_json_object(generated_text)
             candidate_only, candidate_errors = validate_generated_candidates(parsed)
-            expected_text = normalize_text(example["output"]["candidates"][0].get("text"))
+            expected_candidates = example["output"]["candidates"]
+            expected_text = normalize_text(expected_candidates[0].get("text")) if expected_candidates else ""
             generated_candidates = parsed.get("candidates") if isinstance(parsed, dict) else []
-            exact_text_match = any(normalize_text(candidate.get("text")) == expected_text for candidate in generated_candidates if isinstance(candidate, dict))
+            exact_text_match = bool(expected_text) and any(normalize_text(candidate.get("text")) == expected_text for candidate in generated_candidates if isinstance(candidate, dict))
         except Exception as exc:  # noqa: BLE001 - report eval failure instead of crashing the whole run
             parse_error = f"{exc.__class__.__name__}: {exc}"
         rows.append(
@@ -236,6 +268,7 @@ def main() -> None:
     candidate_only_pass = sum(1 for row in rows if row["candidateOnly"])
     exact_text_match = sum(1 for row in rows if row["exactTextMatch"])
     strict_json_only_pass = sum(1 for row in rows if row["strictJsonOnly"])
+    authority_violation_count = sum(1 for row in rows if not row["candidateOnly"])
     boundary_pass = parse_pass == len(rows) and candidate_only_pass == len(rows)
     postprocessed_candidate_boundary_ready = boundary_pass
     raw_strict_json_serving_ready = boundary_pass and strict_json_only_pass == len(rows)
@@ -247,17 +280,19 @@ def main() -> None:
         "adapter": str(adapter_path),
         "dataset": str(dataset_path),
         "examples": len(rows),
+        "requestMode": args.request_text is not None,
         "parsePass": parse_pass,
         "candidateOnlyPass": candidate_only_pass,
         "exactTextMatch": exact_text_match,
         "strictJsonOnlyPass": strict_json_only_pass,
+        "authorityViolationCount": authority_violation_count,
         "postprocessedCandidateBoundaryReady": postprocessed_candidate_boundary_ready,
         "rawStrictJsonServingReady": raw_strict_json_serving_ready,
         "servingReady": raw_strict_json_serving_ready,
         "authority": "candidate-only",
         "productionQuality": False,
         "adapterTrainingStatus": adapter_report.get("status"),
-        "notes": "Inference eval checks first-JSON/candidate-only behavior on the tiny local dataset. postprocessedCandidateBoundaryReady means a safe first-JSON parser can consume candidates; rawStrictJsonServingReady remains false until the model emits strict JSON only. This is not a production quality or truth-accuracy evaluation.",
+        "notes": "Inference checks deterministic JSON decoding and the candidate-only boundary. Serving-ready here means the bounded run emitted one strict JSON object with no authority-shaped fields; it is not a production quality or truth-accuracy claim.",
         "rows": rows,
     }
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)

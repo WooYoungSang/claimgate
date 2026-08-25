@@ -81,6 +81,27 @@ test('Local Gemma/Ollama RAG path transforms a candidate-only response into revi
   assert.equal('projected' in pack.metadata, false);
 });
 
+test('explicit serving-ready LoRA adapter path replaces Ollama candidate generation without gaining judge authority', () => {
+  const code = `
+    import { formatAiClaimDemo, runAiClaimDemo } from './scripts/ai-claim-demo.ts';
+    (async () => {
+      const summary = await runAiClaimDemo({
+        provider: 'ollama',
+        adapterPath: 'artifacts/local-ai/gemma-candidate-lora-serving-ready',
+        loraInferImpl: async () => (${JSON.stringify([mofaSafetyCandidate])})
+      });
+      console.log(formatAiClaimDemo(summary));
+      console.log(summary.evidenceJson);
+    })().catch((error) => { console.error(error); process.exit(1); });
+  `;
+  const output = execFileSync('pnpm', ['exec', 'tsx', '--eval', code], { cwd: process.cwd(), encoding: 'utf8' });
+  assert.match(output, /로컬 후보 추출기: lora/);
+  assert.match(output, /gemma-candidate-lora-serving-ready/);
+  assert.match(output, /bounded holdout 3\/3/);
+  assert.match(output, /AI 권한: 후보 제안 전용/);
+  assert.match(output, /"aiAuthority": "candidate-only"/);
+});
+
 test('Ollama provider fails loud when local Gemma server is unavailable', () => {
   assert.throws(
     () => execFileSync('pnpm', ['exec', 'tsx', 'scripts/ai-claim-demo.ts', '--provider=ollama', '--ollama-base-url=http://127.0.0.1:1'], {

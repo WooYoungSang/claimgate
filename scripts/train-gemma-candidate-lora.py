@@ -15,6 +15,7 @@ python scripts/train-gemma-candidate-lora.py \
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -32,6 +33,7 @@ FORBIDDEN = {
     "projected",
     "evidencePack",
 }
+ALLOWED_CANDIDATE_FIELDS = {"id", "text", "subject", "state", "aiValue"}
 
 
 def validate_dataset(path: Path) -> list[dict]:
@@ -49,21 +51,32 @@ def validate_dataset(path: Path) -> list[dict]:
                 raise SystemExit(f"line {line_no}: candidate leaks forbidden authority fields: {sorted(leaked)}")
             if candidate.get("state") != "extracted":
                 raise SystemExit(f"line {line_no}: candidates must remain state=extracted")
+            unsupported = set(candidate).difference(ALLOWED_CANDIDATE_FIELDS)
+            if unsupported:
+                raise SystemExit(f"line {line_no}: candidate contains unsupported fields: {sorted(unsupported)}")
+        if example.get("metadata", {}).get("split") not in (None, "train"):
+            raise SystemExit(f"line {line_no}: training dataset may only contain split=train examples")
         examples.append(example)
     if not examples:
         raise SystemExit("dataset is empty")
     return examples
 
 
+def build_prompt(example: dict) -> str:
+    return (
+        "Instruction: Extract candidate public-data claims only. "
+        "Return exactly one JSON object and stop. "
+        "Never verify, score risk, attach final anchors, make reviewer decisions, or project evidence.\n\n"
+        f"Input:\n{example['input']}\n\n"
+        "Output:\n"
+    )
+
+
 def build_training_texts(examples: list[dict]) -> list[dict[str, str]]:
     return [
         {
-            "text": (
-                "Instruction: Extract candidate public-data claims only. "
-                "Never verify, score risk, attach final anchors, make reviewer decisions, or project evidence.\n\n"
-                f"Input:\n{example['input']}\n\n"
-                f"Output:\n{json.dumps(example['output'], ensure_ascii=False)}"
-            )
+            "prompt": build_prompt(example),
+            "completion": json.dumps(example["output"], ensure_ascii=False, separators=(",", ":")),
         }
         for example in examples
     ]
@@ -93,7 +106,7 @@ def main() -> None:
             AutoModelForImageTextToText,
             AutoTokenizer,
             BitsAndBytesConfig,
-            DataCollatorForLanguageModeling,
+            DataCollatorForSeq2Seq,
             Trainer,
             TrainingArguments,
         )
@@ -157,16 +170,19 @@ def main() -> None:
     dataset = Dataset.from_list(build_training_texts(examples))
 
     def tokenize(batch: dict) -> dict:
+        prompt_ids = tokenizer(batch["prompt"], add_special_tokens=True)["input_ids"]
+        full_text = batch["prompt"] + batch["completion"] + (tokenizer.eos_token or "")
         tokenized = tokenizer(
-            batch["text"],
+            full_text,
             truncation=True,
             max_length=args.max_seq_length,
             padding=False,
         )
-        tokenized["labels"] = list(tokenized["input_ids"])
+        prompt_length = min(len(prompt_ids), len(tokenized["input_ids"]))
+        tokenized["labels"] = [-100] * prompt_length + list(tokenized["input_ids"])[prompt_length:]
         return tokenized
 
-    tokenized_dataset = dataset.map(tokenize, remove_columns=["text"])
+    tokenized_dataset = dataset.map(tokenize, remove_columns=["prompt", "completion"])
     training_args = TrainingArguments(
         output_dir=args.out,
         max_steps=args.max_steps,
@@ -182,7 +198,7 @@ def main() -> None:
         model=model,
         args=training_args,
         train_dataset=tokenized_dataset,
-        data_collator=DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False),
+        data_collator=DataCollatorForSeq2Seq(tokenizer=tokenizer, padding=True, label_pad_token_id=-100),
     )
     train_output = trainer.train()
     trainer.save_model(args.out)
@@ -194,6 +210,9 @@ def main() -> None:
         "dataset": str(dataset_path),
         "output": args.out,
         "examples": len(examples),
+        "datasetSha256": hashlib.sha256(dataset_path.read_bytes()).hexdigest(),
+        "responseOnlyLoss": True,
+        "completionTerminatedWithEos": True,
         "maxSteps": args.max_steps,
         "maxSeqLength": args.max_seq_length,
         "authority": "candidate-only",

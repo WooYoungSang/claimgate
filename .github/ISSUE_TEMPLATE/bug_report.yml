@@ -1,0 +1,75 @@
+name: Bug report
+description: Report reproducible incorrect behavior in ClaimGate
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping improve ClaimGate. Do not include secrets, private source documents, personal data, or vulnerability details here. Security reports belong in the private route linked from the issue chooser.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What happened, and what did you expect instead?
+      placeholder: A concise description of the incorrect behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Provide deterministic steps, a public fixture, and the smallest command that reproduces the problem.
+      placeholder: |
+        1. Run ...
+        2. Load fixture ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      placeholder: Describe the expected state, output, or rejected transition.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Paste sanitized logs, test output, screenshots, or a small repository link. Use code fences where helpful.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      options:
+        - Core claim/review invariants
+        - UI components or example app
+        - DomainPack or conformance kit
+        - Evidence/report/graph projection
+        - Local AI or RAG adapter
+        - kbctl or FMON tooling
+        - Documentation or packaging
+        - Not sure
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description: Provide a release version or commit SHA when possible.
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: For example, Node 20, pnpm 9, operating system, and browser if relevant.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-submission checks
+      options:
+        - label: I searched open and closed issues for duplicates.
+          required: true
+        - label: This report contains no secrets, private data, or vulnerability details.
+          required: true

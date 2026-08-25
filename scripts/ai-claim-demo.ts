@@ -1,3 +1,8 @@
+import { execFile } from 'node:child_process';
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { promisify } from 'node:util';
 import {
   applyReviewerCorrection,
   applyRiskDisposition,
@@ -26,6 +31,7 @@ import {
   assertRagGroundingForExtraction,
   buildPersistentRagIndex,
   createOllamaGemmaClaimExtractor,
+  parseCandidateJsonResponse,
   searchPersistentRagIndex,
   type RagDocument
 } from '@claimgate/ai-local';
@@ -37,6 +43,9 @@ const defaultLocalModel = DEFAULT_LOCAL_GEMMA_MODEL;
 const defaultOllamaBaseUrl = DEFAULT_OLLAMA_BASE_URL;
 const ragRetrievalMode = LOCAL_SPARSE_VECTOR_RAG_MODE;
 const tuningArtifactStatus = NO_REPO_TUNING_ARTIFACT_STATUS;
+const defaultLoraBaseModel = 'google/gemma-4-12B-it';
+const defaultLoraPython = 'artifacts/local-ai/gemma-train-venv/bin/python';
+const execFileAsync = promisify(execFile);
 
 const DEFAULT_SOURCE_TEXT = `AI 답변: 협력국 A는 2026년에 제한 없는 현장 활동이 가능한 안전·안정 상태입니다. KOICA는 국가 B에서 2022년부터 2026년까지 농촌 식수 사업을 수행합니다. ODA는 개발도상국의 경제발전과 복지 증진을 목적으로 하는 정부 원조입니다.
 
@@ -45,7 +54,15 @@ const DEFAULT_SOURCE_TEXT = `AI 답변: 협력국 A는 2026년에 제한 없는 
 [한국국제협력단_국가별 협력사업] 대상국: 국가 A, 사업기간: 2021-2025, 시행기관: KOICA.
 [한국국제협력단_ODA 용어사전] ODA는 개발도상국의 경제발전과 복지 증진을 목적으로 하는 정부 원조.`;
 
-export type AiDemoProvider = 'auto' | 'ollama';
+export type AiDemoProvider = 'auto' | 'ollama' | 'lora';
+
+interface LoraInferenceInput {
+  readonly adapterPath: string;
+  readonly baseModel: string;
+  readonly sourceText: string;
+  readonly ragHits: readonly { readonly id: string; readonly title: string; readonly text: string }[];
+  readonly pythonPath: string;
+}
 
 export interface AiClaimDemoOptions {
   readonly provider?: AiDemoProvider;
@@ -53,10 +70,14 @@ export interface AiClaimDemoOptions {
   readonly model?: string;
   readonly ollamaBaseUrl?: string;
   readonly fetchImpl?: typeof fetch;
+  readonly adapterPath?: string;
+  readonly baseModel?: string;
+  readonly pythonPath?: string;
+  readonly loraInferImpl?: (input: LoraInferenceInput) => Promise<readonly CandidateClaim[]>;
 }
 
 export interface AiClaimDemoSummary {
-  readonly provider: 'ollama';
+  readonly provider: 'ollama' | 'lora';
   readonly model: string;
   readonly ragRetrievalMode: string;
   readonly tuningArtifactStatus: string;
@@ -85,25 +106,48 @@ export async function runAiClaimDemo(options: AiClaimDemoOptions = {}): Promise<
   });
   const ragHits = searchPersistentRagIndex({ index: ragIndex, query: sourceText, limit: 3 });
   assertRagGroundingForExtraction(assessRagGrounding({ ragHits, noHitPolicy: 'fail-extraction' }));
-  const provider = resolveProvider(options.provider ?? envProvider());
-  const model = options.model ?? process.env.CLAIMGATE_LOCAL_LLM_MODEL ?? defaultLocalModel;
+  const adapterPath = options.adapterPath ?? process.env.CLAIMGATE_GEMMA_LORA_ADAPTER;
+  const provider = adapterPath ? 'lora' : resolveProvider(options.provider ?? envProvider());
+  if (provider === 'lora' && !adapterPath) {
+    throw new Error('Local LoRA provider requires --adapter or CLAIMGATE_GEMMA_LORA_ADAPTER.');
+  }
+  const model = provider === 'lora'
+    ? options.baseModel ?? process.env.CLAIMGATE_GEMMA_LORA_BASE_MODEL ?? defaultLoraBaseModel
+    : options.model ?? process.env.CLAIMGATE_LOCAL_LLM_MODEL ?? defaultLocalModel;
+  const activeTuningStatus = provider === 'lora'
+    ? `candidate-only LoRA ${adapterPath}; serving-ready on bounded holdout 3/3; production-quality 아님`
+    : tuningArtifactStatus;
   const extractionProvenance = {
     provider,
     model,
-    adapterId: 'claimgate-local-gemma4-12b-rag-extractor',
+    adapterId: provider === 'lora' ? adapterPath! : 'claimgate-local-gemma4-12b-rag-extractor',
     promptVersion: LOCAL_GEMMA_TUNING_DATASET_VERSION,
     ragDocumentIds: ragHits.map((hit) => hit.id),
     ragRetrievalMode,
-    tuningArtifactStatus
+    tuningArtifactStatus: activeTuningStatus
   };
-  const extractor = createOllamaGemmaClaimExtractor({
-    model,
-    ragHits,
-    baseUrl: options.ollamaBaseUrl ?? process.env.OLLAMA_BASE_URL ?? defaultOllamaBaseUrl,
-    fetchImpl: options.fetchImpl,
-    sourceTextFallback: sourceText
-  });
-  const candidates = await extractCandidateClaims(extractor, { id: 'demo-source' });
+  const candidates = provider === 'lora'
+    ? await extractCandidateClaims(
+      Object.freeze({
+        id: 'claimgate-local-gemma4-12b-lora-rag-extractor',
+        mode: 'llm-adapter-boundary' as const,
+        extractClaims: async () => (options.loraInferImpl ?? inferWithLocalLora)({
+          adapterPath: adapterPath!,
+          baseModel: model,
+          sourceText,
+          ragHits,
+          pythonPath: options.pythonPath ?? process.env.CLAIMGATE_GEMMA_LORA_PYTHON ?? defaultLoraPython
+        })
+      }),
+      { id: 'demo-source' }
+    )
+    : await extractCandidateClaims(createOllamaGemmaClaimExtractor({
+      model,
+      ragHits,
+      baseUrl: options.ollamaBaseUrl ?? process.env.OLLAMA_BASE_URL ?? defaultOllamaBaseUrl,
+      fetchImpl: options.fetchImpl,
+      sourceTextFallback: sourceText
+    }), { id: 'demo-source' });
   if (candidates.length === 0) throw new Error('로컬 LLM 후보 추출 결과가 비었습니다.');
 
   const candidate = pickMofaSafetyCandidate(candidates);
@@ -171,7 +215,7 @@ export async function runAiClaimDemo(options: AiClaimDemoOptions = {}): Promise<
     provider,
     model,
     ragRetrievalMode,
-    tuningArtifactStatus,
+    tuningArtifactStatus: activeTuningStatus,
     ragDocumentIds: Object.freeze(ragHits.map((hit) => hit.id)),
     candidateCount: candidates.length,
     selectedCandidateText: candidate.text,
@@ -209,13 +253,69 @@ export function formatAiClaimDemo(summary: AiClaimDemoSummary): string {
 
 function envProvider(): AiDemoProvider {
   const value = process.env.CLAIMGATE_LOCAL_LLM_PROVIDER ?? process.env.CLAIMGATE_AI_PROVIDER;
-  if (value === 'ollama' || value === 'auto') return value;
+  if (value === 'ollama' || value === 'lora' || value === 'auto') return value;
   return 'auto';
 }
 
 function resolveProvider(provider: AiDemoProvider): Exclude<AiDemoProvider, 'auto'> {
-  if (provider === 'ollama') return 'ollama';
+  if (provider === 'ollama' || provider === 'lora') return provider;
   return 'ollama';
+}
+
+async function inferWithLocalLora(input: LoraInferenceInput): Promise<readonly CandidateClaim[]> {
+  const directory = await mkdtemp(join(tmpdir(), 'claimgate-gemma-lora-'));
+  const out = join(directory, 'runtime-eval.json');
+  const candidateSentence = input.sourceText
+    .split(/(?<=[.!?])\s+/)
+    .find((sentence) => /안전|여행|현장|안정/.test(sentence)) ?? input.sourceText;
+  const grounding = input.ragHits.find((hit) => /안전|여행/.test(`${hit.title}\n${hit.text}`)) ?? input.ragHits[0];
+  const requestText = [
+    '후보 추출 대상',
+    candidateSentence,
+    '검색된 출처',
+    grounding ? `${grounding.title}: ${grounding.text.slice(0, 600)}` : '검색 결과 없음',
+    `출처 식별자: ${grounding?.id ?? 'none'}`
+  ].join('\n');
+  try {
+    try {
+      await execFileAsync(input.pythonPath, [
+        'scripts/eval-gemma-lora-candidate.py',
+        '--dataset', 'artifacts/local-ai/gemma-candidate-holdout.jsonl',
+        '--base-model', input.baseModel,
+        '--adapter', input.adapterPath,
+        '--out', out,
+        '--request-text', requestText,
+        '--max-examples', '1',
+        '--max-new-tokens', '256',
+        '--max-seq-length', '1024'
+      ], {
+        cwd: process.cwd(),
+        env: {
+          ...process.env,
+          HF_HOME: process.env.HF_HOME ?? 'artifacts/local-ai/hf-cache',
+          TRANSFORMERS_CACHE: process.env.TRANSFORMERS_CACHE ?? 'artifacts/local-ai/hf-cache',
+          HF_HUB_OFFLINE: process.env.HF_HUB_OFFLINE ?? '1'
+        },
+        maxBuffer: 10 * 1024 * 1024
+      });
+    } catch (error) {
+      const detail = error && typeof error === 'object' && 'stderr' in error ? String(error.stderr).trim().slice(-2000) : String(error);
+      throw new Error(`local LoRA runtime process failed: ${detail}`);
+    }
+    const report = JSON.parse(await readFile(out, 'utf8')) as {
+      readonly status?: string;
+      readonly authorityViolationCount?: number;
+      readonly rows?: readonly { readonly parsed?: unknown }[];
+    };
+    if (report.status !== 'BOUNDARY_PASS_SERVING_READY' || report.authorityViolationCount !== 0) {
+      throw new Error(`local LoRA candidate inference failed closed: ${report.status ?? 'missing status'}`);
+    }
+    const parsed = report.rows?.[0]?.parsed;
+    if (!parsed) throw new Error('local LoRA candidate inference did not return parsed JSON.');
+    return parseCandidateJsonResponse(JSON.stringify(parsed)).candidates;
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
 }
 
 function mofaRagCorpus(): readonly RagDocument[] {
@@ -251,7 +351,7 @@ function stateLabel(value: string): string {
 }
 
 function parseArgs(argv: readonly string[]): AiClaimDemoOptions {
-  const options: { provider?: AiDemoProvider; sourceText?: string; model?: string; ollamaBaseUrl?: string } = {};
+  const options: { provider?: AiDemoProvider; sourceText?: string; model?: string; ollamaBaseUrl?: string; adapterPath?: string; baseModel?: string; pythonPath?: string } = {};
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index]!;
     if (arg === '--provider') {
@@ -262,6 +362,18 @@ function parseArgs(argv: readonly string[]): AiClaimDemoOptions {
       options.model = argv[++index];
     } else if (arg.startsWith('--model=')) {
       options.model = arg.slice('--model='.length);
+    } else if (arg === '--adapter') {
+      options.adapterPath = argv[++index];
+    } else if (arg.startsWith('--adapter=')) {
+      options.adapterPath = arg.slice('--adapter='.length);
+    } else if (arg === '--base-model') {
+      options.baseModel = argv[++index];
+    } else if (arg.startsWith('--base-model=')) {
+      options.baseModel = arg.slice('--base-model='.length);
+    } else if (arg === '--python') {
+      options.pythonPath = argv[++index];
+    } else if (arg.startsWith('--python=')) {
+      options.pythonPath = arg.slice('--python='.length);
     } else if (arg === '--ollama-base-url') {
       options.ollamaBaseUrl = argv[++index];
     } else if (arg.startsWith('--ollama-base-url=')) {
@@ -278,8 +390,8 @@ function parseArgs(argv: readonly string[]): AiClaimDemoOptions {
 }
 
 function parseProvider(value: string | undefined): AiDemoProvider {
-  if (value === 'auto' || value === 'ollama') return value;
-  throw new Error('--provider must be auto or ollama');
+  if (value === 'auto' || value === 'ollama' || value === 'lora') return value;
+  throw new Error('--provider must be auto, ollama, or lora');
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

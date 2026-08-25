@@ -1,0 +1,55 @@
+name: Feature request
+description: Propose a problem-backed improvement to ClaimGate
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Explain the review problem before proposing a solution. Large implementations should wait for maintainer scope alignment.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and affected user
+      description: Who has this problem, in which claim-review scenario, and what evidence shows it matters?
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Smallest useful outcome
+      description: Describe observable behavior rather than an implementation preference.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed approach
+      description: Include alternatives considered and why this is the smallest appropriate change.
+    validations:
+      required: true
+  - type: textarea
+    id: invariants
+    attributes:
+      label: Invariant and boundary impact
+      description: Explain effects on source anchors, AI authority, deterministic risk, Evidence Packs, projections, core purity, or DomainPack boundaries.
+      placeholder: No impact, or a specific impact with mitigation.
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification plan
+      description: Which tests, fixtures, or review scenario would prove the outcome?
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-submission checks
+      options:
+        - label: I searched existing issues and the public roadmap.
+          required: true
+        - label: I understand that opening an issue does not guarantee acceptance or a delivery date.
+          required: true

@@ -85,7 +85,11 @@
       "DOC-MOFA-FINAL-PRESENTATION-SOURCE",
       "DOC-MOFA-FINAL-SPEAKER-NOTES",
       "DOC-OSSCONTEST-SCORECARD",
-      "DOC-OSSCONTEST-FINAL-README"
+      "DOC-OSSCONTEST-FINAL-README",
+      "DOC-OSS-GOVERNANCE",
+      "DOC-OSS-ROADMAP",
+      "DOC-OSS-QUICKSTART",
+      "DOC-OSS-SPDX-SBOM"
     ],
     "decision_ids": [
       "D-001",
@@ -145,7 +149,8 @@
       "D-055",
       "D-056",
       "D-057",
-      "D-058"
+      "D-058",
+      "D-059"
     ],
     "incident_ids": [],
     "open_issue_ids": [
@@ -676,6 +681,34 @@
       "path": "artifacts/submission/2026-osscontest/final/README.md",
       "summary": "Official final handoff for result report DOCX/PDF ZIP, public repository, sub-three-minute demo video, SBOM, AI license annex, and portal completion checks.",
       "status": "canonical"
+    },
+    {
+      "id": "DOC-OSS-GOVERNANCE",
+      "title": "ClaimGate public governance",
+      "path": "GOVERNANCE.md",
+      "summary": "Honest single-maintainer roles, decision process, invariant review, issue-to-PR lifecycle, release and security responsibilities.",
+      "status": "canonical"
+    },
+    {
+      "id": "DOC-OSS-ROADMAP",
+      "title": "ClaimGate public roadmap",
+      "path": "ROADMAP.md",
+      "summary": "Current, near-term and future OSS development scope without fabricated community activity or production claims.",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-OSS-QUICKSTART",
+      "title": "ClaimGate judge-first quickstart",
+      "path": "docs/quickstart.md",
+      "summary": "Install, demo, test, browser UI, DomainPack extension, Local RAG and bounded QLoRA verification in one concise evaluator path.",
+      "status": "canonical"
+    },
+    {
+      "id": "DOC-OSS-SPDX-SBOM",
+      "title": "ClaimGate OSS Contest SPDX SBOM",
+      "path": "artifacts/submission/2026-osscontest/sbom/claimgate-direct-dependencies.spdx.json",
+      "summary": "Deterministic SPDX 2.3 inventory of 30 direct npm and Go dependencies with license, repository, PURL, purpose and scope.",
+      "status": "supporting"
     }
   ],
   "roadmap": [
@@ -700,7 +733,8 @@
     {
       "stage": "OSS-4",
       "output": "Complete bounded Gemma candidate-extractor serving readiness and harden notice-41 governance, community, usability, SBOM, license and evidence surfaces",
-      "status": "in_progress"
+      "status": "complete",
+      "evidence": "D-059; AI serving readiness, governance/community surfaces, judge-first quickstart, SPDX SBOM/license validation, official report mapping and full repository tests are complete."
     },
     {
       "stage": "OSS-5",
@@ -760,7 +794,7 @@
             "delivers": "Official-template OSS Contest result report DOCX/PDF, public GitHub source URL, up-to-three-minute YouTube demo, SBOM, AI model/license annex, scorecard, and upload ZIP.",
             "done_when": "Notice 39/41 requirements are met with no placeholders: receipt-numbered DOCX/PDF ZIP, reachable public repository matching HEAD, YouTube demo URL in the report, mandatory annexes, and passing package validation.",
             "status": "blocked",
-            "evidence": "Draft quality gate passes: report is 7 pages total with four result-report pages plus annexes, video is 77.88 seconds at 1280x720, ZIP contains only DOCX/PDF, SBOM and AI model license sections are populated. Remaining: receipt number, YouTube upload URL, and public GitHub push.",
+            "evidence": "Internal artifacts are complete: official report body 4 pages plus 5 annex pages, notice-41 criteria mapping, SPDX 30-dependency SBOM, Gemma 4 Apache-2.0 type2 QLoRA disclosure, 77.88-second demo, verified DOCX/PDF ZIP, governance/community surfaces, serving-ready bounded LoRA evidence, and all repo gates pass. External placeholders/publication remain.",
             "next_step": "Provide OSS Contest receipt number; publish the current repository to the representative GitHub URL; upload claimgate-osscontest-demo.mp4 to YouTube; regenerate report/ZIP with env values; upload ZIP and confirm portal status plus completion email."
           }
         ]
@@ -776,7 +810,8 @@
             "exclusive_file_lease": ["CODE_OF_CONDUCT.md","GOVERNANCE.md","ROADMAP.md",".github/ISSUE_TEMPLATE/**","CONTRIBUTING.md"],
             "delivers": "Honest solo-project governance and community onboarding surfaces mapped to collaboration/management and community-expansion scoring.",
             "done_when": "Code of Conduct, governance/maintainer policy, public roadmap, issue templates, and contribution links exist, contain no fabricated contributor activity, and repository link checks pass.",
-            "status": "not_started"
+            "status": "complete",
+            "evidence": "CODE_OF_CONDUCT.md, GOVERNANCE.md, ROADMAP.md, structured GitHub Issue forms, CONTRIBUTING update, public Security Advisory path, link/YAML/lint/full-test verification; single-maintainer and no external contribution history stated honestly."
           },
           {
             "id": "PKT-OSS-SCORE-LICENSE",
@@ -784,7 +819,8 @@
             "exclusive_file_lease": ["THIRD_PARTY_LICENSES.md","artifacts/submission/2026-osscontest/sbom/**","scripts/generate-osscontest-sbom.*","scripts/validate-osscontest-final.py","scripts/generate-osscontest-final-report.py"],
             "delivers": "Machine-readable SBOM plus reproducible npm/Go license evidence aligned with the official report annex.",
             "done_when": "SPDX or CycloneDX SBOM is generated, direct runtime/build dependencies and Gemma terms are documented, license scan has no unresolved blocker, and final report/license validation passes.",
-            "status": "not_started"
+            "status": "complete",
+            "evidence": "SPDX 2.3 direct-dependency SBOM covers npm 12 + Go 18; MIT 26/BSD-3-Clause 3/Apache-2.0 1; Gemma 4 Apache-2.0 disclosure; weights not distributed; python3 scripts/validate-osscontest-license.py PASS with zero unresolved blockers."
           },
           {
             "id": "PKT-OSS-SCORE-USABILITY",
@@ -792,7 +828,8 @@
             "exclusive_file_lease": ["README.md","docs/quickstart.md","docs/demo/**","scripts/validate-osscontest-final.py"],
             "delivers": "Judge-first README and reproducible quickstart proving install, demo, test, package boundaries, screenshots, limitations, and DomainPack extension path.",
             "done_when": "A reviewer can reach install→demo→test→extension evidence from README, all commands pass from the clean tree, and unsupported production/RAG/tuning claims are absent.",
-            "status": "not_started"
+            "status": "complete",
+            "evidence": "Judge-first README and docs/quickstart.md cover 60-second value, screenshot, install→demo→test, package map, DomainPack extension, bounded RAG/QLoRA truth, governance links and limitations; demo/conformance/AI/overclaim/full repo gates pass."
           },
           {
             "id": "PKT-OSS-PUBLISH-SOURCE",
@@ -830,9 +867,9 @@
             "exclusive_file_lease": ["packages/ai-local/**","scripts/build-gemma-tuning-dataset.ts","scripts/train-gemma-candidate-lora.py","scripts/eval-gemma-lora-candidate.py","scripts/ai-claim-demo.ts","scripts/local-gemma-pipeline.test.mjs","artifacts/local-ai/gemma-candidate-*","artifacts/local-ai/gemma-lora-*","docs/ai-extraction-boundary.md","package.json"],
             "delivers": "Serving-ready candidate-only Gemma 4 12B LoRA extractor integrated into the local ClaimGate demo with reproducible train/holdout evidence.",
             "done_when": "Fixture-derived dataset has a non-overlapping holdout set; LoRA training completes on RTX 4090; holdout inference emits strict parseable candidates for every evaluated case; authority-shaped fields are rejected with zero accepted violations; the demo consumes adapter output without granting verify/risk/anchor/reviewer/projection authority; and artifact, boundary, and demo tests pass.",
-            "status": "in_progress",
-            "evidence": "Existing base: D-048 one-step smoke, D-050 20-step prototype, D-051 first-JSON 3/3 with raw strict JSON 0/3 and servingReady=false, D-052 safe first-JSON parser, RTX 4090 preflight/training/eval scripts.",
-            "next_step": "Expand the three-example dataset into train/holdout fixture-derived cases, tighten JSON-only training/decoding, retrain bounded LoRA, run holdout authority/format eval, then wire the passing adapter into pnpm demo:ai:gemma."
+            "status": "complete",
+            "evidence": "D-059; RTX 4090 QLoRA 60-step train6/holdout3; BOUNDARY_PASS_SERVING_READY; parse/candidate-only/strict JSON/exact text 3/3; authority violations 0; productionQuality=false; real CLAIMGATE_GEMMA_LORA_ADAPTER demo exit 0; pnpm test:ai-demo 14/14 and full gates pass.",
+            "next_step": "Keep weights local-only until a separate public-weight distribution and license decision; do not claim production or real-document accuracy."
           }
         ]
       }
@@ -1244,6 +1281,13 @@
       "status": "accepted",
       "decision": "Fine-tuning is required for the completeness of the optional Local Gemma candidate-extraction product slice, though not for ClaimGate core invariants. Resume only a bounded serving-readiness lane: expand fixture-derived candidate-only train/holdout data, train the existing Gemma 4 12B LoRA path, achieve strict machine-consumable candidate JSON with zero authority-field violations, integrate the adapter into the local demo path, and preserve deterministic reviewer/risk authority.",
       "rationale": "D-057 optimized only for explicit contest points and ignored product completeness. The repo already has RTX 4090 preflight, training scripts, a 20-step adapter, first-JSON parsing, and inference evaluation, so the highest-value remaining AI work is not new model research but closing BOUNDARY_PASS_SERVING_BLOCKED into a reproducible serving-ready candidate extractor."
+    },
+    {
+      "id": "D-059",
+      "date": "2026-08-26",
+      "status": "accepted",
+      "decision": "The bounded Local Gemma candidate extractor is serving-ready for the fixture-defined product slice: Gemma 4 12B QLoRA trained for 60 steps on six candidate-only examples, passed a non-overlapping three-example holdout with strict JSON, candidate-only schema, and exact candidate text 3/3 plus zero authority violations, and completed the real adapter-path demo through deterministic risk, reviewer correction, and Evidence Pack. It remains productionQuality=false and adapter weights remain local-only.",
+      "rationale": "This closes D-058 and PKT-OSS-AI-SERVING-READY without overstating real-document accuracy. The measurable claim is bounded format/authority serving readiness, not truth accuracy, production quality, or AI judge authority."
     }
   ],
   "incidents": [],
@@ -1257,8 +1301,8 @@
     {
       "id": "OI-002",
       "status": "open",
-      "description": "OSS Contest draft artifacts are ready, but final submission is blocked by three credential/operator values: receipt number, YouTube demo URL, and a reachable public GitHub repository matching the 38 unpublished local commits.",
-      "next_step": "Set OSSCONTEST_RECEIPT_NUMBER and OSSCONTEST_VIDEO_URL, authorize/push the public GitHub repository, rebuild the report ZIP, upload it before 2026-08-27 18:00, and verify both portal Submitted status and completion email."
+      "description": "All internal OSS Contest product, report, demo, governance, SBOM/license, usability, testing, RAG, and bounded QLoRA serving-readiness work is complete. Final submission remains blocked only by external/account actions: receipt number, YouTube URL, public GitHub visibility/push, ZIP upload, portal Submitted state, and completion email.",
+      "next_step": "Provide the receipt number; authorize and complete public GitHub publication; upload the verified 77.88-second MP4 to YouTube; regenerate the report ZIP with final values; upload before the deadline and retain the receipt email outside the repo."
     },
     {
       "id": "OI-003",

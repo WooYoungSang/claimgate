@@ -262,12 +262,27 @@ export function parseCandidateJsonResponse(responseText: string): CandidateJsonP
   const jsonText = extractFirstJsonObjectText(responseText);
   const parsed = JSON.parse(jsonText.value) as { readonly candidates?: readonly CandidateClaim[] };
   if (!Array.isArray(parsed.candidates)) throw new Error('Ollama/Gemma response did not contain candidates[].');
+  for (const [index, candidate] of parsed.candidates.entries()) {
+    assertSupportedCandidateFields(candidate, index);
+  }
+  const candidates = assertCandidateClaims(parsed.candidates);
 
   return Object.freeze({
-    candidates: assertCandidateClaims(parsed.candidates),
+    candidates,
     strictJsonOnly: jsonText.leadingText.length === 0 && jsonText.trailingText.length === 0,
     trailingText: jsonText.trailingText
   });
+}
+
+const MODEL_CANDIDATE_FIELDS = new Set(['id', 'text', 'subject', 'state', 'aiValue', 'proposedAnchor', 'fixtureNotes']);
+const MODEL_AUTHORITY_FIELDS = new Set(['anchor', 'sourceValue', 'riskScore', 'riskLevel', 'riskTrace', 'reviewerDecision', 'verified', 'corrected', 'projected', 'evidencePack']);
+
+function assertSupportedCandidateFields(candidate: CandidateClaim, index: number): void {
+  if (typeof candidate !== 'object' || candidate === null || Array.isArray(candidate)) return;
+  const unsupported = Object.keys(candidate).filter((field) => !MODEL_CANDIDATE_FIELDS.has(field) && !MODEL_AUTHORITY_FIELDS.has(field));
+  if (unsupported.length > 0) {
+    throw new Error(`Ollama/Gemma response candidate ${index} contains unsupported candidate fields: ${unsupported.sort().join(', ')}.`);
+  }
 }
 
 export function createOllamaGemmaClaimExtractor(options: OllamaGemmaExtractorOptions): ClaimExtractor {

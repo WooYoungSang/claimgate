@@ -35,7 +35,10 @@ The default repository path requires no secrets. Do not commit API keys, wallet 
 
 ## Reporting a vulnerability
 
-Before the repository is made public, report security issues through the private project operator/reviewer channel. After a public release, replace this paragraph with a public contact such as a security email address or GitHub Security Advisory workflow.
+Use the repository's **Security → Report a vulnerability** workflow so reports are handled as private
+GitHub Security Advisories. Do not open a public issue for an unpatched vulnerability. If the advisory
+workflow is temporarily unavailable, use the repository owner's public GitHub profile to request a
+private reporting channel without including vulnerability details in the request.
 
 Please include:
 
@@ -62,6 +65,9 @@ Please include:
 
 ## Public release gate
 
-Public visibility is a separate human-approved step. Before any repository visibility flip, reviewers must triage secret/private endpoint/private data findings and confirm that v0 still requires no API key, provider credential, database URL, auth token, local vault export, hosted service, real LLM extraction, OCR service, graph DB, or real DID wallet/issuer/verifier.
+Before a release, maintainers must triage secret/private endpoint/private data findings and confirm that
+the default v0 path still requires no API key, provider credential, database URL, auth token, local vault
+export, hosted service, OCR service, graph DB, or real DID wallet/issuer/verifier. The optional Local
+Gemma path must remain local and candidate-only.
 
 Do not include secrets, private vault exports, real credentials, production personal data, or non-public source documents in reports or committed evidence.

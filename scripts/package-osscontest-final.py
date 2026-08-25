@@ -34,11 +34,25 @@ def main() -> None:
             archive.write(path, arcname=path.name)
     manifest = {
         "schema": "claimgate.osscontest-submission/v1",
+        "officialNotices": [
+            "https://osscontest.kr/notice/39",
+            "https://osscontest.kr/notice/41",
+        ],
         "receiptNumber": RECEIPT,
         "team": TEAM,
         "repository": "https://github.com/WooYoungSang/warvis-claimgate",
         "videoUrl": os.environ.get("OSSCONTEST_VIDEO_URL", "[YOUTUBE_URL_REQUIRED]"),
+        "reportBodyPageLimit": 5,
+        "uploadContents": "DOCX and PDF only; source and YouTube video are linked from the report",
         "uploadZip": ZIP.name,
+        "uploadZipBytes": ZIP.stat().st_size,
+        "uploadZipSha256": digest(ZIP),
+        "licenseEvidence": [
+            "../sbom/claimgate-direct-dependencies.spdx.json",
+            "../sbom/license-review.json",
+            "../sbom/gemma4-license-disclosure.json",
+            "../sbom/SHA256SUMS",
+        ],
         "files": [{"path": path.name, "bytes": path.stat().st_size, "sha256": digest(path)} for path in FILES],
     }
     (OUT / "SUBMISSION-MANIFEST.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n")

@@ -1,0 +1,24 @@
+{
+  "distribution": {
+    "adapterWeightsCommittedToRepository": false,
+    "operatorProvidesLocalModel": true,
+    "sbomTreatment": "Disclosure only; no model weights are a distributed ClaimGate software dependency.",
+    "weightsCommittedToRepository": false,
+    "weightsIncludedInSubmissionArchive": false
+  },
+  "license": {
+    "distinction": "The general Gemma Terms of Use page explicitly directs Gemma 4 users to the separate Gemma 4 license. Gemma 4 is identified by Google as Apache 2.0; it is not governed by the older Gemma Terms list.",
+    "generalGemmaTermsUrl": "https://ai.google.dev/gemma/terms",
+    "officialLicenseUrl": "https://ai.google.dev/gemma/apache_2",
+    "officialModelCardUrl": "https://ai.google.dev/gemma/docs/core/model_card_4",
+    "spdxId": "Apache-2.0"
+  },
+  "model": "Gemma 4 12B instruction-tuned",
+  "modelIdUsedByOptionalLocalPipeline": "google/gemma-4-12B-it / local Ollama tag gemma4:12b",
+  "projectRole": "Optional local candidate-claim extraction only; never truth judgment, risk scoring, source-anchor acceptance, or projection authority.",
+  "provider": "Google DeepMind",
+  "reviewDisposition": "PASS_NOT_DISTRIBUTED",
+  "reviewedAt": "2026-08-26",
+  "schemaVersion": "claimgate.ai-model-license-disclosure/v1",
+  "unresolvedRisks": []
+}

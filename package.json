@@ -38,9 +38,12 @@
     "test:final-presentation": "python3 scripts/validate-mofa-final-presentation.py",
     "build:osscontest-report": "python3 scripts/generate-osscontest-final-report.py && python3 scripts/package-osscontest-final.py",
     "test:osscontest-final": "python3 scripts/validate-osscontest-final.py",
+    "build:osscontest-sbom": "python3 scripts/generate-osscontest-sbom.py",
+    "test:osscontest-license": "python3 scripts/validate-osscontest-license.py",
     "demo:ai": "CLAIMGATE_LOCAL_LLM_PROVIDER=ollama CLAIMGATE_LOCAL_LLM_MODEL=${CLAIMGATE_LOCAL_LLM_MODEL:-gemma4:12b} tsx scripts/ai-claim-demo.ts --provider=ollama",
     "test:ai-demo": "node --test scripts/ai-claim-demo.test.mjs scripts/local-gemma-pipeline.test.mjs",
     "demo:ai:gemma": "CLAIMGATE_LOCAL_LLM_PROVIDER=ollama CLAIMGATE_LOCAL_LLM_MODEL=${CLAIMGATE_LOCAL_LLM_MODEL:-gemma4:12b} tsx scripts/ai-claim-demo.ts --provider=ollama",
+    "demo:ai:lora": "CLAIMGATE_GEMMA_LORA_ADAPTER=artifacts/local-ai/gemma-candidate-lora-serving-ready pnpm demo:ai:gemma",
     "rag:build:mofa": "tsx scripts/build-local-rag-index.ts",
     "tune:dataset:mofa": "tsx scripts/build-gemma-tuning-dataset.ts",
     "tune:preflight": "bash -o pipefail -c 'tsx scripts/gemma-tuning-preflight.ts --dataset artifacts/local-ai/gemma-candidate-tuning.jsonl --python artifacts/local-ai/gemma-train-venv/bin/python --base-model google/gemma-4-12B-it | tee artifacts/local-ai/gemma-tuning-preflight-latest.json'",
@@ -52,7 +55,9 @@
     "tune:train:prototype": "HF_HOME=artifacts/local-ai/hf-cache TRANSFORMERS_CACHE=artifacts/local-ai/hf-cache artifacts/local-ai/gemma-train-venv/bin/python scripts/train-gemma-candidate-lora.py --dataset artifacts/local-ai/gemma-candidate-tuning.jsonl --base-model google/gemma-4-12B-it --out artifacts/local-ai/gemma-candidate-lora-prototype --max-steps 20 --max-seq-length 768",
     "tune:eval:prototype": "node scripts/validate-gemma-lora-artifact.mjs --adapter artifacts/local-ai/gemma-candidate-lora-prototype --dataset artifacts/local-ai/gemma-candidate-tuning.jsonl --out artifacts/local-ai/gemma-candidate-lora-prototype-eval.json",
     "tune:infer:prototype:dry-run": "HF_HOME=artifacts/local-ai/hf-cache TRANSFORMERS_CACHE=artifacts/local-ai/hf-cache artifacts/local-ai/gemma-train-venv/bin/python scripts/eval-gemma-lora-candidate.py --dataset artifacts/local-ai/gemma-candidate-tuning.jsonl --base-model google/gemma-4-12B-it --adapter artifacts/local-ai/gemma-candidate-lora-prototype --out artifacts/local-ai/gemma-candidate-lora-prototype-infer-dry-run.json --dry-run",
-    "tune:infer:prototype": "HF_HOME=artifacts/local-ai/hf-cache TRANSFORMERS_CACHE=artifacts/local-ai/hf-cache artifacts/local-ai/gemma-train-venv/bin/python scripts/eval-gemma-lora-candidate.py --dataset artifacts/local-ai/gemma-candidate-tuning.jsonl --base-model google/gemma-4-12B-it --adapter artifacts/local-ai/gemma-candidate-lora-prototype --out artifacts/local-ai/gemma-candidate-lora-prototype-infer-eval.json --max-examples 3 --max-new-tokens 256 --max-seq-length 1024"
+    "tune:infer:prototype": "HF_HOME=artifacts/local-ai/hf-cache TRANSFORMERS_CACHE=artifacts/local-ai/hf-cache artifacts/local-ai/gemma-train-venv/bin/python scripts/eval-gemma-lora-candidate.py --dataset artifacts/local-ai/gemma-candidate-tuning.jsonl --base-model google/gemma-4-12B-it --adapter artifacts/local-ai/gemma-candidate-lora-prototype --out artifacts/local-ai/gemma-candidate-lora-prototype-infer-eval.json --max-examples 3 --max-new-tokens 256 --max-seq-length 1024",
+    "tune:train:serving": "HF_HOME=artifacts/local-ai/hf-cache TRANSFORMERS_CACHE=artifacts/local-ai/hf-cache artifacts/local-ai/gemma-train-venv/bin/python scripts/train-gemma-candidate-lora.py --dataset artifacts/local-ai/gemma-candidate-tuning.jsonl --base-model google/gemma-4-12B-it --out artifacts/local-ai/gemma-candidate-lora-serving-ready --max-steps 60 --max-seq-length 768",
+    "tune:infer:serving": "HF_HOME=artifacts/local-ai/hf-cache TRANSFORMERS_CACHE=artifacts/local-ai/hf-cache artifacts/local-ai/gemma-train-venv/bin/python scripts/eval-gemma-lora-candidate.py --dataset artifacts/local-ai/gemma-candidate-holdout.jsonl --base-model google/gemma-4-12B-it --adapter artifacts/local-ai/gemma-candidate-lora-serving-ready --out artifacts/local-ai/gemma-candidate-lora-serving-ready-holdout-eval.json --max-examples 3 --max-new-tokens 256 --max-seq-length 1024"
   },
   "keywords": [
     "claimgate",

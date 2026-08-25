@@ -178,6 +178,21 @@ ${JSON.stringify({ candidates: [candidate] })}
       )
     ).toThrow(/AI extraction candidates may only contain extracted candidates/);
   });
+
+  test('rejects unsupported model-invented fields at the candidate-only boundary', () => {
+    expect(() =>
+      parseCandidateJsonResponse(
+        JSON.stringify({
+          candidates: [
+            {
+              ...candidate,
+              confidence: 0.99
+            }
+          ]
+        })
+      )
+    ).toThrow(/unsupported candidate fields/);
+  });
 });
 
 

@@ -53,6 +53,20 @@ The boundary preserves ClaimGate invariants: No Anchor No Claim, AI Curator Not 
 
 Any provider work must still pass the same authority-leak tests and may not grant AI verification, scoring, reviewer, or projection authority. Local model files, fine-tuned weights, and runtime services stay outside git; ClaimGate records model/RAG provenance without treating the model as a judge.
 
+## Bounded local LoRA evidence
+
+The local serving candidate is a Gemma 4 12B QLoRA adapter trained for 60 steps on six fixture-derived candidate-only records. Three separately identified holdout records cover the same three fixture families with different input layouts and do not overlap training IDs. Response-only loss, an EOS-terminated JSON completion, greedy decoding, and stop-after-first-complete-object decoding prevent the repeated JSON observed in the earlier prototype.
+
+`artifacts/local-ai/gemma-candidate-lora-serving-ready-holdout-eval.json` records strict JSON 3/3, candidate-only shape 3/3, exact expected fixture text 3/3, and zero authority violations. `productionQuality` remains `false`: this proves only the bounded fixture contract and serving path, not general extraction accuracy.
+
+The generated adapter weights stay outside git. When they exist at the local path, the normal demo command can consume them instead of Ollama candidate generation:
+
+```bash
+CLAIMGATE_GEMMA_LORA_ADAPTER=artifacts/local-ai/gemma-candidate-lora-serving-ready pnpm demo:ai:gemma
+```
+
+The resulting candidates still pass through `extractCandidateClaims`; deterministic rules, human review, anchoring, Evidence Pack creation, and projection remain outside the model.
+
 ## What framework performance means
 
 Framework performance measurements in this repository evaluate deterministic ClaimGate operations: fixture loading, state transitions, risk rules, projection guards, and demo composition. They are **not** LLM accuracy, LLM latency, prompt quality, fine-tuning quality, or extraction-quality benchmarks.

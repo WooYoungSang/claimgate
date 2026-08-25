@@ -143,6 +143,9 @@ artifacts/local-ai/hf-cache/
 artifacts/local-ai/gemma-train-venv/
 artifacts/local-ai/gemma-candidate-lora-smoke/
 artifacts/local-ai/gemma-candidate-lora-prototype/
+artifacts/local-ai/gemma-candidate-lora-serving-ready/
+artifacts/local-ai/*serving-ready*.log
+artifacts/local-ai/gemma4-12b-lora-demo-run-latest.*
 
 # Local runtime/cache state
 **/__pycache__/
