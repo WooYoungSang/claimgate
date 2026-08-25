@@ -143,7 +143,8 @@
       "D-053",
       "D-054",
       "D-055",
-      "D-056"
+      "D-056",
+      "D-057"
     ],
     "incident_ids": [],
     "open_issue_ids": [
@@ -154,12 +155,20 @@
     "roadmap_stages": [
       "OSS-1",
       "OSS-2",
-      "OSS-3"
+      "OSS-3",
+      "OSS-4",
+      "OSS-5"
     ],
     "mvp_v1_work_packet_ids": [
       "PKT-KBCTL-MIGRATION",
       "PKT-PUBLIC-EXPORT-HYGIENE",
-      "PKT-OSS-CONTEST-ASSETS"
+      "PKT-OSS-CONTEST-ASSETS",
+      "PKT-OSS-SCORE-GOVERNANCE",
+      "PKT-OSS-SCORE-LICENSE",
+      "PKT-OSS-SCORE-USABILITY",
+      "PKT-OSS-PUBLISH-SOURCE",
+      "PKT-OSS-PUBLISH-VIDEO",
+      "PKT-OSS-FINAL-UPLOAD"
     ],
     "ddd_scenario_ids": [
       "S-1"
@@ -685,6 +694,16 @@
       "output": "Finalize the OSS Contest result report, public source URL, sub-three-minute YouTube demo, SBOM, AI license annex, and two-file upload ZIP",
       "status": "blocked",
       "evidence": "D-056; official notice 39/41 checked 2026-08-25; official-template DOCX/PDF draft, 77.88-second actual UI demo MP4, SBOM and AI annex, scorecard, and valid two-file ZIP exist. Final blockers: receipt number, YouTube URL, and publishing 38 local commits to the currently 404 GitHub repository."
+    },
+    {
+      "stage": "OSS-4",
+      "output": "Harden notice-41 governance, community, usability, SBOM, license and evidence scoring surfaces",
+      "status": "in_progress"
+    },
+    {
+      "stage": "OSS-5",
+      "output": "Publish source and video, finalize receipt-numbered report ZIP, and confirm portal submission",
+      "status": "blocked"
     }
   ],
   "mvp_v1_parallel_roadmap": {
@@ -741,6 +760,67 @@
             "status": "blocked",
             "evidence": "Draft quality gate passes: report is 7 pages total with four result-report pages plus annexes, video is 77.88 seconds at 1280x720, ZIP contains only DOCX/PDF, SBOM and AI model license sections are populated. Remaining: receipt number, YouTube upload URL, and public GitHub push.",
             "next_step": "Provide OSS Contest receipt number; publish the current repository to the representative GitHub URL; upload claimgate-osscontest-demo.mp4 to YouTube; regenerate report/ZIP with env values; upload ZIP and confirm portal status plus completion email."
+          }
+        ]
+      },
+      {
+        "wave": "W-OSS-FINAL",
+        "parallelism": "Run governance, license, and usability hardening in parallel; then publish source/video and finalize portal serially",
+        "goal": "Maximize notice-41 score and complete notice-39 submission before 2026-08-27 18:00 without new fine-tuning scope",
+        "work_packets": [
+          {
+            "id": "PKT-OSS-SCORE-GOVERNANCE",
+            "depends_on": [],
+            "exclusive_file_lease": ["CODE_OF_CONDUCT.md","GOVERNANCE.md","ROADMAP.md",".github/ISSUE_TEMPLATE/**","CONTRIBUTING.md"],
+            "delivers": "Honest solo-project governance and community onboarding surfaces mapped to collaboration/management and community-expansion scoring.",
+            "done_when": "Code of Conduct, governance/maintainer policy, public roadmap, issue templates, and contribution links exist, contain no fabricated contributor activity, and repository link checks pass.",
+            "status": "not_started"
+          },
+          {
+            "id": "PKT-OSS-SCORE-LICENSE",
+            "depends_on": [],
+            "exclusive_file_lease": ["THIRD_PARTY_LICENSES.md","artifacts/submission/2026-osscontest/sbom/**","scripts/generate-osscontest-sbom.*","scripts/validate-osscontest-final.py","scripts/generate-osscontest-final-report.py"],
+            "delivers": "Machine-readable SBOM plus reproducible npm/Go license evidence aligned with the official report annex.",
+            "done_when": "SPDX or CycloneDX SBOM is generated, direct runtime/build dependencies and Gemma terms are documented, license scan has no unresolved blocker, and final report/license validation passes.",
+            "status": "not_started"
+          },
+          {
+            "id": "PKT-OSS-SCORE-USABILITY",
+            "depends_on": [],
+            "exclusive_file_lease": ["README.md","docs/quickstart.md","docs/demo/**","scripts/validate-osscontest-final.py"],
+            "delivers": "Judge-first README and reproducible quickstart proving install, demo, test, package boundaries, screenshots, limitations, and DomainPack extension path.",
+            "done_when": "A reviewer can reach install→demo→test→extension evidence from README, all commands pass from the clean tree, and unsupported production/RAG/tuning claims are absent.",
+            "status": "not_started"
+          },
+          {
+            "id": "PKT-OSS-PUBLISH-SOURCE",
+            "depends_on": ["PKT-OSS-SCORE-GOVERNANCE","PKT-OSS-SCORE-LICENSE","PKT-OSS-SCORE-USABILITY"],
+            "exclusive_file_lease": [".git/**"],
+            "delivers": "Reachable public representative GitHub repository whose default branch contains the verified final source and submission evidence.",
+            "done_when": "GitHub URL returns 200 without credentials, origin/main matches local HEAD, repository is public, license and README render, and final source tests pass.",
+            "status": "blocked",
+            "evidence": "Current representative GitHub URL returns 404 and local main is 39 commits ahead of origin/main.",
+            "next_step": "Complete score hardening packets, then obtain explicit external publication authority and push the verified default branch."
+          },
+          {
+            "id": "PKT-OSS-PUBLISH-VIDEO",
+            "depends_on": [],
+            "exclusive_file_lease": ["artifacts/submission/2026-osscontest/final/claimgate-osscontest-demo.mp4"],
+            "delivers": "Public or unlisted YouTube URL for the verified 77.88-second 1280x720 actual UI demo.",
+            "done_when": "YouTube URL is reachable without owner login, duration is at most three minutes, captions show core workflow and boundaries, and URL is ready for report insertion.",
+            "status": "blocked",
+            "evidence": "Local 77.88-second 1280x720 captioned MP4 passes validation; YouTube upload requires operator account.",
+            "next_step": "Upload claimgate-osscontest-demo.mp4 as public or unlisted and return the reachable URL."
+          },
+          {
+            "id": "PKT-OSS-FINAL-UPLOAD",
+            "depends_on": ["PKT-OSS-PUBLISH-SOURCE","PKT-OSS-PUBLISH-VIDEO"],
+            "exclusive_file_lease": ["artifacts/submission/2026-osscontest/final/**","governance/knowledge/claimgate-kb.json"],
+            "delivers": "Receipt-numbered official DOCX/PDF ZIP with public source and YouTube URLs, uploaded and confirmed in the OSS Contest portal.",
+            "done_when": "No placeholders remain, package validation reports READY, ZIP is uploaded, portal state is 제출 완료, and completion email/receipt is retained outside the public repository.",
+            "status": "blocked",
+            "evidence": "Official-template report and two-file ZIP draft pass; receipt number, public GitHub URL, and YouTube URL are unresolved.",
+            "next_step": "After source/video publication, set OSSCONTEST_RECEIPT_NUMBER and OSSCONTEST_VIDEO_URL, rebuild, validate READY, upload, and confirm email."
           }
         ]
       }
@@ -1138,6 +1218,13 @@
       "status": "accepted",
       "decision": "The authoritative 2026 OSS Contest final gate is notice 39 plus scoring notice 41: submit by 2026-08-27 18:00 a five-page-or-less official result report with public repository URL and a YouTube demo up to three minutes, including mandatory SBOM and applicable AI model/license annexes; upload a ZIP containing the report DOCX and PDF. Evaluation is written 30 points plus presentation/function/license evaluation 70 points.",
       "rationale": "D-055 addressed the MOFA presentation stage and is not the OSS Contest submission contract. Notice 41 rewards code completeness, OSS growth, documentation, innovation, management, usability, demo, community, OSS suitability, functional tests, and license verification, so the final package must map evidence directly to those criteria."
+    },
+    {
+      "id": "D-057",
+      "date": "2026-08-26",
+      "status": "accepted",
+      "decision": "Do not spend the remaining OSS Contest submission window on additional Gemma fine-tuning or production RAG expansion. Freeze the existing persistent sparse RAG and candidate-only LoRA prototype as bounded evidence, and allocate all remaining appetite to eligibility, governance/community, usability, functional-test, SBOM/license, public repository, video URL, and final portal completion.",
+      "rationale": "Notice 41 awards no direct fine-tuning points. The existing LoRA is serving-blocked and a rushed quality claim would increase risk, while missing public source, YouTube URL, receipt number, governance surfaces, and machine-readable license evidence directly threaten eligibility or scored criteria."
     }
   ],
   "incidents": [],
