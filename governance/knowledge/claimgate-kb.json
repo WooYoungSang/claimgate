@@ -144,7 +144,8 @@
       "D-054",
       "D-055",
       "D-056",
-      "D-057"
+      "D-057",
+      "D-058"
     ],
     "incident_ids": [],
     "open_issue_ids": [
@@ -168,7 +169,8 @@
       "PKT-OSS-SCORE-USABILITY",
       "PKT-OSS-PUBLISH-SOURCE",
       "PKT-OSS-PUBLISH-VIDEO",
-      "PKT-OSS-FINAL-UPLOAD"
+      "PKT-OSS-FINAL-UPLOAD",
+      "PKT-OSS-AI-SERVING-READY"
     ],
     "ddd_scenario_ids": [
       "S-1"
@@ -697,7 +699,7 @@
     },
     {
       "stage": "OSS-4",
-      "output": "Harden notice-41 governance, community, usability, SBOM, license and evidence scoring surfaces",
+      "output": "Complete bounded Gemma candidate-extractor serving readiness and harden notice-41 governance, community, usability, SBOM, license and evidence surfaces",
       "status": "in_progress"
     },
     {
@@ -765,8 +767,8 @@
       },
       {
         "wave": "W-OSS-FINAL",
-        "parallelism": "Run governance, license, and usability hardening in parallel; then publish source/video and finalize portal serially",
-        "goal": "Maximize notice-41 score and complete notice-39 submission before 2026-08-27 18:00 without new fine-tuning scope",
+        "parallelism": "Run AI serving readiness, governance, license, usability, and video publication in parallel; publish source and finalize portal serially",
+        "goal": "Complete ClaimGate product and maximize notice-41 evidence before 2026-08-27 18:00, including a bounded serving-ready candidate-only Gemma LoRA slice",
         "work_packets": [
           {
             "id": "PKT-OSS-SCORE-GOVERNANCE",
@@ -794,7 +796,7 @@
           },
           {
             "id": "PKT-OSS-PUBLISH-SOURCE",
-            "depends_on": ["PKT-OSS-SCORE-GOVERNANCE","PKT-OSS-SCORE-LICENSE","PKT-OSS-SCORE-USABILITY"],
+            "depends_on": ["PKT-OSS-AI-SERVING-READY","PKT-OSS-SCORE-GOVERNANCE","PKT-OSS-SCORE-LICENSE","PKT-OSS-SCORE-USABILITY"],
             "exclusive_file_lease": [".git/**"],
             "delivers": "Reachable public representative GitHub repository whose default branch contains the verified final source and submission evidence.",
             "done_when": "GitHub URL returns 200 without credentials, origin/main matches local HEAD, repository is public, license and README render, and final source tests pass.",
@@ -821,6 +823,16 @@
             "status": "blocked",
             "evidence": "Official-template report and two-file ZIP draft pass; receipt number, public GitHub URL, and YouTube URL are unresolved.",
             "next_step": "After source/video publication, set OSSCONTEST_RECEIPT_NUMBER and OSSCONTEST_VIDEO_URL, rebuild, validate READY, upload, and confirm email."
+          },
+          {
+            "id": "PKT-OSS-AI-SERVING-READY",
+            "depends_on": [],
+            "exclusive_file_lease": ["packages/ai-local/**","scripts/build-gemma-tuning-dataset.ts","scripts/train-gemma-candidate-lora.py","scripts/eval-gemma-lora-candidate.py","scripts/ai-claim-demo.ts","scripts/local-gemma-pipeline.test.mjs","artifacts/local-ai/gemma-candidate-*","artifacts/local-ai/gemma-lora-*","docs/ai-extraction-boundary.md","package.json"],
+            "delivers": "Serving-ready candidate-only Gemma 4 12B LoRA extractor integrated into the local ClaimGate demo with reproducible train/holdout evidence.",
+            "done_when": "Fixture-derived dataset has a non-overlapping holdout set; LoRA training completes on RTX 4090; holdout inference emits strict parseable candidates for every evaluated case; authority-shaped fields are rejected with zero accepted violations; the demo consumes adapter output without granting verify/risk/anchor/reviewer/projection authority; and artifact, boundary, and demo tests pass.",
+            "status": "in_progress",
+            "evidence": "Existing base: D-048 one-step smoke, D-050 20-step prototype, D-051 first-JSON 3/3 with raw strict JSON 0/3 and servingReady=false, D-052 safe first-JSON parser, RTX 4090 preflight/training/eval scripts.",
+            "next_step": "Expand the three-example dataset into train/holdout fixture-derived cases, tighten JSON-only training/decoding, retrain bounded LoRA, run holdout authority/format eval, then wire the passing adapter into pnpm demo:ai:gemma."
           }
         ]
       }
@@ -1222,9 +1234,16 @@
     {
       "id": "D-057",
       "date": "2026-08-26",
-      "status": "accepted",
+      "status": "superseded",
       "decision": "Do not spend the remaining OSS Contest submission window on additional Gemma fine-tuning or production RAG expansion. Freeze the existing persistent sparse RAG and candidate-only LoRA prototype as bounded evidence, and allocate all remaining appetite to eligibility, governance/community, usability, functional-test, SBOM/license, public repository, video URL, and final portal completion.",
       "rationale": "Notice 41 awards no direct fine-tuning points. The existing LoRA is serving-blocked and a rushed quality claim would increase risk, while missing public source, YouTube URL, receipt number, governance surfaces, and machine-readable license evidence directly threaten eligibility or scored criteria."
+    },
+    {
+      "id": "D-058",
+      "date": "2026-08-26",
+      "status": "accepted",
+      "decision": "Fine-tuning is required for the completeness of the optional Local Gemma candidate-extraction product slice, though not for ClaimGate core invariants. Resume only a bounded serving-readiness lane: expand fixture-derived candidate-only train/holdout data, train the existing Gemma 4 12B LoRA path, achieve strict machine-consumable candidate JSON with zero authority-field violations, integrate the adapter into the local demo path, and preserve deterministic reviewer/risk authority.",
+      "rationale": "D-057 optimized only for explicit contest points and ignored product completeness. The repo already has RTX 4090 preflight, training scripts, a 20-step adapter, first-JSON parsing, and inference evaluation, so the highest-value remaining AI work is not new model research but closing BOUNDARY_PASS_SERVING_BLOCKED into a reproducible serving-ready candidate extractor."
     }
   ],
   "incidents": [],
