@@ -1,0 +1,37 @@
+{
+  "schema": "claimgate.mofa-final-presentation/v1",
+  "generatedAt": "2026-08-25T13:17:01+09:00",
+  "officialNotice": "https://www.mofa.go.kr/www/brd/m_4075/view.do?seq=369403",
+  "officialRequirement": "발표자료(자유양식, 프레젠테이션 파일 등), 발표대상자 해당",
+  "recommendedUpload": "claimgate-oda-final-presentation.pdf",
+  "editableSource": "claimgate-oda-final-presentation.pptx",
+  "slideCount": 10,
+  "defaultPitchMinutes": 5,
+  "files": [
+    {
+      "path": "claimgate-oda-final-presentation.pdf",
+      "bytes": 538197,
+      "sha256": "c77b866675dab4c5682b235efc38d9c44c911048cd7cdf0afa643270369ff9e7"
+    },
+    {
+      "path": "claimgate-oda-final-presentation.pptx",
+      "bytes": 485395,
+      "sha256": "65eb25308cb10accea5ade31f6a1fff714e63c00a0bd3a4c1598e27b96f01488"
+    },
+    {
+      "path": "claimgate-oda-speaker-notes.md",
+      "bytes": 5998,
+      "sha256": "1d086bd39f38c75388b7a2e75314438c5788432ee2da62dc2ed1cd459ba70427"
+    },
+    {
+      "path": "README.md",
+      "bytes": 1885,
+      "sha256": "4582ab1926d4da167756161485feca1c6821c5d82722b2ac8bbb7679170a5fa5"
+    }
+  ],
+  "boundaries": [
+    "offline deterministic fixture-first prototype",
+    "AI proposes candidates only",
+    "live OpenAPI and production accuracy are future scope"
+  ]
+}

@@ -80,7 +80,10 @@
       "DOC-SCRIPTS-VALIDATE-CONTEST-OVERCLAIMS-MJS",
       "DOC-DOCS-DEMO-MOFA-ODA-VIDEO-PREFLIGHT-MD",
       "DOC-PACKAGES-AI-LOCAL-README-MD",
-      "DOC-FMON-README"
+      "DOC-FMON-README",
+      "DOC-MOFA-FINAL-PRESENTATION-README",
+      "DOC-MOFA-FINAL-PRESENTATION-SOURCE",
+      "DOC-MOFA-FINAL-SPEAKER-NOTES"
     ],
     "decision_ids": [
       "D-001",
@@ -136,7 +139,8 @@
       "D-051",
       "D-052",
       "D-053",
-      "D-054"
+      "D-054",
+      "D-055"
     ],
     "incident_ids": [],
     "open_issue_ids": [
@@ -623,6 +627,27 @@
       "path": "tools/fmon/README.md",
       "summary": "Fail-closed Bubble Tea dashboard over kbctl JSON output, including Human Review Gate and operational checks.",
       "status": "supporting"
+    },
+    {
+      "id": "DOC-MOFA-FINAL-PRESENTATION-README",
+      "title": "ClaimGate ODA final presentation submission package",
+      "path": "artifacts/submission/2026-mofa-ai/final-presentation/README.md",
+      "summary": "Operator handoff for the official free-form presentation stage: choose the 10-slide PDF or editable PPTX, with internal notes, checksums, and package ZIP.",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-MOFA-FINAL-PRESENTATION-SOURCE",
+      "title": "ClaimGate ODA final presentation source",
+      "path": "artifacts/submission/2026-mofa-ai/final-presentation/claimgate-oda-final-presentation-source.md",
+      "summary": "Ten-slide evidence-bounded presentation source covering problem, workflow, prototype, public data, differentiation, architecture, verification, roadmap, and closing.",
+      "status": "supporting"
+    },
+    {
+      "id": "DOC-MOFA-FINAL-SPEAKER-NOTES",
+      "title": "ClaimGate ODA five-minute speaker notes",
+      "path": "artifacts/submission/2026-mofa-ai/final-presentation/claimgate-oda-speaker-notes.md",
+      "summary": "Five-minute presentation script and judge Q&A that separates current offline deterministic evidence from future live adapters and production claims.",
+      "status": "supporting"
     }
   ],
   "roadmap": [
@@ -640,9 +665,9 @@
     },
     {
       "stage": "OSS-3",
-      "output": "Finalize development report, 3-minute demo video, and source URL package",
-      "status": "in_progress",
-      "evidence": "Operator confirmed on 2026-08-24 that the required initial submission documents were already sent. Repository validations pass; only the final contest-stage submission action remains."
+      "output": "Finalize the MOFA presentation-stage PDF/PPTX, speaker notes, and verified handoff package",
+      "status": "complete",
+      "evidence": "Official notice checked 2026-08-25; D-055; artifacts/submission/2026-mofa-ai/final-presentation contains the 10-slide PDF/PPTX, speaker notes, screenshots, manifest, checksums, and ZIP. pnpm build:final-presentation and pnpm test:final-presentation pass, plus full repo gates pass."
     }
   ],
   "mvp_v1_parallel_roadmap": {
@@ -694,11 +719,11 @@
               "docs/demo-script.md",
               "docs/competition-submission.md"
             ],
-            "delivers": "OSSContest-facing report, video script, and quickstart narrative.",
-            "done_when": "report, 3-minute video plan, source URL, and final checklist are ready for human portal submission.",
-            "status": "in_progress",
-            "evidence": "Operator confirmed the participation application, product/service proposal, and privacy consent were already sent. Repo submission, evidence, video-preflight, tooling, and harness validations pass. Remaining work is the explicitly identified final-stage external submission.",
-            "next_step": "Confirm the exact final-stage channel and artifact set before performing the irreversible external submission action."
+            "delivers": "MOFA presentation-stage 10-slide PDF/PPTX, five-minute speaker notes, prototype screenshots, checksums, manifest, and operator handoff ZIP.",
+            "done_when": "The official free-form presentation package is reproducibly generated, visually inspected, claim-bounded, checksum-verified, and ready for operator upload.",
+            "status": "complete",
+            "evidence": "D-055; final-presentation PDF/PPTX have 10 16:9 slides; actual MOFA prototype screenshots are embedded; ZIP CRC and SHA-256 verify; no phone/email or unsupported live/accuracy claims are present; pnpm test:final-presentation and all repository gates pass.",
+            "next_step": "Operator uploads claimgate-oda-final-presentation.pdf unless the private instruction explicitly requests PPTX, then performs the irreversible final-submit action."
           }
         ]
       }
@@ -1082,6 +1107,13 @@
       "status": "accepted",
       "decision": "For the 2026 MOFA contest initial submission, the official notice controls: submit the participation application, product/service proposal, and privacy consent through 국민생각함 or email. Source publication, a 3-minute video, and public deployment are supplemental/internal readiness artifacts, not listed initial-submission prerequisites; presentation material is requested only from presentation-stage candidates.",
       "rationale": "The repo control plane mixed OSSContest packaging with the MOFA initial submission gate. Official MOFA requirements must not be inflated by internal readiness criteria, while the passed 2026-07-13 18:00 deadline remains a hard external blocker."
+    },
+    {
+      "id": "D-055",
+      "date": "2026-08-25",
+      "status": "accepted",
+      "decision": "The final public presentation package follows the official MOFA presentation-stage requirement of free-form presentation material: a 10-slide 16:9 PDF/PPTX deck, 5-minute speaker notes, real prototype screenshots, checksums, manifest, and operator handoff ZIP. Video and source URL are not presented as public-notice requirements.",
+      "rationale": "The official notice exposes no slide count, duration, or extension restriction and says detailed presentation instructions are individual. A concise editable deck plus PDF is the safest adaptable deliverable while preserving ClaimGate anti-overclaim boundaries."
     }
   ],
   "incidents": [],
@@ -1095,8 +1127,8 @@
     {
       "id": "OI-002",
       "status": "open",
-      "description": "The operator confirmed the required initial documents were already sent. The remaining action is the final contest-stage submission; its exact channel and artifact set must be confirmed before external submission.",
-      "next_step": "Identify whether final submission means a 국민생각함 final-submit action, an email final package, or presentation-stage materials/video, then execute only that confirmed external action."
+      "description": "All public presentation-stage deliverables are generated and verified. The only remaining action is the credential-gated external upload/final-submit step under the operator private instruction.",
+      "next_step": "Upload artifacts/submission/2026-mofa-ai/final-presentation/claimgate-oda-final-presentation.pdf, or the PPTX only when explicitly requested, and retain the submission receipt outside the public repo."
     },
     {
       "id": "OI-003",
