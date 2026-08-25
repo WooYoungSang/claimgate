@@ -762,7 +762,8 @@
             "delivers": "ClaimGate-local kbctl source, default KB, and document index.",
             "done_when": "kbctl test/vet/build/verify pass and ClaimGate docs are queryable as document records.",
             "status": "complete",
-            "evidence": "tools/kbctl, docs/operations/kbctl.md, governance/knowledge/claimgate-kb.json, docs/claimgate-project-brief.md; pnpm test:kbctl passes."
+            "evidence": "tools/kbctl, docs/operations/kbctl.md, governance/knowledge/claimgate-kb.json, docs/claimgate-project-brief.md; pnpm test:kbctl passes.",
+            "review_status": "DONE"
           },
           {
             "id": "PKT-PUBLIC-EXPORT-HYGIENE",
@@ -778,7 +779,8 @@
             "done_when": "secret/private endpoint scans are triaged and public source tree is reproducible.",
             "status": "complete",
             "evidence": "Public agent harness was simplified in 1a98fa0; local runtime/private submission artifacts are ignored; worktree is clean; harness audit and full verification pass.",
-            "next_step": "Keep private credentials, signatures, portal exports, and runtime state ignored during publication."
+            "next_step": "Keep private credentials, signatures, portal exports, and runtime state ignored during publication.",
+            "review_status": "DONE"
           },
           {
             "id": "PKT-OSS-CONTEST-ASSETS",
@@ -793,9 +795,10 @@
             ],
             "delivers": "Official-template OSS Contest result report DOCX/PDF, public GitHub source URL, up-to-three-minute YouTube demo, SBOM, AI model/license annex, scorecard, and upload ZIP.",
             "done_when": "Notice 39/41 requirements are met with no placeholders: receipt-numbered DOCX/PDF ZIP, reachable public repository matching HEAD, YouTube demo URL in the report, mandatory annexes, and passing package validation.",
-            "status": "blocked",
-            "evidence": "Internal artifacts are complete: official report body 4 pages plus 5 annex pages, notice-41 criteria mapping, SPDX 30-dependency SBOM, Gemma 4 Apache-2.0 type2 QLoRA disclosure, 77.88-second demo, verified DOCX/PDF ZIP, governance/community surfaces, serving-ready bounded LoRA evidence, and all repo gates pass. External placeholders/publication remain.",
-            "next_step": "Provide OSS Contest receipt number; publish the current repository to the representative GitHub URL; upload claimgate-osscontest-demo.mp4 to YouTube; regenerate report/ZIP with env values; upload ZIP and confirm portal status plus completion email."
+            "status": "superseded",
+            "evidence": "Superseded by W-OSS-FINAL score-hardening, AI serving-readiness, source/video publication, and final-upload packets. Internal artifact work is complete; external actions are tracked separately.",
+            "next_step": "Use PKT-OSS-PUBLISH-SOURCE, PKT-OSS-PUBLISH-VIDEO, and PKT-OSS-FINAL-UPLOAD as the terminal execution chain.",
+            "review_status": "DONE"
           }
         ]
       },
@@ -811,7 +814,8 @@
             "delivers": "Honest solo-project governance and community onboarding surfaces mapped to collaboration/management and community-expansion scoring.",
             "done_when": "Code of Conduct, governance/maintainer policy, public roadmap, issue templates, and contribution links exist, contain no fabricated contributor activity, and repository link checks pass.",
             "status": "complete",
-            "evidence": "CODE_OF_CONDUCT.md, GOVERNANCE.md, ROADMAP.md, structured GitHub Issue forms, CONTRIBUTING update, public Security Advisory path, link/YAML/lint/full-test verification; single-maintainer and no external contribution history stated honestly."
+            "evidence": "CODE_OF_CONDUCT.md, GOVERNANCE.md, ROADMAP.md, structured GitHub Issue forms, CONTRIBUTING update, public Security Advisory path, link/YAML/lint/full-test verification; single-maintainer and no external contribution history stated honestly.",
+            "review_status": "READY_FOR_HUMAN_REVIEW"
           },
           {
             "id": "PKT-OSS-SCORE-LICENSE",
@@ -820,7 +824,8 @@
             "delivers": "Machine-readable SBOM plus reproducible npm/Go license evidence aligned with the official report annex.",
             "done_when": "SPDX or CycloneDX SBOM is generated, direct runtime/build dependencies and Gemma terms are documented, license scan has no unresolved blocker, and final report/license validation passes.",
             "status": "complete",
-            "evidence": "SPDX 2.3 direct-dependency SBOM covers npm 12 + Go 18; MIT 26/BSD-3-Clause 3/Apache-2.0 1; Gemma 4 Apache-2.0 disclosure; weights not distributed; python3 scripts/validate-osscontest-license.py PASS with zero unresolved blockers."
+            "evidence": "SPDX 2.3 direct-dependency SBOM covers npm 12 + Go 18; MIT 26/BSD-3-Clause 3/Apache-2.0 1; Gemma 4 Apache-2.0 disclosure; weights not distributed; python3 scripts/validate-osscontest-license.py PASS with zero unresolved blockers.",
+            "review_status": "READY_FOR_HUMAN_REVIEW"
           },
           {
             "id": "PKT-OSS-SCORE-USABILITY",
@@ -829,7 +834,8 @@
             "delivers": "Judge-first README and reproducible quickstart proving install, demo, test, package boundaries, screenshots, limitations, and DomainPack extension path.",
             "done_when": "A reviewer can reach install→demo→test→extension evidence from README, all commands pass from the clean tree, and unsupported production/RAG/tuning claims are absent.",
             "status": "complete",
-            "evidence": "Judge-first README and docs/quickstart.md cover 60-second value, screenshot, install→demo→test, package map, DomainPack extension, bounded RAG/QLoRA truth, governance links and limitations; demo/conformance/AI/overclaim/full repo gates pass."
+            "evidence": "Judge-first README and docs/quickstart.md cover 60-second value, screenshot, install→demo→test, package map, DomainPack extension, bounded RAG/QLoRA truth, governance links and limitations; demo/conformance/AI/overclaim/full repo gates pass.",
+            "review_status": "READY_FOR_HUMAN_REVIEW"
           },
           {
             "id": "PKT-OSS-PUBLISH-SOURCE",
@@ -839,7 +845,8 @@
             "done_when": "GitHub URL returns 200 without credentials, origin/main matches local HEAD, repository is public, license and README render, and final source tests pass.",
             "status": "blocked",
             "evidence": "Current representative GitHub URL returns 404 and local main is 39 commits ahead of origin/main.",
-            "next_step": "Complete score hardening packets, then obtain explicit external publication authority and push the verified default branch."
+            "next_step": "Complete score hardening packets, then obtain explicit external publication authority and push the verified default branch.",
+            "review_status": "READY_FOR_HUMAN_REVIEW"
           },
           {
             "id": "PKT-OSS-PUBLISH-VIDEO",
@@ -849,7 +856,8 @@
             "done_when": "YouTube URL is reachable without owner login, duration is at most three minutes, captions show core workflow and boundaries, and URL is ready for report insertion.",
             "status": "blocked",
             "evidence": "Local 77.88-second 1280x720 captioned MP4 passes validation; YouTube upload requires operator account.",
-            "next_step": "Upload claimgate-osscontest-demo.mp4 as public or unlisted and return the reachable URL."
+            "next_step": "Upload claimgate-osscontest-demo.mp4 as public or unlisted and return the reachable URL.",
+            "review_status": "READY_FOR_HUMAN_REVIEW"
           },
           {
             "id": "PKT-OSS-FINAL-UPLOAD",
@@ -857,9 +865,10 @@
             "exclusive_file_lease": ["artifacts/submission/2026-osscontest/final/**","governance/knowledge/claimgate-kb.json"],
             "delivers": "Receipt-numbered official DOCX/PDF ZIP with public source and YouTube URLs, uploaded and confirmed in the OSS Contest portal.",
             "done_when": "No placeholders remain, package validation reports READY, ZIP is uploaded, portal state is 제출 완료, and completion email/receipt is retained outside the public repository.",
-            "status": "blocked",
-            "evidence": "Official-template report and two-file ZIP draft pass; receipt number, public GitHub URL, and YouTube URL are unresolved.",
-            "next_step": "After source/video publication, set OSSCONTEST_RECEIPT_NUMBER and OSSCONTEST_VIDEO_URL, rebuild, validate READY, upload, and confirm email."
+            "status": "not_started",
+            "evidence": "Waiting on declared dependencies PKT-OSS-PUBLISH-SOURCE and PKT-OSS-PUBLISH-VIDEO; it is not an independent blocker until those complete.",
+            "next_step": "Start after public source and reachable YouTube URL exist.",
+            "review_status": "READY_FOR_HUMAN_REVIEW"
           },
           {
             "id": "PKT-OSS-AI-SERVING-READY",
@@ -869,7 +878,8 @@
             "done_when": "Fixture-derived dataset has a non-overlapping holdout set; LoRA training completes on RTX 4090; holdout inference emits strict parseable candidates for every evaluated case; authority-shaped fields are rejected with zero accepted violations; the demo consumes adapter output without granting verify/risk/anchor/reviewer/projection authority; and artifact, boundary, and demo tests pass.",
             "status": "complete",
             "evidence": "D-059; RTX 4090 QLoRA 60-step train6/holdout3; BOUNDARY_PASS_SERVING_READY; parse/candidate-only/strict JSON/exact text 3/3; authority violations 0; productionQuality=false; real CLAIMGATE_GEMMA_LORA_ADAPTER demo exit 0; pnpm test:ai-demo 14/14 and full gates pass.",
-            "next_step": "Keep weights local-only until a separate public-weight distribution and license decision; do not claim production or real-document accuracy."
+            "next_step": "Keep weights local-only until a separate public-weight distribution and license decision; do not claim production or real-document accuracy.",
+            "review_status": "READY_FOR_HUMAN_REVIEW"
           }
         ]
       }
