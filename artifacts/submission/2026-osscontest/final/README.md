@@ -17,9 +17,9 @@
 ## 생성·검증
 
 ```bash
-OSSCONTEST_RECEIPT_NUMBER='<접수번호>' \
+OSSCONTEST_RECEIPT_NUMBER='1143' \
 OSSCONTEST_TEAM_NAME='ClaimGate' \
-OSSCONTEST_VIDEO_URL='https://youtu.be/<video-id>' \
+OSSCONTEST_VIDEO_URL='https://youtu.be/enVss0O8fkw' \
 pnpm build:osscontest-report
 
 pnpm test:osscontest-final
@@ -31,7 +31,7 @@ pnpm test:osscontest-final
 - `READINESS BLOCKED`: 접수번호/YouTube URL/공개 저장소 접근/원격 push 중 미완료 항목이 남았다.
 - `READY`: 위 외부 값과 공개 원격 HEAD까지 확인됐다.
 
-placeholder가 남은 draft도 시각·무결성 검증을 위해 생성할 수 있지만 최종 제출본은 아니다.
+현재 receipt `1143`, public GitHub, YouTube URL을 반영한 결과는 `READY`를 통과한다.
 
 ## 현재 폴더의 내부 검수 자료
 

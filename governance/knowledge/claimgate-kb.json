@@ -747,8 +747,8 @@
     {
       "stage": "OSS-5",
       "output": "Publish source and video, finalize receipt-numbered report ZIP, and confirm portal submission",
-      "status": "blocked",
-      "evidence": "Source and YouTube publication are complete; report artifacts pass with final URLs. Only receipt number insertion, ZIP regeneration, portal upload, Submitted state and completion email remain."
+      "status": "in_progress",
+      "evidence": "Receipt 1143, public source, public YouTube, final report and verified ZIP are complete. Portal upload/final-submit confirmation remains."
     }
   ],
   "mvp_v1_parallel_roadmap": {
@@ -874,9 +874,9 @@
             "exclusive_file_lease": ["artifacts/submission/2026-osscontest/final/**","governance/knowledge/claimgate-kb.json"],
             "delivers": "Receipt-numbered official DOCX/PDF ZIP with public source and YouTube URLs, uploaded and confirmed in the OSS Contest portal.",
             "done_when": "No placeholders remain, package validation reports READY, ZIP is uploaded, portal state is 제출 완료, and completion email/receipt is retained outside the public repository.",
-            "status": "blocked",
-            "evidence": "Public GitHub and YouTube dependencies are complete; report/manifest/ZIP contain the final repository and YouTube URLs. Validator reports exactly one remaining blocker: RECEIPT_NUMBER_REQUIRED.",
-            "next_step": "Provide the OSS Contest receipt number, regenerate receipt-numbered DOCX/PDF/ZIP, validate READY, upload ZIP, click final submit, and confirm completion email.",
+            "status": "in_progress",
+            "evidence": "Receipt 1143, public GitHub, and public YouTube URL are embedded. Official result report body is 4 pages plus 5 annex pages; final ZIP contains only receipt-numbered DOCX/PDF; SHA-256 is 5e6bc6d1a8a3ab9d8a26b223764572ea625042b9da432721e4f9612a00f0a88e; validator reports READY. Portal upload and completion email remain.",
+            "next_step": "Upload 2026 오픈소스 개발자대회 제출파일_1143(ClaimGate).zip, click 출품작 제출 완료하기, confirm portal status and completion email, then mark complete/DONE.",
             "review_status": "READY_FOR_HUMAN_REVIEW"
           },
           {
@@ -1320,8 +1320,8 @@
     {
       "id": "OI-002",
       "status": "open",
-      "description": "Public GitHub and YouTube submission dependencies are complete. The official report and manifest contain https://github.com/WooYoungSang/claimgate and https://youtu.be/enVss0O8fkw. The only remaining internal blocker is the OSS Contest receipt number; portal upload and receipt email are subsequent operator actions.",
-      "next_step": "Provide the receipt number, rebuild the official DOCX/PDF ZIP, verify READY, upload it in the portal, click 출품작 제출 완료하기, and retain the completion email outside the public repository."
+      "description": "All source, video, receipt-numbered report and ZIP artifacts are final and validator reports READY. Only the credential-gated OSS Contest portal ZIP upload, final-submit click, Submitted-state confirmation and completion email remain.",
+      "next_step": "Upload 2026 오픈소스 개발자대회 제출파일_1143(ClaimGate).zip, click 출품작 제출 완료하기, verify 제출 완료, and retain the completion email outside the public repository."
     },
     {
       "id": "OI-003",

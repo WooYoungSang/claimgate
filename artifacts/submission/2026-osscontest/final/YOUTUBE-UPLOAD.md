@@ -1,5 +1,7 @@
 # YouTube 시연영상 업로드 값
 
+업로드 완료: <https://youtu.be/enVss0O8fkw>
+
 ## 업로드 파일
 
 `claimgate-osscontest-demo.mp4`
@@ -59,9 +61,9 @@ License: MIT
 업로드 후 공유 URL을 사용해 최종 보고서를 다시 생성한다.
 
 ```bash
-OSSCONTEST_RECEIPT_NUMBER='<접수번호>' \
+OSSCONTEST_RECEIPT_NUMBER='1143' \
 OSSCONTEST_TEAM_NAME='ClaimGate' \
-OSSCONTEST_VIDEO_URL='https://youtu.be/<video-id>' \
+OSSCONTEST_VIDEO_URL='https://youtu.be/enVss0O8fkw' \
 pnpm build:osscontest-report
 
 pnpm test:osscontest-final
