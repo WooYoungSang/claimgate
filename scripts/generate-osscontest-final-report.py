@@ -114,7 +114,7 @@ def main() -> None:
     add_lines(report.cell(10, 1), [
         "[활용성] 공공기관·연구·보건·시민데이터의 AI 초안을 주장 단위 reviewer workflow로 바꾸고, 근거 위치·규칙 trace·사람의 결정을 함께 인계한다.",
         "[작품 데모(완성도)] offline fixture만으로 RED/YELLOW/GREEN 분류, 정정·검증, Evidence Pack export가 반복 실행된다. local Gemma/RAG/QLoRA는 선택 기능이며 core 판정 권한을 갖지 않는다.",
-        "[커뮤니티 확장 가능성] CONTRIBUTING·Issue 양식·conformance kit로 DomainPack 제안과 결함 보고 경로를 제공한다. 외부 contributor·PR 채택 실적은 아직 없으며 향후 공개 운영으로 검증한다.",
+        "[커뮤니티 확장 가능성] CONTRIBUTING·Issue 양식·conformance kit와 공개 v0.2 milestone을 제공한다. DomainPack, read-only adapter, bounded AI holdout에 대한 roadmap Issue 3개를 공개했으며 외부 contributor·PR 채택 실적은 아직 없다고 명시한다.",
         "[향후 검증] 읽기 전용 공공데이터 adapter와 제한 파일럿으로 검토시간·재확인시간·정정 재사용률을 측정한다. 현재 운영 정확도·고객 채택·시간 절감 수치는 주장하지 않는다.",
     ])
     add_lines(report.cell(11, 1), [

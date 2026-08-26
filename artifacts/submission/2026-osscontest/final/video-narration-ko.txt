@@ -1,0 +1,11 @@
+ClaimGate는 AI가 만든 공공데이터 주장을 근거와 사람의 판정으로 검토하는 오픈소스 프레임워크입니다.
+
+AI는 후보 주장과 근거 후보만 제안합니다. ClaimGate는 공식 데이터의 행, 필드, 문장 범위를 Source Anchor로 연결하고, 값과 기관, 날짜, 출처의 불일치를 결정론적 규칙으로 표시합니다.
+
+화면의 외교부 ODA DomainPack에는 위험, 주의, 일치 세 가지 사례가 있습니다. AI가 안전하다고 제안한 문장과 외교부 국가별 안전정보가 충돌하면 위험 항목으로 분류됩니다.
+
+최종 결정은 AI가 아니라 사람 검토자가 내립니다. 검토자는 공식 근거값과 판정 사유를 기록하고, 검증되거나 정정된 주장만 Evidence Pack에 포함합니다. 미검토 주장은 보고서와 그래프로 투영할 수 없습니다.
+
+선택형 Local AI 경로는 repo-local sparse RAG와 Gemma 4 12B QLoRA 후보 추출기를 사용합니다. 여섯 개 학습 fixture와 겹치지 않는 세 개 holdout에서 strict JSON과 candidate-only 경계를 모두 통과했고, 금지된 판정 권한 필드는 한 건도 허용하지 않았습니다. 이 결과는 bounded fixture의 서빙 경계 증거이며 production 정확도 주장이 아닙니다.
+
+ClaimGate의 핵심은 No Anchor, No Claim, AI Curator Not Judge, Evidence Pack First입니다. 전체 소스와 재현 명령은 공개 GitHub 저장소에서 확인할 수 있습니다.

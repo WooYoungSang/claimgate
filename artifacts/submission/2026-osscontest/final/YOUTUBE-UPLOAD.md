@@ -4,11 +4,11 @@
 
 `claimgate-osscontest-demo.mp4`
 
-- 길이: 77.88초
+- 길이: 77.83초
 - 해상도: 1280×720
 - 실제 ClaimGate MOFA ODA UI 흐름
 - 화면 내 한글 자막 포함
-- 별도 음성 없음
+- 한국어 음성 해설 포함
 
 ## 제목
 

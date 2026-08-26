@@ -114,12 +114,15 @@ def main() -> None:
     require(any("붙임 2" in value and "AI 모델" in value for value in page_text), "AI model appendix missing")
 
     probe = json.loads(subprocess.check_output([
-        "ffprobe", "-v", "error", "-show_entries", "stream=width,height", "-show_entries", "format=duration", "-of", "json", str(video)
+        "ffprobe", "-v", "error", "-show_entries", "stream=codec_type,width,height", "-show_entries", "format=duration", "-of", "json", str(video)
     ], text=True))
     duration = float(probe["format"]["duration"])
     require(1 <= duration <= 180, f"video duration {duration}s exceeds 3 minutes")
-    stream = probe["streams"][0]
-    require(stream["width"] >= 1280 and stream["height"] >= 720, "video resolution below 1280x720")
+    video_streams = [stream for stream in probe["streams"] if stream.get("codec_type") == "video"]
+    audio_streams = [stream for stream in probe["streams"] if stream.get("codec_type") == "audio"]
+    require(video_streams, "video stream missing")
+    require(video_streams[0]["width"] >= 1280 and video_streams[0]["height"] >= 720, "video resolution below 1280x720")
+    require(audio_streams, "Korean narration audio stream missing")
 
     with ZipFile(package) as archive:
         require(archive.testzip() is None, "ZIP CRC failure")

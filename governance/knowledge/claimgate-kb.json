@@ -822,7 +822,7 @@
             "delivers": "Honest solo-project governance and community onboarding surfaces mapped to collaboration/management and community-expansion scoring.",
             "done_when": "Code of Conduct, governance/maintainer policy, public roadmap, issue templates, and contribution links exist, contain no fabricated contributor activity, and repository link checks pass.",
             "status": "complete",
-            "evidence": "CODE_OF_CONDUCT.md, GOVERNANCE.md, ROADMAP.md, structured GitHub Issue forms, CONTRIBUTING update, public Security Advisory path, link/YAML/lint/full-test verification; single-maintainer and no external contribution history stated honestly.",
+            "evidence": "CODE_OF_CONDUCT.md, GOVERNANCE.md, ROADMAP.md, structured Issue forms, CONTRIBUTING, public Security Advisory path, public v0.2 Community Expansion milestone, and three real roadmap Issues (#1 DomainPack, #2 read-only adapter, #3 bounded Gemma holdout). Single-maintainer and no external contribution history remain stated honestly.",
             "review_status": "READY_FOR_HUMAN_REVIEW"
           },
           {
@@ -863,8 +863,8 @@
             "delivers": "Public or unlisted YouTube URL for the verified 77.88-second 1280x720 actual UI demo.",
             "done_when": "YouTube URL is reachable without owner login, duration is at most three minutes, captions show core workflow and boundaries, and URL is ready for report insertion.",
             "status": "blocked",
-            "evidence": "Local 77.88-second 1280x720 captioned MP4 passes validation; YouTube upload requires operator account.",
-            "next_step": "Upload claimgate-osscontest-demo.mp4 as public or unlisted and return the reachable URL.",
+            "evidence": "Local 77.83-second 1280x720 MP4 now includes embedded Korean screen captions and an AAC Korean narration track, plus a 1280x720 thumbnail and ready-to-copy YouTube title/description/tags. Artifact validation passes; account upload remains.",
+            "next_step": "Upload claimgate-osscontest-demo.mp4 with YOUTUBE-UPLOAD.md metadata and youtube-thumbnail.png as public or unlisted, then return the reachable URL.",
             "review_status": "READY_FOR_HUMAN_REVIEW"
           },
           {

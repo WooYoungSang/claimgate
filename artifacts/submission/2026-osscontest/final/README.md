@@ -35,7 +35,8 @@ placeholder가 남은 draft도 시각·무결성 검증을 위해 생성할 수 
 
 ## 현재 폴더의 내부 검수 자료
 
-- `claimgate-osscontest-demo.mp4`: YouTube 업로드 전 로컬 원본(3분 이내)
+- `claimgate-osscontest-demo.mp4`: 한국어 음성 해설과 화면 자막이 포함된 YouTube 업로드 전 로컬 원본(3분 이내)
+- `video-narration-ko.txt`: 영상에 합성한 한국어 음성 해설 원고
 - `report-contact-sheet.png`, `video-contact-sheet.png`: 내부 시각 검수용이며 ZIP 제외
 - `SUBMISSION-MANIFEST.json`: 파일명·SHA-256·외부 URL readiness 확인용이며 ZIP 제외
 - `../sbom/`: SPDX 2.3 SBOM, license review, Gemma 4 Apache-2.0 disclosure, SHA-256 증거

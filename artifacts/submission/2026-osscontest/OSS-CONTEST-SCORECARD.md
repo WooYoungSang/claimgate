@@ -13,7 +13,7 @@
 | 오픈소스 프로젝트로의 발전 가능성 | 진행 중이거나 향후 발전할 가능성 | 6 | civic/health/MOFA ODA DomainPack 3종, conformance kit, `ROADMAP.md`, 공개 확장 계약 | 확장 구조·계획 존재; 외부 채택은 미검증 |
 | 개발 문서의 구체성 | 구체적이고 이해하기 쉬우며 목적에 맞는 문서 | 6 | `README.md`, `CONTRIBUTING.md`, `SECURITY.md`, package docs, clean-clone/runbook 검증 | 명령으로 재현 가능 |
 | 프로젝트 혁신성 | 기술력과 기술적 수준(최신 기술 활용 정도) | 6 | Source Anchor→deterministic risk→Human Review→Evidence Pack, candidate-only local Gemma/RAG/QLoRA 권한 경계 | bounded holdout 통과; production 정확도는 주장하지 않음 |
-| 프로젝트 협업 및 관리체계 | 협업 방식과 관리체계의 안정성·체계성; Issue/Review/PR/Commit/커뮤니티 이력 참고 | 6 | `GOVERNANCE.md`, `CODE_OF_CONDUCT.md`, 구조화 Issue forms, focused PR/maintainer decision 절차, kbctl SSOT, 120+ commits | single-maintainer 체계 존재; 외부 contributor/PR 이력 없음 |
+| 프로젝트 협업 및 관리체계 | 협업 방식과 관리체계의 안정성·체계성; Issue/Review/PR/Commit/커뮤니티 이력 참고 | 6 | `GOVERNANCE.md`, `CODE_OF_CONDUCT.md`, 구조화 Issue forms, focused PR/maintainer decision 절차, kbctl SSOT, 120+ commits, 공개 roadmap Issues #1~#3 | single-maintainer 체계와 실제 공개 Issue 운영 시작; 외부 contributor/PR 이력 없음 |
 
 ## 2차 평가(발표) — 70점
 
@@ -22,7 +22,7 @@
 | 작품발표(PT) | 개발 계획 수행, 발표자료 완성도, 정보 전달력 | 10 | 공식 결과보고서 본문 5쪽 이내, 실제 UI 화면, 3분 이내 영상, 배점 대응표 | 자료 준비; 실제 발표 평가는 별도 |
 | 활용성 | OSS 경쟁력과 실제 사용·활용 가능성 | 15 | offline fixture quickstart, reviewer workflow, 교체 가능한 DomainPack, Evidence Pack export | 로컬 사용 가능; 실사용 기관 성과는 없음 |
 | 작품 데모(완성도) | 체계적 데모, 표현, 질의응답의 안정적 수행 | 10 | MOFA ODA RED/YELLOW/GREEN, 정정·검증·export 경로, deterministic fallback | 녹화 데모 존재; 현장 Q&A는 미검증 |
-| 커뮤니티 확장 가능성 | 품질관리·개발 방법론·로드맵, 참여와 지적 자산 공유 | 5 | `CONTRIBUTING.md`, `GOVERNANCE.md`, `ROADMAP.md`, Issue forms, DomainPack conformance | 참여 경로 공개; 외부 참여 실적 없음 |
+| 커뮤니티 확장 가능성 | 품질관리·개발 방법론·로드맵, 참여와 지적 자산 공유 | 5 | `CONTRIBUTING.md`, `GOVERNANCE.md`, `ROADMAP.md`, Issue forms, DomainPack conformance, `v0.2 Community Expansion` milestone과 Issues #1~#3 | 참여 경로와 실제 roadmap issue 공개; 외부 참여 실적 없음 |
 | 오픈소스SW 적절성 | 다양한 OSS를 적절히 도입·활용하고 정상 운영 | 15 | MIT 프로젝트, React/Vite/Vitest/tsup, Go Bubble Tea tooling, SBOM, clean-clone build/test | 로컬 정상 운영 검증 |
 | 기능테스트 | 에러·버그·정지·종료 등 비정상 동작 없이 운영 | 10 | unit/conformance/e2e/runbook/clean-clone/deployment/submission negative controls | 자동 게이트 존재; production 운영은 범위 밖 |
 | 라이선스 검증 | 라이선스 분석·식별·충돌 여부 | 5 | `LICENSE`, `THIRD_PARTY_LICENSES.md`, SPDX 2.3 SBOM(의존성 30개), Gemma 4 Apache-2.0 disclosure, 결과보고서 붙임 1·2 | deterministic 재생성·충돌 검사 가능 |

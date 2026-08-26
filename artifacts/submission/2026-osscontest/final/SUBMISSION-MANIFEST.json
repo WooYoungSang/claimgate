@@ -11,8 +11,8 @@
   "reportBodyPageLimit": 5,
   "uploadContents": "DOCX and PDF only; source and YouTube video are linked from the report",
   "uploadZip": "2026 오픈소스 개발자대회 제출파일_접수번호(ClaimGate).zip",
-  "uploadZipBytes": 816729,
-  "uploadZipSha256": "116010a9c6c5f284be466dda34e79b06ede1d20edf61b7bfca2f3976393adb0e",
+  "uploadZipBytes": 816832,
+  "uploadZipSha256": "4449c5abc2c8e4d969d2f666596e0fd47610b4acf876c8e5ab4b980f8bc680b4",
   "licenseEvidence": [
     "../sbom/claimgate-direct-dependencies.spdx.json",
     "../sbom/license-review.json",
@@ -22,13 +22,13 @@
   "files": [
     {
       "path": "2026 오픈소스 개발자대회 결과보고서_접수번호(ClaimGate).docx",
-      "bytes": 461047,
-      "sha256": "a0cf6c2e5f18541aaf69af68e7a0625179d193f1650f32e554c2c9ca93dd6c69"
+      "bytes": 461089,
+      "sha256": "c9cd8aa492a2c5389e0df51e6d67610ac26af979e0aa418516c2ea0ee57ea36d"
     },
     {
       "path": "2026 오픈소스 개발자대회 결과보고서_접수번호(ClaimGate).pdf",
-      "bytes": 390745,
-      "sha256": "9aed1231acc437af893a098f5607f67d8dd36ff88a8c1261660e8fb34a3162cc"
+      "bytes": 390843,
+      "sha256": "fd3284797a9b5de58561ee0e9b9b4c997d68842894485f9ae6507df0f54ba02a"
     }
   ]
 }
