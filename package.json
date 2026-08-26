@@ -1,5 +1,5 @@
 {
-  "name": "warvis-claimgate",
+  "name": "claimgate",
   "version": "0.0.0",
   "private": true,
   "description": "Source-grounded claim review toolkit for public-data AI outputs.",

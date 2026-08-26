@@ -1,6 +1,6 @@
 # ClaimGate Benchmark Differentiation and Award Strategy
 
-_Last checked: 2026-07-08 KST. Scope: source-backed benchmark notes and submission action mapping for `bet-warvis-claimgate-framework--claimgate-benchmark-differentiation-and-award-strategy`._
+_Last checked: 2026-07-08 KST. Scope: source-backed benchmark notes and submission action mapping for `bet-claimgate-framework--claimgate-benchmark-differentiation-and-award-strategy`._
 
 ## Positioning guardrail
 

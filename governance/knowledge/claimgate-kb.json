@@ -1,6 +1,6 @@
 {
   "meta": {
-    "name": "warvis-claimgate",
+    "name": "claimgate",
     "purpose": "Project-local ClaimGate knowledge base managed through ./kbctl; document records index ClaimGate submission, product, verification, and package-boundary docs."
   },
   "_index": {
@@ -316,7 +316,7 @@
       "id": "DOC-DOCS-BENCHMARK-DIFFERENTIATION-MD",
       "path": "docs/benchmark-differentiation.md",
       "title": "ClaimGate Benchmark Differentiation and Award Strategy",
-      "summary": "_Last checked: 2026-07-08 KST. Scope: source-backed benchmark notes and submission action mapping for `bet-warvis-claimgate-framework--claimgate-benchmark-differentiation-and-award-strategy`._ ClaimGate should be presented as a **source-grounded claim review framework**, not as an automatic truth engine. The safe claim is:",
+      "summary": "_Last checked: 2026-07-08 KST. Scope: source-backed benchmark notes and submission action mapping for bet-claimgate-framework--claimgate-benchmark-differentiation-and-award-strategy. ClaimGate should be presented as a source-grounded claim review framework, not as an automatic truth engine.",
       "status": "supporting"
     },
     {
@@ -1319,7 +1319,7 @@
     {
       "id": "OI-002",
       "status": "open",
-      "description": "Public GitHub source publication is complete and verified. Remaining external/account values are the OSS Contest receipt number and a reachable YouTube URL for the verified 77.88-second demo, followed by final ZIP upload and receipt email.",
+      "description": "Public GitHub source publication is complete and verified at https://github.com/WooYoungSang/claimgate. Remaining external/account values are the OSS Contest receipt number and a reachable YouTube URL for the verified 77.83-second narrated demo, followed by final ZIP upload and receipt email.",
       "next_step": "Upload the local MP4 using artifacts/submission/2026-osscontest/final/YOUTUBE-UPLOAD.md, provide the YouTube URL and receipt number, regenerate the report ZIP, upload it, and confirm portal Submitted status plus completion email."
     },
     {
@@ -1335,7 +1335,7 @@
       "status": "verified",
       "lesson": "Project-local context tools must not reuse another project's KB as authority.",
       "reuse": "When migrating kbctl, copy the tool and create a fresh project-specific KB seeded from ClaimGate evidence.",
-      "evidence": "governance/knowledge/claimgate-kb.json meta.name=warvis-claimgate and D-002"
+      "evidence": "governance/knowledge/claimgate-kb.json meta.name=claimgate and D-002"
     },
     {
       "id": "L-2",

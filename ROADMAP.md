@@ -47,6 +47,6 @@ Any work in these areas must preserve reviewer authority, deterministic risk tra
 
 ## How to influence priorities
 
-Use the [issue chooser](https://github.com/WooYoungSang/warvis-claimgate/issues/new/choose) and select the feature request form for a problem-backed proposal or the DomainPack proposal form for a new domain. Include the affected user, evidence, smallest useful outcome, alternatives, and invariant impact. See [`GOVERNANCE.md`](GOVERNANCE.md) for how decisions are made.
+Use the [issue chooser](https://github.com/WooYoungSang/claimgate/issues/new/choose) and select the feature request form for a problem-backed proposal or the DomainPack proposal form for a new domain. Include the affected user, evidence, smallest useful outcome, alternatives, and invariant impact. See [`GOVERNANCE.md`](GOVERNANCE.md) for how decisions are made.
 
 Before starting a substantial implementation, wait for scope alignment from the maintainer. This avoids implying that roadmap placement guarantees acceptance or a delivery date.

@@ -2,7 +2,7 @@
 // base.
 //
 // Ported verbatim from warvis-siren cmd/kbctl (commit 9c5ee2fa, 2026-08-16).
-// The source was adopted into warvis-claimgate so the tool and its knowledge
+// The source was adopted into claimgate so the tool and its knowledge
 // store remain inside this project's context boundary.
 package main
 
@@ -52,7 +52,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 
 func execute(args []string, stdout io.Writer) error {
 	if len(args) == 0 {
-		return fmt.Errorf("usage: kbctl <get|list|search|create|update|change|render|roadmap|workpacket|wave|verify> ...")
+		return fmt.Errorf("usage: kbctl <get|list|search|create|update|change|project|render|roadmap|workpacket|wave|verify> ...")
 	}
 
 	kbPath, remaining, err := extractKBPath(args[1:])
@@ -76,6 +76,8 @@ func execute(args []string, stdout io.Writer) error {
 		return executeUpdate(kbPath, remaining)
 	case "change":
 		return executeChange(kbPath, remaining, stdout)
+	case "project":
+		return executeProject(kbPath, remaining)
 	case "roadmap":
 		return executeRoadmap(kbPath, remaining)
 	case "workpacket":
@@ -94,6 +96,13 @@ func execute(args []string, stdout io.Writer) error {
 	default:
 		return fmt.Errorf("unknown command %q", args[0])
 	}
+}
+
+func executeProject(kbPath string, args []string) error {
+	if len(args) != 2 || args[0] != "set-name" {
+		return fmt.Errorf("usage: kbctl project set-name <name> [--kb path]")
+	}
+	return commandSetProjectName(kbPath, args[1])
 }
 
 func executeReset(kbPath string, args []string) error {

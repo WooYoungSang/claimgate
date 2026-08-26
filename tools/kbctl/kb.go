@@ -137,6 +137,34 @@ func readKB(path string) ([]byte, error) {
 	return data, nil
 }
 
+func commandSetProjectName(path, name string) error {
+	name = strings.TrimSpace(name)
+	if name == "" {
+		return fmt.Errorf("project name must be non-empty")
+	}
+	data, err := readKB(path)
+	if err != nil {
+		return err
+	}
+	root, err := rootSpan(data)
+	if err != nil {
+		return err
+	}
+	meta, err := memberByKey(data, root, "meta")
+	if err != nil {
+		return fmt.Errorf("project meta: %w", err)
+	}
+	updated, err := patchObjectFields(data, meta.valueSpan, []fieldEdit{{name: "name", value: name}})
+	if err != nil {
+		return err
+	}
+	updated, err = regenerateIndex(updated)
+	if err != nil {
+		return err
+	}
+	return atomicWrite(path, updated, nil)
+}
+
 func rootSpan(data []byte) (byteSpan, error) {
 	start := skipWhitespace(data, 0)
 	end, err := scanValue(data, start)

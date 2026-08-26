@@ -20,7 +20,7 @@ RECEIPT = os.environ.get("OSSCONTEST_RECEIPT_NUMBER", "접수번호")
 TEAM = os.environ.get("OSSCONTEST_TEAM_NAME", "ClaimGate")
 DOCX = OUT / f"2026 오픈소스 개발자대회 결과보고서_{RECEIPT}({TEAM}).docx"
 PDF = OUT / f"2026 오픈소스 개발자대회 결과보고서_{RECEIPT}({TEAM}).pdf"
-REPO_URL = "https://github.com/WooYoungSang/warvis-claimgate"
+REPO_URL = "https://github.com/WooYoungSang/claimgate"
 VIDEO_URL = os.environ.get("OSSCONTEST_VIDEO_URL", "[YOUTUBE_URL_REQUIRED]")
 
 

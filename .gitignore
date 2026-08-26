@@ -135,7 +135,7 @@ Thumbs.db
 .omc/backups/
 # Track ClaimGate harness metadata manifest.
 !.agent/
-!.agent/warvis-claimgate.json
+!.agent/claimgate.json
 
 # Local kbctl build artifact
 /kbctl

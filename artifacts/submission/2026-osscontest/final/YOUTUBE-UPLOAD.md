@@ -29,7 +29,7 @@ ClaimGate는 AI가 만든 공공데이터 주장을 Source Anchor, 결정론적 
 4. 검증·정정된 주장만 Evidence Pack으로 투영
 
 Public repository:
-https://github.com/WooYoungSang/warvis-claimgate
+https://github.com/WooYoungSang/claimgate
 
 Reproduce:
 pnpm install --frozen-lockfile

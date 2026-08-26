@@ -4,7 +4,7 @@
 
 | RED ID | Claim | Evidence refs | Evidence type | Result |
 |---|---|---|---|---|
-| RED-001 | 본 U1 시작 시점에 이 파일(`docs/submission/2026-mofa-ai/claim-evidence-matrix.md`)은 존재하지 않았다. | command: `test ! -e docs/submission/2026-mofa-ai/claim-evidence-matrix.md; echo "absent_exit=$?"` → `absent_exit=0` (worktree: `/home/jang/Workspace/warvis-claimgate-worktrees/product-proposal-delivery-claimgate-oda`, branch: `forge/product-proposal-delivery-claimgate-oda`) | command | 이 파일은 RED 확인 이후 U1 소유 범위에서 새로 생성되었다. |
+| RED-001 | 본 U1 시작 시점에 이 파일(`docs/submission/2026-mofa-ai/claim-evidence-matrix.md`)은 존재하지 않았다. | command: `test ! -e docs/submission/2026-mofa-ai/claim-evidence-matrix.md; echo "absent_exit=$?"` → `absent_exit=0` (worktree: `/home/jang/Workspace/claimgate-worktrees/product-proposal-delivery-claimgate-oda`, branch: `forge/product-proposal-delivery-claimgate-oda`) | command | 이 파일은 RED 확인 이후 U1 소유 범위에서 새로 생성되었다. |
 
 ## Scope and anti-overclaim rules
 

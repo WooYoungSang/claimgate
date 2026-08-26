@@ -130,7 +130,7 @@ ClaimGate v0의 기본 경로는 **offline, deterministic, fixture-first**입니
 ## 오픈소스 참여
 
 - 기여 절차: [`CONTRIBUTING.md`](CONTRIBUTING.md)
-- 버그·기능·DomainPack 제안: [GitHub Issue chooser](https://github.com/WooYoungSang/warvis-claimgate/issues/new/choose)
+- 버그·기능·DomainPack 제안: [GitHub Issue chooser](https://github.com/WooYoungSang/claimgate/issues/new/choose)
 - 의사결정과 역할: [`GOVERNANCE.md`](GOVERNANCE.md)
 - 공개 개발 방향: [`ROADMAP.md`](ROADMAP.md)
 - 참여 행동강령: [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md)

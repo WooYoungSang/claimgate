@@ -1,3 +1,3 @@
-module warvis-claimgate/tools/kbctl
+module claimgate/tools/kbctl
 
 go 1.22

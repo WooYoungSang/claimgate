@@ -4,11 +4,11 @@
 
 | UoW | Title | Risk | Safety | File set |
 |---|---|---|---|---|
-| `uow-warvis-claimgate-framework--oss-contest-submission-control-plane` | Submission control plane doc and validator | LOW | C | `docs/competition-submission.md`, `scripts/validate-submission-control-plane.mjs`, `package.json`, `.omc/plans/*submission-control-plane*.md` |
+| `uow-claimgate-framework--oss-contest-submission-control-plane` | Submission control plane doc and validator | LOW | C | `docs/competition-submission.md`, `scripts/validate-submission-control-plane.mjs`, `package.json`, `.omc/plans/*submission-control-plane*.md` |
 
 ## Wave assignment
 
-- Wave 1: `uow-warvis-claimgate-framework--oss-contest-submission-control-plane`
+- Wave 1: `uow-claimgate-framework--oss-contest-submission-control-plane`
 
 ## Done when
 

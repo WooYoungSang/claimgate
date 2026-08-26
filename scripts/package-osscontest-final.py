@@ -40,7 +40,7 @@ def main() -> None:
         ],
         "receiptNumber": RECEIPT,
         "team": TEAM,
-        "repository": "https://github.com/WooYoungSang/warvis-claimgate",
+        "repository": "https://github.com/WooYoungSang/claimgate",
         "videoUrl": os.environ.get("OSSCONTEST_VIDEO_URL", "[YOUTUBE_URL_REQUIRED]"),
         "reportBodyPageLimit": 5,
         "uploadContents": "DOCX and PDF only; source and YouTube video are linked from the report",

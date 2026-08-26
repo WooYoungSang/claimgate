@@ -4,7 +4,7 @@ This document is the private-until-ready control plane for the ClaimGate OSS con
 It tracks the contest deadline/control checklist, submission artifact inventory, evidence gate matrix,
 final go/no-go workflow, and private operating notes without submitting externally or publishing the repo.
 
-Scope source: `bet-warvis-claimgate-framework--claimgate-oss-contest-submission-control-plane`.
+Scope source: `bet-claimgate-framework--claimgate-oss-contest-submission-control-plane`.
 
 ## Operating boundaries
 

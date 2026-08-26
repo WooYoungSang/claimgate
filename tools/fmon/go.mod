@@ -1,4 +1,4 @@
-module warvis-claimgate/tools/fmon
+module claimgate/tools/fmon
 
 go 1.22
 

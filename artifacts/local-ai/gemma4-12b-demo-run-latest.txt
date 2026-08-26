@@ -1,5 +1,5 @@
 
-> warvis-claimgate@0.0.0 demo:ai:gemma /home/jang/Workspace/warvis-claimgate
+> claimgate@0.0.0 demo:ai:gemma /home/jang/Workspace/claimgate
 > CLAIMGATE_LOCAL_LLM_PROVIDER=ollama CLAIMGATE_LOCAL_LLM_MODEL=${CLAIMGATE_LOCAL_LLM_MODEL:-gemma4:12b} tsx scripts/ai-claim-demo.ts --provider=ollama
 
 ClaimGate Local Gemma 4 12B RAG 데모

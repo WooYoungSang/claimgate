@@ -9,8 +9,8 @@
 - 의존성을 최초 설치할 때만 패키지 레지스트리 접근 필요
 
 ```bash
-git clone https://github.com/WooYoungSang/warvis-claimgate.git
-cd warvis-claimgate
+git clone https://github.com/WooYoungSang/claimgate.git
+cd claimgate
 pnpm install --frozen-lockfile
 ```
 

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "artifactId": "claimgate-shapeops-portfolio-closeout-20260718",
-  "portfolioBetId": "bet-warvis-claimgate--claimgate-shapeops-portfolio-reconciliation-and-closeout",
+  "portfolioBetId": "bet-claimgate--claimgate-shapeops-portfolio-reconciliation-and-closeout",
   "observedAt": "2026-07-18T01:01:50.000Z",
   "source": {
     "shapeOps": "canonical-neo4j-read",
@@ -19,7 +19,7 @@
   },
   "bets": [
     {
-      "id": "bet-warvis-claimgate--claimgate-demo-browser-geometry-regression-suite",
+      "id": "bet-claimgate--claimgate-demo-browser-geometry-regression-suite",
       "phase": "reviewing",
       "mergedToMain": true,
       "mergeCommit": "bb3c993d3172373bbb6bc47336bf597926aac1a2",
@@ -41,7 +41,7 @@
       "nextGate": "independent-review-and-human-ratification"
     },
     {
-      "id": "bet-warvis-claimgate--claimgate-demo-end-to-end-judge-flow-qa",
+      "id": "bet-claimgate--claimgate-demo-end-to-end-judge-flow-qa",
       "phase": "reviewing",
       "mergedToMain": true,
       "mergeCommit": "b9daa72d21a04ce860403847554e33f940570d38",
@@ -62,7 +62,7 @@
       "nextGate": "independent-review-and-human-ratification"
     },
     {
-      "id": "bet-warvis-claimgate--claimgate-demo-korean-runbook-and-screen-copy-sync",
+      "id": "bet-claimgate--claimgate-demo-korean-runbook-and-screen-copy-sync",
       "phase": "reviewing",
       "mergedToMain": true,
       "mergeCommit": "91fc4d0fe5e6ace3d7d4e2877b14c268d73f7f6a",
@@ -86,7 +86,7 @@
       "nextGate": "measured-rehearsals-then-human-closeout"
     },
     {
-      "id": "bet-warvis-claimgate--claimgate-clean-clone-reproducibility-gate",
+      "id": "bet-claimgate--claimgate-clean-clone-reproducibility-gate",
       "phase": "reviewing",
       "mergedToMain": true,
       "mergeCommit": "f4af33f7761f45546f46c08c8d36501dc59306cc",
@@ -114,7 +114,7 @@
       "nextGate": "human-review-of-carry-forward-nits-and-closeout"
     },
     {
-      "id": "bet-warvis-claimgate--claimgate-demo-deployment-and-cloudflare-hardening",
+      "id": "bet-claimgate--claimgate-demo-deployment-and-cloudflare-hardening",
       "phase": "reviewing",
       "mergedToMain": true,
       "mergeCommit": "890d427e7bdd296113fbbf7b40480b45f1c757ee",
@@ -151,7 +151,7 @@
       "nextGate": "production-change-approval-and-green-public-probe"
     },
     {
-      "id": "bet-warvis-claimgate--claimgate-mofa-submission-video-and-final-evidence-bundle",
+      "id": "bet-claimgate--claimgate-mofa-submission-video-and-final-evidence-bundle",
       "phase": "reviewing",
       "mergedToMain": true,
       "mergeCommit": "ff7973cb7e54040998ad468bbda8017de74f9df6",

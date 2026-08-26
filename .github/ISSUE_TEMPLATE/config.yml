@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
   - name: Security report
-    url: https://github.com/WooYoungSang/warvis-claimgate/security/policy
+    url: https://github.com/WooYoungSang/claimgate/security/policy
     about: Report vulnerabilities through the private route described in the security policy; do not open a public issue.
   - name: Contribution and governance guide
-    url: https://github.com/WooYoungSang/warvis-claimgate/blob/main/CONTRIBUTING.md
+    url: https://github.com/WooYoungSang/claimgate/blob/main/CONTRIBUTING.md
     about: Read the contribution workflow and project decision process before proposing substantial work.

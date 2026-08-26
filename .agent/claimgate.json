@@ -1,5 +1,5 @@
 {
-  "project_id": "warvis-claimgate",
+  "project_id": "claimgate",
   "harness": {
     "target": "codex",
     "source": "repo-local kbctl + AGENTS.md",
