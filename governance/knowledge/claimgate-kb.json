@@ -822,7 +822,7 @@
             "delivers": "Honest solo-project governance and community onboarding surfaces mapped to collaboration/management and community-expansion scoring.",
             "done_when": "Code of Conduct, governance/maintainer policy, public roadmap, issue templates, and contribution links exist, contain no fabricated contributor activity, and repository link checks pass.",
             "status": "complete",
-            "evidence": "CODE_OF_CONDUCT.md, GOVERNANCE.md, ROADMAP.md, structured Issue forms, CONTRIBUTING, public Security Advisory path, public v0.2 Community Expansion milestone, and three real roadmap Issues (#1 DomainPack, #2 read-only adapter, #3 bounded Gemma holdout). Single-maintainer and no external contribution history remain stated honestly.",
+            "evidence": "CODE_OF_CONDUCT.md, GOVERNANCE.md, ROADMAP.md, structured Issue forms, CONTRIBUTING, public Security Advisory path, public v0.2 Community Expansion milestone with roadmap Issues #1~#3, and published v0.1.0-contest release. Single-maintainer and no external contribution history remain stated honestly.",
             "review_status": "READY_FOR_HUMAN_REVIEW"
           },
           {
@@ -852,7 +852,7 @@
             "delivers": "Reachable public representative GitHub repository whose default branch contains the verified final source and submission evidence.",
             "done_when": "GitHub URL returns 200 without credentials, origin/main matches local HEAD, repository is public, license and README render, and final source tests pass.",
             "status": "complete",
-            "evidence": "GitHub main was pushed without force; repository visibility is public; unauthenticated HTTPS returns 200; local HEAD and refs/heads/main SHA match; origin/main divergence is 0/0; publication preflight, harness audit, license, AI and kbctl gates pass.",
+            "evidence": "GitHub main is public and synchronized; unauthenticated HTTPS returns 200; local and remote SHA matched after normal pushes; v0.1.0-contest release is published with verification commands, SBOM/QLoRA evidence and explicit production boundaries.",
             "next_step": "Keep main synchronized while final receipt/video values are applied; use normal push only.",
             "review_status": "DONE"
           },
