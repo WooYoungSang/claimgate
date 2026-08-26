@@ -747,7 +747,8 @@
     {
       "stage": "OSS-5",
       "output": "Publish source and video, finalize receipt-numbered report ZIP, and confirm portal submission",
-      "status": "blocked"
+      "status": "blocked",
+      "evidence": "Source and YouTube publication are complete; report artifacts pass with final URLs. Only receipt number insertion, ZIP regeneration, portal upload, Submitted state and completion email remain."
     }
   ],
   "mvp_v1_parallel_roadmap": {
@@ -862,10 +863,10 @@
             "exclusive_file_lease": ["artifacts/submission/2026-osscontest/final/claimgate-osscontest-demo.mp4"],
             "delivers": "Public or unlisted YouTube URL for the verified 77.88-second 1280x720 actual UI demo.",
             "done_when": "YouTube URL is reachable without owner login, duration is at most three minutes, captions show core workflow and boundaries, and URL is ready for report insertion.",
-            "status": "blocked",
-            "evidence": "Local 77.83-second 1280x720 MP4 now includes embedded Korean screen captions and an AAC Korean narration track, plus a 1280x720 thumbnail and ready-to-copy YouTube title/description/tags. Artifact validation passes; account upload remains.",
-            "next_step": "Upload claimgate-osscontest-demo.mp4 with YOUTUBE-UPLOAD.md metadata and youtube-thumbnail.png as public or unlisted, then return the reachable URL.",
-            "review_status": "READY_FOR_HUMAN_REVIEW"
+            "status": "complete",
+            "evidence": "Public YouTube video https://youtu.be/enVss0O8fkw is reachable without owner login; title matches ClaimGate; duration is 78 seconds; visibility is public; local source video passed 1280x720 video + Korean narration audio validation; URL is embedded in the official report and manifest.",
+            "next_step": "Keep the video public or unlisted and unchanged until judging completes.",
+            "review_status": "DONE"
           },
           {
             "id": "PKT-OSS-FINAL-UPLOAD",
@@ -873,9 +874,9 @@
             "exclusive_file_lease": ["artifacts/submission/2026-osscontest/final/**","governance/knowledge/claimgate-kb.json"],
             "delivers": "Receipt-numbered official DOCX/PDF ZIP with public source and YouTube URLs, uploaded and confirmed in the OSS Contest portal.",
             "done_when": "No placeholders remain, package validation reports READY, ZIP is uploaded, portal state is 제출 완료, and completion email/receipt is retained outside the public repository.",
-            "status": "not_started",
-            "evidence": "Waiting on declared dependencies PKT-OSS-PUBLISH-SOURCE and PKT-OSS-PUBLISH-VIDEO; it is not an independent blocker until those complete.",
-            "next_step": "Start after public source and reachable YouTube URL exist.",
+            "status": "blocked",
+            "evidence": "Public GitHub and YouTube dependencies are complete; report/manifest/ZIP contain the final repository and YouTube URLs. Validator reports exactly one remaining blocker: RECEIPT_NUMBER_REQUIRED.",
+            "next_step": "Provide the OSS Contest receipt number, regenerate receipt-numbered DOCX/PDF/ZIP, validate READY, upload ZIP, click final submit, and confirm completion email.",
             "review_status": "READY_FOR_HUMAN_REVIEW"
           },
           {
@@ -1319,8 +1320,8 @@
     {
       "id": "OI-002",
       "status": "open",
-      "description": "Public GitHub source publication is complete and verified at https://github.com/WooYoungSang/claimgate. Remaining external/account values are the OSS Contest receipt number and a reachable YouTube URL for the verified 77.83-second narrated demo, followed by final ZIP upload and receipt email.",
-      "next_step": "Upload the local MP4 using artifacts/submission/2026-osscontest/final/YOUTUBE-UPLOAD.md, provide the YouTube URL and receipt number, regenerate the report ZIP, upload it, and confirm portal Submitted status plus completion email."
+      "description": "Public GitHub and YouTube submission dependencies are complete. The official report and manifest contain https://github.com/WooYoungSang/claimgate and https://youtu.be/enVss0O8fkw. The only remaining internal blocker is the OSS Contest receipt number; portal upload and receipt email are subsequent operator actions.",
+      "next_step": "Provide the receipt number, rebuild the official DOCX/PDF ZIP, verify READY, upload it in the portal, click 출품작 제출 완료하기, and retain the completion email outside the public repository."
     },
     {
       "id": "OI-003",

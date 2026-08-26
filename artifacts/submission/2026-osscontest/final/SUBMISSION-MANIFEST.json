@@ -7,12 +7,12 @@
   "receiptNumber": "접수번호",
   "team": "ClaimGate",
   "repository": "https://github.com/WooYoungSang/claimgate",
-  "videoUrl": "[YOUTUBE_URL_REQUIRED]",
+  "videoUrl": "https://youtu.be/enVss0O8fkw",
   "reportBodyPageLimit": 5,
   "uploadContents": "DOCX and PDF only; source and YouTube video are linked from the report",
   "uploadZip": "2026 오픈소스 개발자대회 제출파일_접수번호(ClaimGate).zip",
-  "uploadZipBytes": 816784,
-  "uploadZipSha256": "aea003c3bcc368e6d7833cc0e320061ca094f74c0a405f0a3ed40af9314d4df1",
+  "uploadZipBytes": 816885,
+  "uploadZipSha256": "24aa847186782d070106930edd95616539510884404dbad9e1877a33a98fa84e",
   "licenseEvidence": [
     "../sbom/claimgate-direct-dependencies.spdx.json",
     "../sbom/license-review.json",
@@ -22,13 +22,13 @@
   "files": [
     {
       "path": "2026 오픈소스 개발자대회 결과보고서_접수번호(ClaimGate).docx",
-      "bytes": 461077,
-      "sha256": "f3cf56ea5bf87438b81cb13c2eb5365d86bd9d5639ee0a793b228da847c87b77"
+      "bytes": 461072,
+      "sha256": "aab515478c92213c0ca2abdc032cf2f8f2498be29a5560f690e1425475e808d1"
     },
     {
       "path": "2026 오픈소스 개발자대회 결과보고서_접수번호(ClaimGate).pdf",
-      "bytes": 390818,
-      "sha256": "d3b627c7329be9795a562a3d1995299c178cb5e85db7bbbaec2cf0441c82b764"
+      "bytes": 390925,
+      "sha256": "e2803f22ac520714f215b71353cfd04b00c1a82e021522a8bb28f094faffbec4"
     }
   ]
 }
