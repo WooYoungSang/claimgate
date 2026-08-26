@@ -89,7 +89,8 @@
       "DOC-OSS-GOVERNANCE",
       "DOC-OSS-ROADMAP",
       "DOC-OSS-QUICKSTART",
-      "DOC-OSS-SPDX-SBOM"
+      "DOC-OSS-SPDX-SBOM",
+      "DOC-OSSCONTEST-YOUTUBE-UPLOAD"
     ],
     "decision_ids": [
       "D-001",
@@ -709,6 +710,13 @@
       "path": "artifacts/submission/2026-osscontest/sbom/claimgate-direct-dependencies.spdx.json",
       "summary": "Deterministic SPDX 2.3 inventory of 30 direct npm and Go dependencies with license, repository, PURL, purpose and scope.",
       "status": "supporting"
+    },
+    {
+      "id": "DOC-OSSCONTEST-YOUTUBE-UPLOAD",
+      "title": "ClaimGate OSS Contest YouTube upload values",
+      "path": "artifacts/submission/2026-osscontest/final/YOUTUBE-UPLOAD.md",
+      "summary": "Ready-to-copy YouTube title, description, tags, visibility, thumbnail, source URL, scope boundaries, and final report regeneration command for the 77.88-second demo.",
+      "status": "supporting"
     }
   ],
   "roadmap": [
@@ -843,10 +851,10 @@
             "exclusive_file_lease": [".git/**"],
             "delivers": "Reachable public representative GitHub repository whose default branch contains the verified final source and submission evidence.",
             "done_when": "GitHub URL returns 200 without credentials, origin/main matches local HEAD, repository is public, license and README render, and final source tests pass.",
-            "status": "blocked",
-            "evidence": "Current representative GitHub URL returns 404 and local main is 39 commits ahead of origin/main.",
-            "next_step": "Complete score hardening packets, then obtain explicit external publication authority and push the verified default branch.",
-            "review_status": "READY_FOR_HUMAN_REVIEW"
+            "status": "complete",
+            "evidence": "GitHub main was pushed without force; repository visibility is public; unauthenticated HTTPS returns 200; local HEAD and refs/heads/main SHA match; origin/main divergence is 0/0; publication preflight, harness audit, license, AI and kbctl gates pass.",
+            "next_step": "Keep main synchronized while final receipt/video values are applied; use normal push only.",
+            "review_status": "DONE"
           },
           {
             "id": "PKT-OSS-PUBLISH-VIDEO",
@@ -1311,8 +1319,8 @@
     {
       "id": "OI-002",
       "status": "open",
-      "description": "All internal OSS Contest product, report, demo, governance, SBOM/license, usability, testing, RAG, and bounded QLoRA serving-readiness work is complete. Final submission remains blocked only by external/account actions: receipt number, YouTube URL, public GitHub visibility/push, ZIP upload, portal Submitted state, and completion email.",
-      "next_step": "Provide the receipt number; authorize and complete public GitHub publication; upload the verified 77.88-second MP4 to YouTube; regenerate the report ZIP with final values; upload before the deadline and retain the receipt email outside the repo."
+      "description": "Public GitHub source publication is complete and verified. Remaining external/account values are the OSS Contest receipt number and a reachable YouTube URL for the verified 77.88-second demo, followed by final ZIP upload and receipt email.",
+      "next_step": "Upload the local MP4 using artifacts/submission/2026-osscontest/final/YOUTUBE-UPLOAD.md, provide the YouTube URL and receipt number, regenerate the report ZIP, upload it, and confirm portal Submitted status plus completion email."
     },
     {
       "id": "OI-003",
