@@ -735,8 +735,8 @@
     {
       "stage": "OSS-3",
       "output": "Finalize the OSS Contest result report, public source URL, sub-three-minute YouTube demo, SBOM, AI license annex, and two-file upload ZIP",
-      "status": "blocked",
-      "evidence": "D-056; official notice 39/41 checked 2026-08-25; official-template DOCX/PDF draft, 77.88-second actual UI demo MP4, SBOM and AI annex, scorecard, and valid two-file ZIP exist. Final blockers: receipt number, YouTube URL, and publishing 38 local commits to the currently 404 GitHub repository."
+      "status": "complete",
+      "evidence": "Final official report, public source, narrated YouTube demo, SPDX SBOM, AI license annex and receipt-numbered ZIP were completed and successfully submitted under receipt 1143."
     },
     {
       "stage": "OSS-4",
@@ -747,8 +747,8 @@
     {
       "stage": "OSS-5",
       "output": "Publish source and video, finalize receipt-numbered report ZIP, and confirm portal submission",
-      "status": "in_progress",
-      "evidence": "Receipt 1143, public source, public YouTube, final report and verified ZIP are complete. Portal upload/final-submit confirmation remains."
+      "status": "complete",
+      "evidence": "Operator confirmed successful final submission on 2026-08-27; source, video, receipt-numbered report ZIP and portal submission are complete."
     }
   ],
   "mvp_v1_parallel_roadmap": {
@@ -824,7 +824,7 @@
             "done_when": "Code of Conduct, governance/maintainer policy, public roadmap, issue templates, and contribution links exist, contain no fabricated contributor activity, and repository link checks pass.",
             "status": "complete",
             "evidence": "CODE_OF_CONDUCT.md, GOVERNANCE.md, ROADMAP.md, structured Issue forms, CONTRIBUTING, public Security Advisory path, public v0.2 Community Expansion milestone with roadmap Issues #1~#3, and published v0.1.0-contest release. Single-maintainer and no external contribution history remain stated honestly.",
-            "review_status": "READY_FOR_HUMAN_REVIEW"
+            "review_status": "DONE"
           },
           {
             "id": "PKT-OSS-SCORE-LICENSE",
@@ -834,7 +834,7 @@
             "done_when": "SPDX or CycloneDX SBOM is generated, direct runtime/build dependencies and Gemma terms are documented, license scan has no unresolved blocker, and final report/license validation passes.",
             "status": "complete",
             "evidence": "SPDX 2.3 direct-dependency SBOM covers npm 12 + Go 18; MIT 26/BSD-3-Clause 3/Apache-2.0 1; Gemma 4 Apache-2.0 disclosure; weights not distributed; python3 scripts/validate-osscontest-license.py PASS with zero unresolved blockers.",
-            "review_status": "READY_FOR_HUMAN_REVIEW"
+            "review_status": "DONE"
           },
           {
             "id": "PKT-OSS-SCORE-USABILITY",
@@ -844,7 +844,7 @@
             "done_when": "A reviewer can reach install→demo→test→extension evidence from README, all commands pass from the clean tree, and unsupported production/RAG/tuning claims are absent.",
             "status": "complete",
             "evidence": "Judge-first README and docs/quickstart.md cover 60-second value, screenshot, install→demo→test, package map, DomainPack extension, bounded RAG/QLoRA truth, governance links and limitations; demo/conformance/AI/overclaim/full repo gates pass.",
-            "review_status": "READY_FOR_HUMAN_REVIEW"
+            "review_status": "DONE"
           },
           {
             "id": "PKT-OSS-PUBLISH-SOURCE",
@@ -874,10 +874,10 @@
             "exclusive_file_lease": ["artifacts/submission/2026-osscontest/final/**","governance/knowledge/claimgate-kb.json"],
             "delivers": "Receipt-numbered official DOCX/PDF ZIP with public source and YouTube URLs, uploaded and confirmed in the OSS Contest portal.",
             "done_when": "No placeholders remain, package validation reports READY, ZIP is uploaded, portal state is 제출 완료, and completion email/receipt is retained outside the public repository.",
-            "status": "in_progress",
-            "evidence": "Receipt 1143, public GitHub, and public YouTube URL are embedded. Official result report body is 4 pages plus 5 annex pages; final ZIP contains only receipt-numbered DOCX/PDF; SHA-256 is 5e6bc6d1a8a3ab9d8a26b223764572ea625042b9da432721e4f9612a00f0a88e; validator reports READY. Portal upload and completion email remain.",
-            "next_step": "Upload 2026 오픈소스 개발자대회 제출파일_1143(ClaimGate).zip, click 출품작 제출 완료하기, confirm portal status and completion email, then mark complete/DONE.",
-            "review_status": "READY_FOR_HUMAN_REVIEW"
+            "status": "complete",
+            "evidence": "Operator confirmed successful OSS Contest submission on 2026-08-27 using receipt 1143, public GitHub source, public YouTube demo, and the READY-validated receipt-numbered DOCX/PDF ZIP.",
+            "next_step": "Monitor contest communications and preserve the submission receipt outside the public repository.",
+            "review_status": "DONE"
           },
           {
             "id": "PKT-OSS-AI-SERVING-READY",
@@ -888,7 +888,7 @@
             "status": "complete",
             "evidence": "D-059; RTX 4090 QLoRA 60-step train6/holdout3; BOUNDARY_PASS_SERVING_READY; parse/candidate-only/strict JSON/exact text 3/3; authority violations 0; productionQuality=false; real CLAIMGATE_GEMMA_LORA_ADAPTER demo exit 0; pnpm test:ai-demo 14/14 and full gates pass.",
             "next_step": "Keep weights local-only until a separate public-weight distribution and license decision; do not claim production or real-document accuracy.",
-            "review_status": "READY_FOR_HUMAN_REVIEW"
+            "review_status": "DONE"
           }
         ]
       }
@@ -1319,9 +1319,9 @@
     },
     {
       "id": "OI-002",
-      "status": "open",
-      "description": "All source, video, receipt-numbered report and ZIP artifacts are final and validator reports READY. Only the credential-gated OSS Contest portal ZIP upload, final-submit click, Submitted-state confirmation and completion email remain.",
-      "next_step": "Upload 2026 오픈소스 개발자대회 제출파일_1143(ClaimGate).zip, click 출품작 제출 완료하기, verify 제출 완료, and retain the completion email outside the public repository."
+      "status": "closed",
+      "description": "Resolved: operator confirmed successful OSS Contest submission on 2026-08-27 with receipt 1143, public source, public YouTube video, and the final validated ZIP.",
+      "next_step": "No submission action remains; monitor judging communications and retain private receipt evidence."
     },
     {
       "id": "OI-003",
